@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "playwright-cli": {
+      "source": "microsoft/playwright-cli",
+      "sourceType": "github",
+      "skillPath": "skills/playwright-cli/SKILL.md",
+      "computedHash": "84495cfda62b6c012afc4cc34a0c35bfc7923ba35983b8c04ce4cace0f35a5d8"
+    },
+    "project-badges": {
+      "source": "CypherPoet/private-custom-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/project-badges/SKILL.md",
+      "computedHash": "e4d354be4959e0918bb31ea321d2d37ded5caf994895f04de585b4543b4d9f4a"
+    }
+  }
+}
