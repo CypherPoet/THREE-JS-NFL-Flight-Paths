@@ -1,10 +1,10 @@
 ---
-name: capture-museum-media
-description: Regenerate every PNG + the walkthrough video under media/ for the Air & Space Museum project. Use when the scene changes, the HUD restyles, the radio gets new stations, or anything visual gets refreshed. Triggers on phrases like "refresh the screenshots", "regenerate media", "update the README images", or "capture new walkthrough".
+name: capture-presentational-media
+description: Regenerate every screenshot + walkthrough video under media/ for a presentational Three.js project. Use when the scene changes, the HUD restyles, theme variants are added, or anything visual gets refreshed. Triggers on phrases like "refresh the screenshots", "regenerate media", "update the README images", or "capture new walkthrough".
 allowed-tools: Bash(playwright-cli:*), Read, Bash(python3:*), Bash(lsof:*), Bash(kill:*), Bash(ls:*), Bash(rm:*), Bash(trash:*)
 ---
 
-# capture-museum-media
+# capture-presentational-media
 
 Reusable automation for the screenshots and walkthrough recording committed to `media/`. Replaces the by-hand playwright dance from the project's early sessions.
 

@@ -14,11 +14,13 @@ A small interactive Three.js scene that plots **every confirmed NFL road trip of
 
 ## What's inside
 
-- **A clay globe with real country shapes.** Land masses are painted from a world TopoJSON, baked into both a colour map and a bump map so the continents have subtle relief — the same trick the reference concept uses. A soft drop-shadow underneath the sphere sells the 3D.
+- **A clay globe with real country shapes.** Land masses are painted from a world TopoJSON, baked into both a colour map and a bump map so the continents read with genuine relief. A soft drop-shadow underneath the sphere sells the 3D.
+- **Animated travelers.** Every arc is ridden by a small team-coloured pellet, looping from home stadium to destination venue. Each one carries a soft additive glow that pulses while it's in flight — the dot is the plane, and you can see all of them at once.
 - **The 2026 confirmed slate.** All 9 international fixtures (Melbourne, Rio, three London games, Paris, Madrid, Munich, Mexico City) plus the four Week 1 / Week 2 primetime games already announced by the league as of 2026-05-13. The full slate unveils 2026-05-14 at 8 PM ET — see [_The 2026 confirmed slate_](#the-2026-confirmed-slate) below for what's wired up.
-- **Team-coloured arcs.** Each flight path is painted in the travelling team's primary brand accent (`#E31837` for KC, `#AA0000` for SF, `#4F2683` for Minnesota, and so on). Stadium markers wear the same colour.
+- **Team-coloured arcs.** Each flight path is painted in the travelling team's primary brand accent (`#E31837` for KC, `#AA0000` for SF, `#4F2683` for Minnesota, and so on). Stadium markers and travelers wear the same colour.
+- **Light + dark modes.** A sun/moon toggle in the top bar flips the whole scene — the globe textures, ground shadow, lighting rig, and UI chrome all swap to a coordinated dark palette. The choice is remembered across reloads.
 - **Filter by clicking.** Click a team to toggle it off; click again to bring it back. **Solo a single team** with Shift/Cmd-click. Use the *All* / *None* buttons at the top of the panel for sweeping selections. The team list is pre-sorted by total miles travelled.
-- **2026 ↔ 2025 toggle.** A small switch in the top bar lets you flip between the 2026 confirmed slate and the 2025 reference slate (all 256 regular-season games + 8 international fixtures). The 2025 view is there to give the eye something to chew on while the rest of 2026 trickles in.
+- **2026 ↔ 2025 toggle.** A small switch in the top bar flips between the 2026 confirmed slate and the 2025 reference slate (all 256 regular-season games + 8 international fixtures). The 2025 view is there to give the eye something to chew on while the rest of 2026 trickles in.
 - **Live mileage tally.** The header shows the league-wide total and the sum of just the teams you've selected — handy for asking *"how far does the NFC West fly?"*
 
 ## A look around
@@ -27,8 +29,8 @@ A small interactive Three.js scene that plots **every confirmed NFL road trip of
 |---|---|
 | ![Spin to the Atlantic to see all the European games at once](media/02-atlantic.png) | ![SF solo — the trans-Pacific arc to Melbourne](media/03-pacific.png) |
 | Spin the globe to see Cincinnati's arc to Madrid, the Patriots' to Munich, and Baltimore's plunge south to Rio | San Francisco solo'd — the long red arc curves down across the Pacific to Melbourne for the Week 1 game |
-| ![Toggled back to the 2025 reference slate — every road game of last season](media/04-2025-reference.png) | |
-| Flip the top-bar switch to **2025** to see last season's full 256-game lattice as a reference | |
+| ![Same view, dark mode](media/04-dark-hero.png) | ![Dark mode rotated to the Atlantic](media/05-dark-atlantic.png) |
+| Dark mode — the travelers' additive glow really earns its keep here | Same Atlantic spin, midnight palette — the European arcs read crisply against the deep navy |
 
 ## The 2026 confirmed slate
 
@@ -66,14 +68,18 @@ A travel leg is the haversine great-circle distance between the away team's home
                               ↓
 ┌─────────────────────────────────────────────────────────────┐
 │  Runtime                                                    │
+│   ├── themes.js    light + dark palettes for the scene      │
 │   ├── globe.js     paints land to canvas (d3-geo) →         │
 │   │                  diffuse + bump map on a SphereGeometry │
+│   │                  (theme-swappable; repaint, don't       │
+│   │                  rebuild)                               │
 │   ├── geo.js       lat/lon → Vector3, great-circle arc      │
 │   ├── schedule.js  away-game legs, miles, per-team totals,  │
 │   │                  season registry (2026 default / 2025)  │
-│   ├── paths.js     one Line per leg, one marker per stadium │
+│   ├── paths.js     Line per leg + animated traveler per leg │
 │   ├── ui.js        sortable team list, miles formatter      │
-│   └── main.js      camera, OrbitControls, season switcher   │
+│   └── main.js      camera, OrbitControls, season + theme    │
+│                    switchers, per-frame traveler tick       │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -81,10 +87,13 @@ A travel leg is the haversine great-circle distance between the away team's home
 
 | Role | Family | Why |
 |------|--------|-----|
-| Display + body | [Inter](https://fonts.google.com/specimen/Inter) | Modern, neutral; reads small without going stiff |
+| Display | [Fraunces](https://fonts.google.com/specimen/Fraunces) | Variable face with optical sizing + a SOFT axis — gives the title a bit of personality without going theatrical |
+| UI | [Space Grotesk](https://fonts.google.com/specimen/Space+Grotesk) | Geometric sans with character; reads at 11px without going flat |
 | Mono | [JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono) | Tabular figures for the mileage column |
 
-Palette: vellum `#efe9dd`, paper `#f6f1e6`, ink `#1c1a16`, soft ink `#514a3d`. Team accents pulled from each franchise's primary brand colour.
+Light palette: vellum `#efe9dd`, paper `#f6f1e6`, ink `#1c1a16`, soft ink `#514a3d`.
+Dark palette: midnight `#10131a`, paper `#1a1f2b`, vellum-ink `#f1ecdd`, soft ink `#c0b9a4`.
+Team accents pulled from each franchise's primary brand colour.
 
 ## Run it locally
 
@@ -124,9 +133,10 @@ Make sure GitHub Pages is set to **GitHub Actions** under `Settings → Pages` f
 ├── data/
 │   └── countries-110m.json          — Natural Earth via world-atlas
 ├── src/
-│   ├── main.js                      — scene, lighting, controls, season switch
-│   ├── globe.js                     — sphere + painted land + bump map
-│   ├── paths.js                     — great-circle arcs + markers
+│   ├── main.js                      — scene, lighting, controls, season + theme switch
+│   ├── globe.js                     — sphere + painted land + bump map (theme-aware)
+│   ├── themes.js                    — light + dark scene palettes
+│   ├── paths.js                     — great-circle arcs + animated travelers
 │   ├── schedule.js                  — legs → per-team mileage summary
 │   ├── geo.js                       — lat/lon math, arc sampling
 │   ├── ui.js                        — team panel + filter wiring
@@ -134,8 +144,8 @@ Make sure GitHub Pages is set to **GitHub Actions** under `Settings → Pages` f
 │       ├── teams.js                 — stadium coords + accent colours
 │       ├── schedule-2026.js         — confirmed 2026 games
 │       └── schedule-2025.js         — full 2025 reference slate
-├── media/                           — README screenshots
-├── .claude/skills/                  — capture-museum-media + threejs/* reference skills
+├── media/                           — README screenshots (light + dark)
+├── .claude/skills/                  — capture-presentational-media + threejs/* reference skills
 └── .github/workflows/deploy.yml     — Pages build/deploy on push to main
 ```
 
