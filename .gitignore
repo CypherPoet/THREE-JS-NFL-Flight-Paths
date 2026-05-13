@@ -8,3 +8,6 @@ dist
 !.env.example
 /tmp
 .playwright-cli
+
+
+private/
