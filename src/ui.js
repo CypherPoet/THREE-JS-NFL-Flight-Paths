@@ -36,9 +36,6 @@ export function buildTeamPanel({ summary, listEl, onChange }) {
       if (e.shiftKey || e.metaKey || e.ctrlKey || e.altKey) {
         active.clear();
         active.add(key);
-      } else if (active.has(key) && active.size === 1) {
-        // Solo'd team being toggled — re-select everything.
-        for (const t of TEAM_KEYS) active.add(t);
       } else if (active.has(key)) {
         active.delete(key);
       } else {

@@ -35,7 +35,7 @@
 :root {
   --radius: 10px;
   --pad: 14px;
-  --font-display: "Fraunces", "Iowan Old Style", "Georgia", serif;
+  --font-display: "Bricolage Grotesque", "Space Grotesk", "Inter", system-ui, sans-serif;
   --font-ui: "Space Grotesk", "Inter", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
   font-synthesis: none;
@@ -116,14 +116,14 @@ body {
   margin: 0;
   font-family: var(--font-display);
   font-variation-settings:
-    "opsz" 56,
-    "SOFT" 60,
-    "wght" 600;
-  font-size: 22px;
-  font-weight: 600;
-  letter-spacing: -0.014em;
+    "opsz" 64,
+    "wdth" 96,
+    "wght" 650;
+  font-size: 23px;
+  font-weight: 650;
+  letter-spacing: -0.022em;
   color: var(--ink);
-  line-height: 1.05;
+  line-height: 1.02;
 }
 
 .topbar__season {
@@ -294,11 +294,11 @@ body {
   font-family: var(--font-display);
   font-variation-settings:
     "opsz" 14,
-    "SOFT" 30,
-    "wght" 600;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+    "wdth" 88,
+    "wght" 700;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--ink-soft);
 }

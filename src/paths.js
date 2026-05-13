@@ -5,7 +5,8 @@ import { GLOBE_RADIUS, greatCircleArc, latLonToVec3 } from "./geo.js";
 const SEGMENTS = 96;
 const TRAVELER_BASE_RADIUS = 0.0075;
 const TRAVELER_GLOW_RADIUS = 0.018;
-const TRAVELER_SPEED_PER_RADIAN = 0.42; // ~revolutions/sec scales with arc length
+const TRAVELER_SPEED_PER_RADIAN = 0.22; // radians traversed per second
+const TRAVELER_MIN_CYCLE_SECONDS = 4.5;
 
 // Build a Group containing every flight-path arc + every stadium marker
 // + an animated "traveler" sphere riding each arc. Each child is tagged with
@@ -80,7 +81,10 @@ export function createFlightPaths(legs, theme) {
 
     // Stagger start positions so all 22+ travelers don't depart simultaneously.
     const phase = pseudoRandomPhase(leg);
-    const cycleSeconds = Math.max(2.2, arcAngle / TRAVELER_SPEED_PER_RADIAN);
+    const cycleSeconds = Math.max(
+      TRAVELER_MIN_CYCLE_SECONDS,
+      arcAngle / TRAVELER_SPEED_PER_RADIAN,
+    );
 
     traveler.userData = {
       team: leg.team,

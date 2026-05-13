@@ -4,9 +4,10 @@ import { geoPath, geoEquirectangular } from "d3-geo";
 import { GLOBE_RADIUS, latLonToVec3 } from "./geo.js";
 
 // Build the off-white / midnight globe + country outlines + ground shadow disc.
-// The land shapes are painted onto a 2D equirectangular canvas which is then
-// used as both a subtle colour map *and* a bump map on the sphere — this gives
-// real country relief without any triangulation artefacts.
+// Country shapes are painted onto a 2D equirectangular canvas used as the
+// sphere's diffuse map (with the borders strokes baked in). The sphere itself
+// stays geometrically smooth — markers + arc dots sit cleanly on a perfect
+// sphere instead of getting buried by displaced mountain ranges.
 export async function createGlobe({ topoUrl, theme }) {
   const group = new THREE.Group();
   group.name = "globe";
@@ -24,22 +25,16 @@ export async function createGlobe({ topoUrl, theme }) {
 
   const cache = { countries, meshLines };
 
-  // ── Painted canvas → diffuse + bump maps ─────────────────────
-  const { colorTexture, bumpTexture } = paintWorldCanvas(
-    countries,
-    meshLines,
-    theme,
-  );
+  // ── Painted canvas → themed diffuse map ──────────────────────
+  const colorTexture = paintWorldCanvas(countries, meshLines, theme);
 
   // ── Clay sphere ──────────────────────────────────────────────
-  const sphereGeo = new THREE.SphereGeometry(GLOBE_RADIUS, 256, 256);
+  const sphereGeo = new THREE.SphereGeometry(GLOBE_RADIUS, 128, 128);
   const sphereMat = new THREE.MeshStandardMaterial({
     color: theme.sphereColor,
     roughness: 0.95,
     metalness: 0.0,
     map: colorTexture,
-    bumpMap: bumpTexture,
-    bumpScale: theme.bumpScale,
   });
   const sphere = new THREE.Mesh(sphereGeo, sphereMat);
   sphere.castShadow = true;
@@ -60,6 +55,10 @@ export async function createGlobe({ topoUrl, theme }) {
   limb.name = "globe-limb";
   group.add(limb);
 
+  // ── Atmospheric Fresnel halo (subtle in light, prominent in dark) ──
+  const atmosphere = makeAtmosphere(theme);
+  group.add(atmosphere);
+
   // ── Crisp 3D country outlines (silhouette near the limb) ────
   const lineGroup = countryLines(meshLines, theme);
   lineGroup.name = "country-lines";
@@ -74,6 +73,7 @@ export async function createGlobe({ topoUrl, theme }) {
     sphere,
     lineGroup,
     limb,
+    atmosphere,
     shadow,
     cache,
   };
@@ -82,21 +82,23 @@ export async function createGlobe({ topoUrl, theme }) {
 // Repaint everything theme-dependent on the existing globe meshes — used
 // when the user flips the dark-mode toggle. Avoids rebuilding geometry.
 export function applyThemeToGlobe(globe, theme) {
-  const { sphere, lineGroup, limb, shadow, cache } = globe;
+  const { sphere, lineGroup, limb, atmosphere, shadow, cache } = globe;
 
-  // Repaint the canvases and swap textures on the sphere material.
-  const { colorTexture, bumpTexture } = paintWorldCanvas(
+  const colorTexture = paintWorldCanvas(
     cache.countries,
     cache.meshLines,
     theme,
   );
   sphere.material.color.set(theme.sphereColor);
   sphere.material.map?.dispose();
-  sphere.material.bumpMap?.dispose();
   sphere.material.map = colorTexture;
-  sphere.material.bumpMap = bumpTexture;
-  sphere.material.bumpScale = theme.bumpScale;
   sphere.material.needsUpdate = true;
+
+  // Atmosphere shader uniforms.
+  atmosphere.material.uniforms.innerColor.value.set(theme.glowInnerColor);
+  atmosphere.material.uniforms.outerColor.value.set(theme.glowOuterColor);
+  atmosphere.material.uniforms.intensity.value = theme.glowIntensity;
+  atmosphere.visible = theme.glowIntensity > 0;
 
   // Country line colour + opacity.
   lineGroup.material.color.set(theme.countryLineColor);
@@ -117,7 +119,6 @@ function paintWorldCanvas(countries, meshLines, theme) {
   const width = 4096;
   const height = 2048;
 
-  // ── Colour map ──────────────────────────────────────────────
   const colorCanvas = document.createElement("canvas");
   colorCanvas.width = width;
   colorCanvas.height = height;
@@ -147,31 +148,62 @@ function paintWorldCanvas(countries, meshLines, theme) {
   colorTexture.anisotropy = 8;
   colorTexture.wrapS = THREE.RepeatWrapping;
 
-  // ── Bump map — punchier than before for visible land relief ──
-  const bumpCanvas = document.createElement("canvas");
-  bumpCanvas.width = width;
-  bumpCanvas.height = height;
-  const bctx = bumpCanvas.getContext("2d");
-  bctx.fillStyle = theme.bumpOcean;
-  bctx.fillRect(0, 0, width, height);
+  return colorTexture;
+}
 
-  const pathBump = geoPath(projection, bctx);
-  bctx.fillStyle = theme.bumpLand;
-  bctx.beginPath();
-  pathBump({ type: "FeatureCollection", features: countries.features });
-  bctx.fill();
-
-  bctx.strokeStyle = theme.bumpCoast;
-  bctx.lineWidth = 1.4;
-  bctx.beginPath();
-  pathBump(meshLines);
-  bctx.stroke();
-
-  const bumpTexture = new THREE.CanvasTexture(bumpCanvas);
-  bumpTexture.anisotropy = 8;
-  bumpTexture.wrapS = THREE.RepeatWrapping;
-
-  return { colorTexture, bumpTexture };
+function makeAtmosphere(theme) {
+  // Wide back-side shell with a two-stop Fresnel gradient: a hot near-white
+  // edge hugging the planet's silhouette, fading through a saturated mid
+  // blue, then softly to black. Mirrors low-orbit photos of Earth.
+  const geometry = new THREE.SphereGeometry(GLOBE_RADIUS * 1.18, 96, 96);
+  const material = new THREE.ShaderMaterial({
+    uniforms: {
+      innerColor: { value: new THREE.Color(theme.glowInnerColor) },
+      outerColor: { value: new THREE.Color(theme.glowOuterColor) },
+      intensity: { value: theme.glowIntensity },
+    },
+    vertexShader: /* glsl */ `
+      varying vec3 vNormal;
+      varying vec3 vViewDir;
+      void main() {
+        vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
+        vNormal = normalize(normalMatrix * normal);
+        vViewDir = normalize(-mvPos.xyz);
+        gl_Position = projectionMatrix * mvPos;
+      }
+    `,
+    fragmentShader: /* glsl */ `
+      uniform vec3 innerColor;
+      uniform vec3 outerColor;
+      uniform float intensity;
+      varying vec3 vNormal;
+      varying vec3 vViewDir;
+      void main() {
+        // BackSide rendering: only the far hemisphere of the shell paints,
+        // and the planet blocks everything inside its silhouette — what we
+        // see is the annulus between r_planet and r_shell.
+        //
+        // For visible back-faces, dot(N, V) is in [-~0.55, 0]:
+        //   ≈ 0 at the OUTER shell silhouette,
+        //   ≈ -0.55 right where the annulus touches the planet (when shell ≈ 1.18 × planet).
+        // We want the gradient bright near the planet, fading outward.
+        float t = clamp(-dot(vNormal, vViewDir) / 0.55, 0.0, 1.0);
+        float halo = pow(t, 0.7);                  // wide soft blue
+        float hot  = smoothstep(0.65, 1.0, t);     // bright cyan-white edge
+        vec3 color = mix(outerColor, innerColor, hot);
+        float alpha = (halo * 0.7 + hot * 0.55) * intensity;
+        gl_FragColor = vec4(color * alpha, alpha);
+      }
+    `,
+    side: THREE.BackSide,
+    blending: THREE.AdditiveBlending,
+    transparent: true,
+    depthWrite: false,
+  });
+  const mesh = new THREE.Mesh(geometry, material);
+  mesh.name = "globe-atmosphere";
+  mesh.visible = theme.glowIntensity > 0;
+  return mesh;
 }
 
 function countryLines(meshGeometry, theme) {

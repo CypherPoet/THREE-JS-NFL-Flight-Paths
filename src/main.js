@@ -47,7 +47,7 @@ renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.NoToneMapping;
 renderer.toneMappingExposure = 1.0;
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.type = THREE.PCFShadowMap;
 
 // ── Lighting ────────────────────────────────────────────────────
 const lights = makeLights(THEMES[currentThemeName]);
@@ -124,8 +124,9 @@ async function start() {
   });
   scene.add(globe.group);
 
-  globe.group.rotation.y = 0;
-  globe.group.rotation.x = -0.18;
+  // Frame the contiguous US (≈ 39°N, 96°W) at view centre.
+  globe.group.rotation.y = 0.1;
+  globe.group.rotation.x = 0.58;
 
   const listEl = document.getElementById("team-list");
   const sublabelEl = document.getElementById("season-sublabel");
@@ -203,11 +204,13 @@ function setTheme(name) {
 }
 
 // ── Animation loop ──────────────────────────────────────────────
-const clock = new THREE.Clock();
+const timer = new THREE.Timer();
+timer.connect(document); // pause delta accumulation when tab is hidden
 function animate() {
   requestAnimationFrame(animate);
-  const delta = clock.getDelta();
-  const elapsed = clock.elapsedTime;
+  timer.update();
+  const delta = timer.getDelta();
+  const elapsed = timer.getElapsed();
   controls.update(delta);
   if (currentFlightPaths) tickTravelers(currentFlightPaths, elapsed);
   renderer.render(scene, camera);
