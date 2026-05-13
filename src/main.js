@@ -3,7 +3,12 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 import { createGlobe } from "./globe.js";
 import { createFlightPaths, applyTeamFilter } from "./paths.js";
-import { buildTravelLegs, summariseByTeam } from "./schedule.js";
+import {
+  buildTravelLegs,
+  summariseByTeam,
+  SCHEDULES,
+  DEFAULT_SEASON,
+} from "./schedule.js";
 import {
   buildTeamPanel,
   wireSelectAllNone,
@@ -87,23 +92,64 @@ async function start() {
   globe.group.rotation.y = 0;
   globe.group.rotation.x = -0.18;
 
-  const legs = buildTravelLegs();
-  const summary = summariseByTeam(legs);
-  const flightPaths = createFlightPaths(legs);
-  globe.group.add(flightPaths.group);
+  // ── Season switching ──────────────────────────────────────────
+  // The arcs/markers + team list are rebuilt when the season changes; the
+  // globe itself stays put.
+  let currentFlightPaths = null;
+  let currentPanel = null;
+  let currentSeason = DEFAULT_SEASON;
 
-  // ── UI wiring ─────────────────────────────────────────────────
   const listEl = document.getElementById("team-list");
-  const panel = buildTeamPanel({
-    summary,
-    listEl,
-    onChange: (active) => {
-      applyTeamFilter(flightPaths, active);
-      updateHeaderMetrics({ active, summary });
-    },
-  });
-  wireSelectAllNone(panel);
-  updateHeaderMetrics({ active: panel.active, summary });
+  const sublabelEl = document.getElementById("season-sublabel");
+
+  function loadSeason(seasonKey) {
+    const meta = SCHEDULES[seasonKey];
+    if (!meta) return;
+
+    currentSeason = seasonKey;
+    sublabelEl.textContent = `${meta.label} · ${meta.sublabel}`;
+
+    if (currentFlightPaths) {
+      globe.group.remove(currentFlightPaths.group);
+      currentFlightPaths.group.traverse((obj) => {
+        if (obj.geometry) obj.geometry.dispose();
+        if (obj.material) {
+          if (Array.isArray(obj.material))
+            obj.material.forEach((m) => m.dispose());
+          else obj.material.dispose();
+        }
+      });
+    }
+
+    const legs = buildTravelLegs(meta.games);
+    const summary = summariseByTeam(legs);
+    currentFlightPaths = createFlightPaths(legs);
+    globe.group.add(currentFlightPaths.group);
+
+    currentPanel = buildTeamPanel({
+      summary,
+      listEl,
+      onChange: (active) => {
+        applyTeamFilter(currentFlightPaths, active);
+        updateHeaderMetrics({ active, summary });
+      },
+    });
+    wireSelectAllNone(currentPanel);
+    updateHeaderMetrics({ active: currentPanel.active, summary });
+  }
+
+  loadSeason(currentSeason);
+
+  for (const btn of document.querySelectorAll(".season-switch__button")) {
+    btn.addEventListener("click", () => {
+      const target = btn.dataset.season;
+      if (target === currentSeason) return;
+      for (const other of document.querySelectorAll(".season-switch__button")) {
+        other.dataset.active = other === btn ? "true" : "false";
+      }
+      loadSeason(target);
+    });
+  }
 
   dismissLoading();
 }

@@ -1,6 +1,22 @@
 import { TEAMS, INTERNATIONAL_VENUES } from "./data/teams.js";
 import { SCHEDULE_2025 } from "./data/schedule-2025.js";
+import { SCHEDULE_2026 } from "./data/schedule-2026.js";
 import { greatCircleMiles } from "./geo.js";
+
+export const SCHEDULES = {
+  "2026": {
+    label: "2026 Season",
+    sublabel: "Confirmed slate — full release 2026-05-14",
+    games: SCHEDULE_2026,
+  },
+  "2025": {
+    label: "2025 Season",
+    sublabel: "Sample reference slate",
+    games: SCHEDULE_2025,
+  },
+};
+
+export const DEFAULT_SEASON = "2026";
 
 // Resolve a game row into a travel leg for the away team:
 //   away stadium → destination venue (home stadium or international site).
@@ -27,7 +43,7 @@ function resolveDestination(row) {
 
 // Produce a flat list of travel legs, one per away game (one per neutral-site game
 // counts as a trip for both teams since both fly in).
-export function buildTravelLegs(schedule = SCHEDULE_2025) {
+export function buildTravelLegs(schedule = SCHEDULE_2026) {
   const legs = [];
 
   for (const row of schedule) {

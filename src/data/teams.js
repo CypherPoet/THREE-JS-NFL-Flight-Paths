@@ -365,6 +365,30 @@ export const INTERNATIONAL_VENUES = {
     lat: 53.3607,
     lon: -6.2511,
   },
+  MEL: {
+    name: "Melbourne Cricket Ground",
+    city: "Melbourne, Australia",
+    lat: -37.82,
+    lon: 144.9834,
+  },
+  RIO: {
+    name: "Estádio do Maracanã",
+    city: "Rio de Janeiro, Brazil",
+    lat: -22.9121,
+    lon: -43.2302,
+  },
+  PAR: {
+    name: "Stade de France",
+    city: "Saint-Denis, France",
+    lat: 48.9244,
+    lon: 2.3601,
+  },
+  MEX: {
+    name: "Estadio Banorte",
+    city: "Mexico City, Mexico",
+    lat: 19.3029,
+    lon: -99.1505,
+  },
 };
 
 export const TEAM_KEYS = Object.keys(TEAMS);

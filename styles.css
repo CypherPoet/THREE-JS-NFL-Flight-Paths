@@ -63,7 +63,44 @@ body {
 .topbar__brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
+  pointer-events: auto;
+}
+
+.season-switch {
+  display: inline-flex;
+  background: rgba(246, 241, 230, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 3px;
+  margin-left: 6px;
+}
+
+.season-switch__button {
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--ink-mute);
+  padding: 5px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    background 120ms ease,
+    color 120ms ease;
+}
+
+.season-switch__button[data-active="true"] {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.season-switch__button:not([data-active="true"]):hover {
+  color: var(--ink);
 }
 
 .topbar__mark {
