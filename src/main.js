@@ -21,6 +21,7 @@ import {
   dismissLoading,
   wireMethodologyModal,
 } from "./ui.js";
+import { wireMileageModal } from "./mileage-modal.js";
 import { createTooltip } from "./tooltip.js";
 import { isFrontOfSphere } from "./geo.js";
 import { THEMES, getInitialTheme, persistTheme } from "./themes.js";
@@ -193,6 +194,7 @@ async function start() {
 
   const listEl = document.getElementById("team-list");
   const sublabelEl = document.getElementById("season-sublabel");
+  const mileageModal = wireMileageModal();
 
   function loadSeason(seasonKey) {
     const meta = SCHEDULES[seasonKey];
@@ -230,6 +232,7 @@ async function start() {
     });
     wireSelectAllNone(currentPanel);
     updateHeaderMetrics({ active: currentPanel.active, summary });
+    mileageModal.setSummary(summary, `${meta.label} · regular-season totals`);
   }
 
   loadSeason(currentSeason);
