@@ -285,6 +285,7 @@ body {
   justify-content: center;
   color: var(--ink-soft);
   cursor: pointer;
+  text-decoration: none;
   transition:
     background 140ms ease,
     color 140ms ease,
