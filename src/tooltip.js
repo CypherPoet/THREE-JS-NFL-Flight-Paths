@@ -1,16 +1,18 @@
 import * as THREE from "three";
 import { TEAMS, INTERNATIONAL_VENUES } from "./data/teams.js";
+import { numberFormatter } from "./ui.js";
+import { isFrontOfSphere } from "./geo.js";
+import { HIT_KIND_HOME, HIT_KIND_INTERNATIONAL } from "./paths.js";
 
 const SHOW_DELAY_MS = 90;
 const HIDE_DELAY_MS = 70;
 const VIEWPORT_PADDING = 12;
+const MARKER_GAP_PX = 14;
 
-// Lazy thumbnail fetcher backed by the Wikipedia REST summary endpoint. We
-// cache by article slug so re-hovering the same venue is instant. A failed
-// fetch (404, network error, slug renamed) is also cached so we don't keep
-// retrying — the tooltip just renders without a photo.
+// Lazy thumbnail fetcher backed by the Wikipedia REST summary endpoint. The
+// promise itself is cached so failed fetches (404, network, slug renamed)
+// are remembered as `null` and never retried.
 const photoCache = new Map();
-const numberFormatter = new Intl.NumberFormat("en-US");
 
 function fetchPhoto(wikiSlug) {
   if (!wikiSlug) return Promise.resolve(null);
@@ -28,7 +30,12 @@ function fetchPhoto(wikiSlug) {
   return promise;
 }
 
-export function createTooltip({ camera, renderer, getGlobeGroup }) {
+export function createTooltip({
+  camera,
+  getGlobeGroup,
+  getCanvasRect,
+  isTeamActive,
+}) {
   const root = document.createElement("div");
   root.className = "stadium-tooltip";
   root.dataset.show = "false";
@@ -51,14 +58,16 @@ export function createTooltip({ camera, renderer, getGlobeGroup }) {
 
   let showTimer = null;
   let hideTimer = null;
-  let currentHover = null; // last hovered hit userData
-  let currentToken = 0;    // bumped on every hover change to invalidate stale fetches
-  let anchor = null;       // { mesh, key } currently being tracked
+  let currentHover = null;
+  let currentToken = 0;
+  let anchor = null;
+  // Cached after every render so place() doesn't force layout each frame.
+  let tipWidth = 0;
+  let tipHeight = 0;
 
-  // Cached so we can hide if the marker swings to the back of the globe.
   const screenPos = new THREE.Vector3();
   const worldPos = new THREE.Vector3();
-  const globeOrigin = new THREE.Vector3(); // markers parented to globe.group, origin at scene root
+  const globeOrigin = new THREE.Vector3();
 
   function clearTimers() {
     if (showTimer) {
@@ -90,7 +99,7 @@ export function createTooltip({ camera, renderer, getGlobeGroup }) {
 
     const token = ++currentToken;
     fetchPhoto(content.wiki).then((url) => {
-      if (token !== currentToken) return; // hovered something else mid-fetch
+      if (token !== currentToken) return;
       if (url) {
         photoImg.src = url;
         photo.dataset.state = "ready";
@@ -100,19 +109,24 @@ export function createTooltip({ camera, renderer, getGlobeGroup }) {
     });
 
     anchor = { mesh: hit.object, userData: hit.object.userData };
-    // Place the tooltip before the opacity transition starts so it never
-    // flashes from the previous position.
+    // Force layout once now that body content is set, then cache the tooltip
+    // dimensions for per-frame placement.
+    const tipRect = root.getBoundingClientRect();
+    tipWidth = tipRect.width;
+    tipHeight = tipRect.height;
     place();
   }
 
-  function buildContent(userData, isActive) {
-    if (userData.kind === "home") {
-      // Aggregate co-located teams (LAR/LAC, NYG/NYJ).
-      const teams = userData.teams.filter(isActive);
+  function buildContent(userData) {
+    if (userData.kind === HIT_KIND_HOME) {
+      const teams = userData.teams.filter(isTeamActive);
       if (teams.length === 0) return null;
       const primary = TEAMS[teams[0]];
       const teamsLine = teams
-        .map((k) => `<span class="stadium-tooltip__team" style="--accent:${TEAMS[k].accent}">${TEAMS[k].name}</span>`)
+        .map(
+          (k) =>
+            `<span class="stadium-tooltip__team" style="--accent:${TEAMS[k].accent}">${TEAMS[k].name}</span>`,
+        )
         .join("");
       return {
         wiki: primary.wiki,
@@ -125,13 +139,16 @@ export function createTooltip({ camera, renderer, getGlobeGroup }) {
       };
     }
 
-    if (userData.kind === "international") {
+    if (userData.kind === HIT_KIND_INTERNATIONAL) {
       const venue = INTERNATIONAL_VENUES[userData.venueKey];
       if (!venue) return null;
-      const visiting = [...userData.teams].filter(isActive);
+      const visiting = userData.teams.filter(isTeamActive);
       if (visiting.length === 0) return null;
       const visitingLine = visiting
-        .map((k) => `<span class="stadium-tooltip__pill" style="--accent:${TEAMS[k].accent}">${TEAMS[k].abbr}</span>`)
+        .map(
+          (k) =>
+            `<span class="stadium-tooltip__pill" style="--accent:${TEAMS[k].accent}">${TEAMS[k].abbr}</span>`,
+        )
         .join("");
       return {
         wiki: venue.wiki,
@@ -168,10 +185,8 @@ export function createTooltip({ camera, renderer, getGlobeGroup }) {
     return `<dl class="stadium-tooltip__facts">${rows.join("")}</dl>`;
   }
 
-  function setHover(hit, isActive) {
+  function setHover(hit) {
     if (!hit) {
-      // Leaving a marker (or hovering empty space) — drop any pending show
-      // and schedule the hide so a quick re-entry can cancel it.
       clearTimers();
       if (anchor) scheduleHide();
       else currentHover = null;
@@ -179,10 +194,10 @@ export function createTooltip({ camera, renderer, getGlobeGroup }) {
     }
     const userData = hit.object.userData;
     if (currentHover === userData) {
-      // Same anchor as before — cancel any pending hide so a quick cursor
-      // re-entry stays shown. Crucially do NOT touch showTimer here: every
-      // pointermove on a hovered marker would otherwise reset the 90 ms
-      // delay and the tooltip would never appear.
+      // Cancel any pending hide so a quick cursor re-entry stays shown. Do
+      // NOT touch showTimer here — pointermove fires densely while the cursor
+      // is on a marker, and resetting the show delay would prevent the
+      // tooltip from ever appearing.
       if (hideTimer) {
         clearTimeout(hideTimer);
         hideTimer = null;
@@ -190,7 +205,7 @@ export function createTooltip({ camera, renderer, getGlobeGroup }) {
       return;
     }
 
-    const content = buildContent(userData, isActive);
+    const content = buildContent(userData);
     if (!content) {
       scheduleHide();
       return;
@@ -214,38 +229,24 @@ export function createTooltip({ camera, renderer, getGlobeGroup }) {
     hide();
   }
 
-  // Project the anchored marker's world position to screen coords; flip the
-  // tooltip across the cursor if it would overflow viewport edges. Hide it
-  // when the anchor swings around to the far side of the globe.
   function place() {
     if (!anchor) return;
-    const globeGroup = getGlobeGroup ? getGlobeGroup() : null;
+    const globeGroup = getGlobeGroup?.();
 
     anchor.mesh.getWorldPosition(worldPos);
     if (globeGroup) globeGroup.getWorldPosition(globeOrigin);
 
-    // Visible iff the marker's outward normal (M − G) points the same way as
-    // the camera vector (C − G) — same sign of the dot product.
-    const facing =
-      (worldPos.x - globeOrigin.x) * (camera.position.x - globeOrigin.x) +
-      (worldPos.y - globeOrigin.y) * (camera.position.y - globeOrigin.y) +
-      (worldPos.z - globeOrigin.z) * (camera.position.z - globeOrigin.z);
-    if (facing < 0) {
-      // Marker is on the far side of the globe — hide without delay.
+    if (!isFrontOfSphere(worldPos, globeOrigin, camera.position)) {
       hide();
       return;
     }
 
     screenPos.copy(worldPos).project(camera);
-    const rect = renderer.domElement.getBoundingClientRect();
+    const rect = getCanvasRect();
     const x = rect.left + ((screenPos.x + 1) / 2) * rect.width;
     const y = rect.top + ((-screenPos.y + 1) / 2) * rect.height;
 
-    // Default: tooltip sits above the marker, centred. Flip below if it
-    // would clip the top of the viewport. Clamp horizontally.
-    const tipRect = root.getBoundingClientRect();
-    const halfWidth = tipRect.width / 2;
-    const tipHeight = tipRect.height;
+    const halfWidth = tipWidth / 2;
 
     let placeX = x;
     let placeY = y;
@@ -253,9 +254,9 @@ export function createTooltip({ camera, renderer, getGlobeGroup }) {
 
     if (y - tipHeight - VIEWPORT_PADDING < 0) {
       translateY = 0;
-      placeY = y + 14;
+      placeY = y + MARKER_GAP_PX;
     } else {
-      placeY = y - 14;
+      placeY = y - MARKER_GAP_PX;
     }
 
     if (placeX - halfWidth < VIEWPORT_PADDING) {

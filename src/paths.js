@@ -13,11 +13,12 @@ const TRAVELER_MIN_CYCLE_SECONDS = 4.5;
 const HOME_DOT_RADIUS = GLOBE_RADIUS * (1 + RELIEF_LIFT + 0.007);
 const AWAY_RING_RADIUS = GLOBE_RADIUS * (1 + RELIEF_LIFT + 0.004);
 
-// Invisible proxy spheres are larger than the visible markers so cursor
-// targeting feels forgiving without requiring pixel-perfect aim. Tuned so
-// the leave zone feels snappy (smaller is sticky) — roughly a 20 px target
-// on screen at the default camera distance.
+// Tuned so the leave zone feels snappy without requiring pixel-perfect aim —
+// roughly a 20 px target on screen at the default camera distance.
 const HIT_TEST_RADIUS = 0.03;
+
+export const HIT_KIND_HOME = "home";
+export const HIT_KIND_INTERNATIONAL = "international";
 
 // Build a Group containing every flight-path arc + every stadium marker
 // + an animated "traveler" sphere riding each arc. Each child is tagged with
@@ -39,9 +40,8 @@ export function createFlightPaths(legs, theme) {
   travelersGroup.name = "travelers";
   group.add(travelersGroup);
 
-  // Invisible raycast proxies sit slightly above each visible marker. They
-  // give the cursor a generous target without touching marker styling, and
-  // dedupe shared-stadium teams (LAR/LAC, NYG/NYJ) to a single hit.
+  // Invisible raycast proxies, deduped by location so co-located teams
+  // (LAR/LAC at SoFi, NYG/NYJ at MetLife) share one hit.
   const hitTestGroup = new THREE.Group();
   hitTestGroup.name = "hitTests";
   group.add(hitTestGroup);
@@ -184,9 +184,9 @@ export function createFlightPaths(legs, theme) {
   }
 
   // ── Hit-test proxies ──────────────────────────────────────────
-  // One proxy per home stadium location (NYG/NYJ at MetLife and LAR/LAC at
-  // SoFi share a single hit). Plus one proxy per international venue used
-  // in the current schedule, since those don't overlap any home marker.
+  // Home: one proxy per stadium location, aggregating co-located teams.
+  // International: one proxy per venue used in the schedule (no overlap with
+  // home markers, so they need their own).
   const hitTestRecords = [];
 
   const homeByLocation = new Map();
@@ -203,28 +203,27 @@ export function createFlightPaths(legs, theme) {
   }
   for (const { teams, pos } of homeByLocation.values()) {
     const hit = makeHitProxy(pos);
-    hit.userData = { kind: "home", teams };
+    hit.userData = { kind: HIT_KIND_HOME, teams };
     hitTestGroup.add(hit);
     hitTestRecords.push(hit);
   }
 
-  const internationalSeen = new Map();
+  const internationalByVenue = new Map();
   for (const leg of legs) {
     if (!leg.destinationVenueKey) continue;
     const venue = INTERNATIONAL_VENUES[leg.destinationVenueKey];
     if (!venue) continue;
-    if (internationalSeen.has(leg.destinationVenueKey)) {
-      internationalSeen.get(leg.destinationVenueKey).teams.add(leg.team);
-      continue;
+    let entry = internationalByVenue.get(leg.destinationVenueKey);
+    if (!entry) {
+      entry = { teams: [], venueKey: leg.destinationVenueKey, venue };
+      internationalByVenue.set(leg.destinationVenueKey, entry);
     }
+    if (!entry.teams.includes(leg.team)) entry.teams.push(leg.team);
+  }
+  for (const { teams, venueKey, venue } of internationalByVenue.values()) {
     const pos = latLonToVec3(venue.lat, venue.lon, AWAY_RING_RADIUS);
     const hit = makeHitProxy(pos);
-    hit.userData = {
-      kind: "international",
-      venueKey: leg.destinationVenueKey,
-      teams: new Set([leg.team]),
-    };
-    internationalSeen.set(leg.destinationVenueKey, hit.userData);
+    hit.userData = { kind: HIT_KIND_INTERNATIONAL, venueKey, teams };
     hitTestGroup.add(hit);
     hitTestRecords.push(hit);
   }
@@ -243,10 +242,9 @@ export function createFlightPaths(legs, theme) {
 
 function makeHitProxy(pos) {
   const geom = new THREE.SphereGeometry(HIT_TEST_RADIUS, 8, 8);
-  // Don't render anything but keep the mesh raycastable. `material.visible`
-  // is a brittle signal — different Three releases have toggled whether the
-  // raycaster respects it. opacity 0 + colorWrite/depthWrite off is the
-  // belt-and-braces version that works everywhere.
+  // Some Three releases honour `material.visible = false` for raycasting and
+  // some don't — the opacity 0 + colorWrite/depthWrite off combination is the
+  // version that works everywhere while staying invisible.
   const mat = new THREE.MeshBasicMaterial({
     transparent: true,
     opacity: 0,
@@ -259,7 +257,9 @@ function makeHitProxy(pos) {
 }
 
 // Show/hide arcs + markers + travelers based on the currently-selected set
-// of teams. `active` is a Set of team keys.
+// of teams. `active` is a Set of team keys. Hit-test proxies aren't toggled
+// here — Three's raycaster ignores Object3D.visible, and the per-hover
+// active-team check in tooltip.setHover handles dismissal cheaply enough.
 export function applyTeamFilter({ arcRecords, homeMarkerRecords }, active) {
   for (const { line, leg, traveler } of arcRecords) {
     const visible = active.has(leg.team);

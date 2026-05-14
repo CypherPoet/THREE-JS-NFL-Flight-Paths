@@ -1,6 +1,6 @@
 import { TEAMS, TEAM_KEYS } from "./data/teams.js";
 
-const numberFormatter = new Intl.NumberFormat("en-US");
+export const numberFormatter = new Intl.NumberFormat("en-US");
 
 export function formatMiles(miles) {
   return numberFormatter.format(Math.round(miles)) + " mi";

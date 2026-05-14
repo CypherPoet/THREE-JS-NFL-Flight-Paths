@@ -21,6 +21,7 @@ import {
   dismissLoading,
 } from "./ui.js";
 import { createTooltip } from "./tooltip.js";
+import { isFrontOfSphere } from "./geo.js";
 import { THEMES, getInitialTheme, persistTheme } from "./themes.js";
 
 const canvas = document.getElementById("scene-canvas");
@@ -114,10 +115,22 @@ let currentPanel = null;
 let currentSeason = DEFAULT_SEASON;
 
 // ── Stadium tooltip + hover raycaster ───────────────────────────
+function teamIsActive(teamKey) {
+  return currentPanel ? currentPanel.active.has(teamKey) : true;
+}
+
+// Cache the canvas rect — both the tooltip's per-frame anchoring and the
+// pointermove handler read it, and getBoundingClientRect forces layout.
+let canvasRect = renderer.domElement.getBoundingClientRect();
+function refreshCanvasRect() {
+  canvasRect = renderer.domElement.getBoundingClientRect();
+}
+
 const tooltip = createTooltip({
   camera,
-  renderer,
   getGlobeGroup: () => globe?.group ?? null,
+  getCanvasRect: () => canvasRect,
+  isTeamActive: teamIsActive,
 });
 const raycaster = new THREE.Raycaster();
 const pointerNDC = new THREE.Vector2();
@@ -125,28 +138,16 @@ const hitWorld = new THREE.Vector3();
 const globeWorld = new THREE.Vector3();
 let pointerInside = false;
 
-function teamIsActive(teamKey) {
-  return currentPanel ? currentPanel.active.has(teamKey) : true;
-}
-
-// The raycaster has no concept of the globe occluding back-side proxies, so
-// the ray can pierce through to a marker on the far side. The marker is on
-// the visible hemisphere iff the angle between its outward normal (M − G)
-// and the camera vector (C − G) is acute.
 function isFrontFacing(hit) {
   if (!globe) return true;
   hit.object.getWorldPosition(hitWorld);
   globe.group.getWorldPosition(globeWorld);
-  const dot =
-    (hitWorld.x - globeWorld.x) * (camera.position.x - globeWorld.x) +
-    (hitWorld.y - globeWorld.y) * (camera.position.y - globeWorld.y) +
-    (hitWorld.z - globeWorld.z) * (camera.position.z - globeWorld.z);
-  return dot > 0;
+  return isFrontOfSphere(hitWorld, globeWorld, camera.position);
 }
 
 function updateHover() {
   if (!currentFlightPaths || !pointerInside) {
-    tooltip.setHover(null, teamIsActive);
+    tooltip.setHover(null);
     return;
   }
   raycaster.setFromCamera(pointerNDC, camera);
@@ -154,21 +155,19 @@ function updateHover() {
     currentFlightPaths.hitTestGroup.children,
     false,
   );
-  const front = hits.find(isFrontFacing);
-  tooltip.setHover(front ?? null, teamIsActive);
+  tooltip.setHover(hits.find(isFrontFacing) ?? null);
 }
 
 renderer.domElement.addEventListener("pointermove", (event) => {
-  const rect = renderer.domElement.getBoundingClientRect();
-  pointerNDC.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-  pointerNDC.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+  pointerNDC.x = ((event.clientX - canvasRect.left) / canvasRect.width) * 2 - 1;
+  pointerNDC.y = -((event.clientY - canvasRect.top) / canvasRect.height) * 2 + 1;
   pointerInside = true;
   updateHover();
 });
 
 renderer.domElement.addEventListener("pointerleave", () => {
   pointerInside = false;
-  tooltip.setHover(null, teamIsActive);
+  tooltip.setHover(null);
 });
 
 window.addEventListener("keydown", (event) => {
@@ -224,8 +223,6 @@ async function start() {
       onChange: (active) => {
         applyTeamFilter(currentFlightPaths, active);
         updateHeaderMetrics({ active, summary });
-        // Re-evaluate the tooltip — a toggled-off team's marker should drop
-        // its tooltip, and a toggled-on team should pick one up.
         updateHover();
       },
     });
@@ -287,6 +284,7 @@ window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
+  refreshCanvasRect();
 });
 
 start().catch((err) => {
