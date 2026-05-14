@@ -19,6 +19,7 @@ import {
   wireSelectAllNone,
   updateHeaderMetrics,
   dismissLoading,
+  wireMethodologyModal,
 } from "./ui.js";
 import { THEMES, getInitialTheme, persistTheme } from "./themes.js";
 
@@ -186,6 +187,8 @@ async function start() {
     const next = currentThemeName === "light" ? "dark" : "light";
     setTheme(next);
   });
+
+  wireMethodologyModal();
 
   dismissLoading();
 }

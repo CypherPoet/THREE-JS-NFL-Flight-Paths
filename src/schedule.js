@@ -91,18 +91,46 @@ export function buildTravelLegs(schedule = SCHEDULE_2026) {
   return legs;
 }
 
-// Per-team aggregate: total miles, leg count, list of legs (sorted by week).
+// Walk a team's sorted away/neutral legs chronologically to model realistic
+// travel: consecutive away weeks connect venue-to-venue (the team stays on the
+// road); a gap of one or more weeks means the team was at home in between
+// (home game or bye). Implicit trips home at season start and end.
+function computeSequentialMiles(teamKey, sortedLegs) {
+  if (sortedLegs.length === 0) return 0;
+  const home = TEAMS[teamKey];
+  let prevLat = home.lat;
+  let prevLon = home.lon;
+  let prevWeek = 0;
+  let total = 0;
+
+  for (const leg of sortedLegs) {
+    if (prevWeek > 0 && leg.week > prevWeek + 1) {
+      total += greatCircleMiles(prevLat, prevLon, home.lat, home.lon);
+      prevLat = home.lat;
+      prevLon = home.lon;
+    }
+    total += greatCircleMiles(prevLat, prevLon, leg.toLat, leg.toLon);
+    prevLat = leg.toLat;
+    prevLon = leg.toLon;
+    prevWeek = leg.week;
+  }
+  total += greatCircleMiles(prevLat, prevLon, home.lat, home.lon);
+  return total;
+}
+
+// Per-team aggregate: total miles via the sequential walk above, plus the
+// list of legs (sorted by week) for downstream rendering.
 export function summariseByTeam(legs) {
   const byTeam = {};
   for (const key of Object.keys(TEAMS)) {
     byTeam[key] = { team: key, totalMiles: 0, legs: [] };
   }
   for (const leg of legs) {
-    byTeam[leg.team].totalMiles += leg.miles;
     byTeam[leg.team].legs.push(leg);
   }
   for (const summary of Object.values(byTeam)) {
     summary.legs.sort((a, b) => a.week - b.week);
+    summary.totalMiles = computeSequentialMiles(summary.team, summary.legs);
   }
   return byTeam;
 }

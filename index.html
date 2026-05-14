@@ -78,6 +78,30 @@
           </span>
           <button
             type="button"
+            id="methodology-toggle"
+            class="theme-toggle"
+            aria-label="How travel miles are calculated"
+            aria-haspopup="dialog"
+            aria-controls="methodology"
+            title="How travel miles are calculated"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 8h.01M11 12h1v4h1" />
+            </svg>
+          </button>
+          <button
+            type="button"
             id="theme-toggle"
             class="theme-toggle"
             aria-label="Toggle dark mode"
@@ -155,6 +179,118 @@
       <div class="loading" id="loading">
         <div class="loading__bar"></div>
         <span>Loading globe</span>
+      </div>
+
+      <div
+        class="methodology"
+        id="methodology"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="methodology-title"
+        data-show="false"
+        hidden
+      >
+        <div class="methodology__scrim" data-methodology-close></div>
+        <article class="methodology__card">
+          <header class="methodology__head">
+            <h2 id="methodology-title">How travel miles are calculated</h2>
+            <button
+              type="button"
+              class="methodology__close"
+              aria-label="Close"
+              data-methodology-close
+            >
+              ×
+            </button>
+          </header>
+          <div class="methodology__body">
+            <p>
+              Every mile reported here is <strong>great-circle (haversine)
+              air distance</strong> between stadium coordinates, totalled by
+              walking each team's schedule in chronological order. Consecutive
+              road weeks connect venue-to-venue (the team stays on the road);
+              bye and home weeks anchor the team at its home stadium. Totals
+              are rounded to the nearest mile.
+            </p>
+
+            <h3>Distance formula</h3>
+            <p>
+              Haversine on a spherical Earth with
+              <code>R = 3958.8 mi</code>, implemented in
+              <code>src/geo.js · greatCircleMiles</code>:
+            </p>
+            <pre>a = sin²(Δφ/2) + cos(φ₁)·cos(φ₂)·sin²(Δλ/2)
+c = 2·atan2(√a, √(1−a))
+d = R·c</pre>
+            <p>
+              Using a sphere rather than the WGS-84 ellipsoid shifts a
+              transatlantic distance by less than 0.3% — well below the
+              precision of stadium coordinates.
+            </p>
+
+            <h3>Per-team accounting</h3>
+            <p>
+              For each team we sort that team's away and neutral-site legs by
+              week and walk them in order, starting and ending at the home
+              stadium:
+            </p>
+            <ul>
+              <li>
+                Between two <strong>consecutive</strong> away weeks the team
+                flies directly from the prior venue to the next.
+              </li>
+              <li>
+                If a home or bye week sits between two away weeks, the
+                previous trip ends with a venue → home flight and the next
+                trip starts fresh from home.
+              </li>
+              <li>
+                Neutral-site / international games count for
+                <strong>both</strong> participating teams — including the
+                team listed as the home designate. The 49ers' Mexico City
+                "home" game is the canonical example: SF still travels.
+              </li>
+            </ul>
+
+            <h3>What gets totalled</h3>
+            <p>
+              <strong>Selected miles</strong> sums the totals for the active
+              (visible) teams. <strong>League total</strong> sums all 32
+              teams. Per-team rows in the sidebar show that team's full-season
+              miles.
+            </p>
+
+            <h3>Arcs vs. totals</h3>
+            <p>
+              The arcs on the globe show each team's home → venue flights as
+              independent visual tracks. The numeric totals reflect the
+              realistic chronological path instead — so summing arc lengths
+              by eye won't quite match a team's total when they have
+              back-to-back road weeks.
+            </p>
+
+            <h3>What's <em>not</em> modelled</h3>
+            <ul>
+              <li>
+                We assume bye weeks are spent at home (typical, not universal).
+              </li>
+              <li>
+                No driving or local transit — pure stadium-to-stadium air
+                distance.
+              </li>
+              <li>
+                Preseason and playoffs are excluded; regular-season only.
+              </li>
+            </ul>
+
+            <h3>Where it lives in code</h3>
+            <ul>
+              <li><code>src/geo.js</code> — <code>greatCircleMiles(latA, lonA, latB, lonB)</code></li>
+              <li><code>src/schedule.js</code> — <code>buildTravelLegs(schedule)</code>, <code>summariseByTeam(legs)</code>, and the internal <code>computeSequentialMiles</code> walk</li>
+              <li><code>src/ui.js</code> — <code>formatMiles(miles)</code></li>
+            </ul>
+          </div>
+        </article>
       </div>
     </div>
 

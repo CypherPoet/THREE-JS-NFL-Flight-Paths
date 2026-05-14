@@ -92,3 +92,35 @@ export function dismissLoading() {
     setTimeout(() => el.remove(), 400);
   }
 }
+
+export function wireMethodologyModal() {
+  const modal = document.getElementById("methodology");
+  const toggle = document.getElementById("methodology-toggle");
+  if (!modal || !toggle) return;
+
+  function open() {
+    modal.hidden = false;
+    requestAnimationFrame(() => {
+      modal.dataset.show = "true";
+    });
+    document.addEventListener("keydown", onKey);
+  }
+
+  function close() {
+    modal.dataset.show = "false";
+    document.removeEventListener("keydown", onKey);
+    setTimeout(() => {
+      modal.hidden = true;
+      toggle.focus();
+    }, 200);
+  }
+
+  function onKey(event) {
+    if (event.key === "Escape") close();
+  }
+
+  toggle.addEventListener("click", open);
+  modal
+    .querySelectorAll("[data-methodology-close]")
+    .forEach((el) => el.addEventListener("click", close));
+}
