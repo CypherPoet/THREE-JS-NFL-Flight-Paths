@@ -92,8 +92,6 @@ export function createTooltip({
   }
 
   function render(hit) {
-    // Recompute content here (rather than reusing whatever setHover saw)
-    // so the panel filter that fired between hover and timer fire is honoured.
     const content = buildContent(hit.object.userData);
     if (!content) {
       clear();
@@ -126,7 +124,6 @@ export function createTooltip({
   function buildContent(userData) {
     if (userData.kind === HIT_KIND_HOME) {
       const teams = userData.teams;
-      if (teams.length === 0) return null;
       const primary = TEAMS[teams[0]];
       const teamsLine = teams
         .map(
