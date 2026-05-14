@@ -7,6 +7,12 @@
       "skillPath": "data/skills/data-visualization/SKILL.md",
       "computedHash": "64055493de5ff4afed716cc871018cf6e020338b76d3e7ed5c2985707cb43cec"
     },
+    "favicon-gen": {
+      "source": "jezweb/claude-skills",
+      "sourceType": "github",
+      "skillPath": "plugins/design-assets/skills/favicon-gen/SKILL.md",
+      "computedHash": "6173ac6112e400e3701d677efd2b1b0fd1c83c79b83e82cfa96ab4c01a0afe50"
+    },
     "impeccable": {
       "source": "pbakaus/impeccable",
       "sourceType": "github",
