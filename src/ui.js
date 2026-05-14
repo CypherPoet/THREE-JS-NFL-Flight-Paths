@@ -81,14 +81,16 @@ export function buildTeamPanel({ summary, intl, listEl, onChange }) {
     const team = TEAMS[teamKey];
     const teamSummary = summary[teamKey];
     const miles = teamSummary.totalMiles;
+    const legMiles = teamSummary.legMiles;
     const intlMiles = teamSummary.internationalMiles;
     const pct = (miles / maxMiles) * 100;
-    // Within the bar's filled width, how much is international. Clamp
-    // because international and total live in different accounting spaces
-    // (raw great-circle vs sequential walk).
-    const intlSharePct =
-      miles > 0 ? Math.min((intlMiles / miles) * pct, pct) : 0;
-    const teamPct = Math.max(0, pct - intlSharePct);
+    // Bar length scales with the team's sequential-walk total (matches the
+    // numeric readout). The international segment within the bar is a
+    // legMiles-space ratio — internationalMiles is a subset of legMiles, so
+    // the share is bounded ≤ 1 by construction.
+    const intlShare = legMiles > 0 ? intlMiles / legMiles : 0;
+    const intlSharePct = pct * intlShare;
+    const teamPct = pct - intlSharePct;
 
     const row = document.createElement("li");
     row.className = "team-row";
