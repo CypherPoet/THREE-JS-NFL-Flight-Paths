@@ -117,10 +117,6 @@ let currentPanel = null;
 let currentSeason = DEFAULT_SEASON;
 
 // ── Stadium tooltip + hover raycaster ───────────────────────────
-function teamIsActive(teamKey) {
-  return currentPanel ? currentPanel.active.has(teamKey) : true;
-}
-
 // Cache the canvas rect — both the tooltip's per-frame anchoring and the
 // pointermove handler read it, and getBoundingClientRect forces layout.
 let canvasRect = renderer.domElement.getBoundingClientRect();
@@ -132,7 +128,6 @@ const tooltip = createTooltip({
   camera,
   getGlobeGroup: () => globe?.group ?? null,
   getCanvasRect: () => canvasRect,
-  isTeamActive: teamIsActive,
 });
 const raycaster = new THREE.Raycaster();
 const pointerNDC = new THREE.Vector2();
@@ -226,7 +221,6 @@ async function start() {
       onChange: (active) => {
         applyTeamFilter(currentFlightPaths, active);
         updateHeaderMetrics({ active, summary });
-        tooltip.refreshActive();
         updateHover();
       },
     });

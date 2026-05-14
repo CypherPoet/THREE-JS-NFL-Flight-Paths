@@ -258,8 +258,8 @@ function makeHitProxy(pos) {
 
 // Show/hide arcs + markers + travelers based on the currently-selected set
 // of teams. `active` is a Set of team keys. Hit-test proxies aren't toggled
-// here — Three's raycaster ignores Object3D.visible, and the per-hover
-// active-team check in tooltip.setHover handles dismissal cheaply enough.
+// here — every venue stays hoverable regardless of team selection so the
+// tooltip can describe the stadium even when no team filter includes it.
 export function applyTeamFilter({ arcRecords, homeMarkerRecords }, active) {
   for (const { line, leg, traveler } of arcRecords) {
     const visible = active.has(leg.team);

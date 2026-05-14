@@ -34,7 +34,6 @@ export function createTooltip({
   camera,
   getGlobeGroup,
   getCanvasRect,
-  isTeamActive,
 }) {
   const root = document.createElement("div");
   root.className = "stadium-tooltip";
@@ -93,8 +92,6 @@ export function createTooltip({
   }
 
   function render(hit) {
-    // Recompute content here (rather than reusing whatever setHover saw)
-    // so the panel filter that fired between hover and timer fire is honoured.
     const content = buildContent(hit.object.userData);
     if (!content) {
       clear();
@@ -124,25 +121,9 @@ export function createTooltip({
     place();
   }
 
-  // Re-render or dismiss an already-showing tooltip after the active-team
-  // set changes. Photo stays — the venue itself didn't change.
-  function refreshActive() {
-    if (!anchor) return;
-    const fresh = buildContent(anchor.userData);
-    if (!fresh) {
-      clear();
-      return;
-    }
-    body.innerHTML = fresh.bodyHTML;
-    const tipRect = root.getBoundingClientRect();
-    tipWidth = tipRect.width;
-    tipHeight = tipRect.height;
-  }
-
   function buildContent(userData) {
     if (userData.kind === HIT_KIND_HOME) {
-      const teams = userData.teams.filter(isTeamActive);
-      if (teams.length === 0) return null;
+      const teams = userData.teams;
       const primary = TEAMS[teams[0]];
       const teamsLine = teams
         .map(
@@ -164,8 +145,7 @@ export function createTooltip({
     if (userData.kind === HIT_KIND_INTERNATIONAL) {
       const venue = INTERNATIONAL_VENUES[userData.venueKey];
       if (!venue) return null;
-      const visiting = userData.teams.filter(isTeamActive);
-      if (visiting.length === 0) return null;
+      const visiting = userData.teams;
       const visitingLine = visiting
         .map(
           (k) =>
@@ -293,7 +273,6 @@ export function createTooltip({
 
   return {
     setHover,
-    refreshActive,
     clear,
     updatePosition: place,
     isVisible: () => root.dataset.show === "true",
