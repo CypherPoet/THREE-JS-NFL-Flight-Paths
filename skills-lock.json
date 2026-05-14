@@ -24,6 +24,12 @@
       "sourceType": "github",
       "skillPath": "skills/project-badges/SKILL.md",
       "computedHash": "e4d354be4959e0918bb31ea321d2d37ded5caf994895f04de585b4543b4d9f4a"
+    },
+    "vite": {
+      "source": "antfu/skills",
+      "sourceType": "github",
+      "skillPath": "skills/vite/SKILL.md",
+      "computedHash": "867ff66238f3152e9c494339ad08dc432dd0df5bcf5cc7a00b61a72b580eb908"
     }
   }
 }
