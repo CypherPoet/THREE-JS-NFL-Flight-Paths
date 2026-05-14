@@ -21,6 +21,8 @@ import {
   dismissLoading,
   wireMethodologyModal,
 } from "./ui.js";
+import { createTooltip } from "./tooltip.js";
+import { isFrontOfSphere } from "./geo.js";
 import { THEMES, getInitialTheme, persistTheme } from "./themes.js";
 
 const canvas = document.getElementById("scene-canvas");
@@ -113,6 +115,66 @@ let currentFlightPaths = null;
 let currentPanel = null;
 let currentSeason = DEFAULT_SEASON;
 
+// ── Stadium tooltip + hover raycaster ───────────────────────────
+function teamIsActive(teamKey) {
+  return currentPanel ? currentPanel.active.has(teamKey) : true;
+}
+
+// Cache the canvas rect — both the tooltip's per-frame anchoring and the
+// pointermove handler read it, and getBoundingClientRect forces layout.
+let canvasRect = renderer.domElement.getBoundingClientRect();
+function refreshCanvasRect() {
+  canvasRect = renderer.domElement.getBoundingClientRect();
+}
+
+const tooltip = createTooltip({
+  camera,
+  getGlobeGroup: () => globe?.group ?? null,
+  getCanvasRect: () => canvasRect,
+  isTeamActive: teamIsActive,
+});
+const raycaster = new THREE.Raycaster();
+const pointerNDC = new THREE.Vector2();
+const hitWorld = new THREE.Vector3();
+const globeWorld = new THREE.Vector3();
+let pointerInside = false;
+
+function isFrontFacing(hit) {
+  if (!globe) return true;
+  hit.object.getWorldPosition(hitWorld);
+  globe.group.getWorldPosition(globeWorld);
+  return isFrontOfSphere(hitWorld, globeWorld, camera.position);
+}
+
+function updateHover() {
+  if (!currentFlightPaths || !pointerInside) {
+    tooltip.setHover(null);
+    return;
+  }
+  raycaster.setFromCamera(pointerNDC, camera);
+  const hits = raycaster.intersectObjects(
+    currentFlightPaths.hitTestGroup.children,
+    false,
+  );
+  tooltip.setHover(hits.find(isFrontFacing) ?? null);
+}
+
+renderer.domElement.addEventListener("pointermove", (event) => {
+  pointerNDC.x = ((event.clientX - canvasRect.left) / canvasRect.width) * 2 - 1;
+  pointerNDC.y = -((event.clientY - canvasRect.top) / canvasRect.height) * 2 + 1;
+  pointerInside = true;
+  updateHover();
+});
+
+renderer.domElement.addEventListener("pointerleave", () => {
+  pointerInside = false;
+  tooltip.setHover(null);
+});
+
+window.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") tooltip.clear();
+});
+
 async function start() {
   const TOPO_URL = new URL(
     "../data/countries-110m.json",
@@ -162,6 +224,8 @@ async function start() {
       onChange: (active) => {
         applyTeamFilter(currentFlightPaths, active);
         updateHeaderMetrics({ active, summary });
+        tooltip.refreshActive();
+        updateHover();
       },
     });
     wireSelectAllNone(currentPanel);
@@ -216,6 +280,7 @@ function animate() {
   const elapsed = timer.getElapsed();
   controls.update(delta);
   if (currentFlightPaths) tickTravelers(currentFlightPaths, elapsed);
+  if (tooltip.isVisible()) tooltip.updatePosition();
   renderer.render(scene, camera);
 }
 
@@ -223,6 +288,7 @@ window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
+  refreshCanvasRect();
 });
 
 start().catch((err) => {

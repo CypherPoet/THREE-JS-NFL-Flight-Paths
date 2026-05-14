@@ -29,6 +29,7 @@ function resolveDestination(row) {
       name: venue.name,
       city: venue.city,
       international: true,
+      venueKey: row.venue,
     };
   }
   const home = TEAMS[row.home];
@@ -38,6 +39,7 @@ function resolveDestination(row) {
     name: home.stadium,
     city: home.city,
     international: false,
+    venueKey: null,
   };
 }
 
@@ -63,6 +65,7 @@ export function buildTravelLegs(schedule = SCHEDULE_2026) {
       destinationName: dest.name,
       destinationCity: dest.city,
       destinationInternational: dest.international,
+      destinationVenueKey: dest.venueKey,
       opponent: row.home,
       miles: greatCircleMiles(away.lat, away.lon, dest.lat, dest.lon),
       neutralSite: !!isNeutral,
@@ -81,6 +84,7 @@ export function buildTravelLegs(schedule = SCHEDULE_2026) {
         destinationName: dest.name,
         destinationCity: dest.city,
         destinationInternational: dest.international,
+        destinationVenueKey: dest.venueKey,
         opponent: row.away,
         miles: greatCircleMiles(home.lat, home.lon, dest.lat, dest.lon),
         neutralSite: true,

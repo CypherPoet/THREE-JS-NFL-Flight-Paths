@@ -20,6 +20,17 @@ export function latLonToVec3(lat, lon, radius = GLOBE_RADIUS, target) {
   return new THREE.Vector3(x, y, z);
 }
 
+// True iff `point` is on the camera-facing hemisphere of a sphere centred
+// at `sphereCenter`. Uses the dot product of the outward normal (P − S) with
+// the camera vector (C − S) — positive means the angle is acute.
+export function isFrontOfSphere(point, sphereCenter, cameraPosition) {
+  return (
+    (point.x - sphereCenter.x) * (cameraPosition.x - sphereCenter.x) +
+    (point.y - sphereCenter.y) * (cameraPosition.y - sphereCenter.y) +
+    (point.z - sphereCenter.z) * (cameraPosition.z - sphereCenter.z) > 0
+  );
+}
+
 // Great-circle distance between two lat/lon points, in miles.
 export function greatCircleMiles(latA, lonA, latB, lonB) {
   const toRad = Math.PI / 180;

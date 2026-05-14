@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { TEAMS } from "./data/teams.js";
+import { TEAMS, INTERNATIONAL_VENUES } from "./data/teams.js";
 import { GLOBE_RADIUS, RELIEF_LIFT, greatCircleArc, latLonToVec3 } from "./geo.js";
 
 const SEGMENTS = 96;
@@ -12,6 +12,13 @@ const TRAVELER_MIN_CYCLE_SECONDS = 4.5;
 // swallowed by the elevated land geometry.
 const HOME_DOT_RADIUS = GLOBE_RADIUS * (1 + RELIEF_LIFT + 0.007);
 const AWAY_RING_RADIUS = GLOBE_RADIUS * (1 + RELIEF_LIFT + 0.004);
+
+// Tuned so the leave zone feels snappy without requiring pixel-perfect aim —
+// roughly a 20 px target on screen at the default camera distance.
+const HIT_TEST_RADIUS = 0.03;
+
+export const HIT_KIND_HOME = "home";
+export const HIT_KIND_INTERNATIONAL = "international";
 
 // Build a Group containing every flight-path arc + every stadium marker
 // + an animated "traveler" sphere riding each arc. Each child is tagged with
@@ -32,6 +39,12 @@ export function createFlightPaths(legs, theme) {
   const travelersGroup = new THREE.Group();
   travelersGroup.name = "travelers";
   group.add(travelersGroup);
+
+  // Invisible raycast proxies, deduped by location so co-located teams
+  // (LAR/LAC at SoFi, NYG/NYJ at MetLife) share one hit.
+  const hitTestGroup = new THREE.Group();
+  hitTestGroup.name = "hitTests";
+  group.add(hitTestGroup);
 
   // ── Arcs ──────────────────────────────────────────────────────
   const arcRecords = [];
@@ -170,18 +183,83 @@ export function createFlightPaths(legs, theme) {
     markersGroup.add(ring);
   }
 
+  // ── Hit-test proxies ──────────────────────────────────────────
+  // Home: one proxy per stadium location, aggregating co-located teams.
+  // International: one proxy per venue used in the schedule (no overlap with
+  // home markers, so they need their own).
+  const hitTestRecords = [];
+
+  const homeByLocation = new Map();
+  for (const key of Object.keys(TEAMS)) {
+    const team = TEAMS[key];
+    const locKey = `${team.lat.toFixed(3)},${team.lon.toFixed(3)}`;
+    if (!homeByLocation.has(locKey)) {
+      homeByLocation.set(locKey, {
+        teams: [],
+        pos: latLonToVec3(team.lat, team.lon, HOME_DOT_RADIUS),
+      });
+    }
+    homeByLocation.get(locKey).teams.push(key);
+  }
+  for (const { teams, pos } of homeByLocation.values()) {
+    const hit = makeHitProxy(pos);
+    hit.userData = { kind: HIT_KIND_HOME, teams };
+    hitTestGroup.add(hit);
+    hitTestRecords.push(hit);
+  }
+
+  const internationalByVenue = new Map();
+  for (const leg of legs) {
+    if (!leg.destinationVenueKey) continue;
+    const venue = INTERNATIONAL_VENUES[leg.destinationVenueKey];
+    if (!venue) continue;
+    let entry = internationalByVenue.get(leg.destinationVenueKey);
+    if (!entry) {
+      entry = { teams: [], venueKey: leg.destinationVenueKey, venue };
+      internationalByVenue.set(leg.destinationVenueKey, entry);
+    }
+    if (!entry.teams.includes(leg.team)) entry.teams.push(leg.team);
+  }
+  for (const { teams, venueKey, venue } of internationalByVenue.values()) {
+    const pos = latLonToVec3(venue.lat, venue.lon, AWAY_RING_RADIUS);
+    const hit = makeHitProxy(pos);
+    hit.userData = { kind: HIT_KIND_INTERNATIONAL, venueKey, teams };
+    hitTestGroup.add(hit);
+    hitTestRecords.push(hit);
+  }
+
   return {
     group,
     arcsGroup,
     markersGroup,
     travelersGroup,
+    hitTestGroup,
     arcRecords,
     homeMarkerRecords,
+    hitTestRecords,
   };
 }
 
+function makeHitProxy(pos) {
+  const geom = new THREE.SphereGeometry(HIT_TEST_RADIUS, 8, 8);
+  // Some Three releases honour `material.visible = false` for raycasting and
+  // some don't — the opacity 0 + colorWrite/depthWrite off combination is the
+  // version that works everywhere while staying invisible.
+  const mat = new THREE.MeshBasicMaterial({
+    transparent: true,
+    opacity: 0,
+    depthWrite: false,
+    colorWrite: false,
+  });
+  const mesh = new THREE.Mesh(geom, mat);
+  mesh.position.copy(pos);
+  return mesh;
+}
+
 // Show/hide arcs + markers + travelers based on the currently-selected set
-// of teams. `active` is a Set of team keys.
+// of teams. `active` is a Set of team keys. Hit-test proxies aren't toggled
+// here — Three's raycaster ignores Object3D.visible, and the per-hover
+// active-team check in tooltip.setHover handles dismissal cheaply enough.
 export function applyTeamFilter({ arcRecords, homeMarkerRecords }, active) {
   for (const { line, leg, traveler } of arcRecords) {
     const visible = active.has(leg.team);

@@ -512,24 +512,207 @@ body {
   }
 }
 
-/* ── Tooltip ────────────────────────────────────────────────── */
-.tooltip {
-  position: absolute;
+/* ── Stadium tooltip ────────────────────────────────────────── */
+.stadium-tooltip {
+  position: fixed;
   pointer-events: none;
-  background: var(--tooltip-bg);
-  color: var(--tooltip-ink);
-  font-size: 11px;
-  padding: 6px 10px;
-  border-radius: 6px;
-  white-space: nowrap;
   z-index: 50;
+  width: 240px;
+  background: var(--paper-trans);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 14px 40px -16px var(--shadow);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  overflow: hidden;
   opacity: 0;
-  transform: translate(-50%, -130%);
-  transition: opacity 120ms ease;
+  transform: translate(-50%, -100%);
+  transition: opacity 140ms ease;
+  font-family: var(--font-ui);
 }
 
-.tooltip[data-show="true"] {
+.stadium-tooltip[data-show="true"] {
   opacity: 1;
+}
+
+.stadium-tooltip__photo {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: var(--bg-deep);
+  overflow: hidden;
+}
+
+.stadium-tooltip__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
+.stadium-tooltip__photo[data-state="ready"] img {
+  opacity: 1;
+}
+
+.stadium-tooltip__photo[data-state="empty"],
+.stadium-tooltip__photo[data-state="loading"] {
+  background:
+    linear-gradient(135deg, var(--bg-deep) 0%, var(--paper) 100%);
+}
+
+.stadium-tooltip__photo[data-state="loading"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--paper-soft) 50%,
+    transparent 100%
+  );
+  animation: stadium-tooltip-shimmer 1.4s ease-in-out infinite;
+}
+
+.stadium-tooltip__photo[data-state="empty"] {
+  display: none;
+}
+
+@keyframes stadium-tooltip-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.stadium-tooltip__body {
+  padding: 12px 14px 13px;
+}
+
+.stadium-tooltip__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-variation-settings:
+    "opsz" 18,
+    "wdth" 92,
+    "wght" 650;
+  font-size: 14px;
+  font-weight: 650;
+  letter-spacing: -0.012em;
+  line-height: 1.18;
+  color: var(--ink);
+}
+
+.stadium-tooltip__teams {
+  margin-top: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  align-items: center;
+}
+
+.stadium-tooltip__team {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  letter-spacing: 0.01em;
+  position: relative;
+  padding-left: 9px;
+}
+
+.stadium-tooltip__team::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent, var(--ink-mute));
+  transform: translateY(-50%);
+}
+
+.stadium-tooltip__intl-badge {
+  font-family: var(--font-ui);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.stadium-tooltip__city {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--ink-mute);
+  letter-spacing: 0.02em;
+}
+
+.stadium-tooltip__facts {
+  margin: 10px 0 0;
+  padding: 10px 0 0;
+  border-top: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 14px;
+  row-gap: 4px;
+  font-size: 11px;
+}
+
+.stadium-tooltip__facts dt {
+  color: var(--ink-mute);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 9px;
+  font-weight: 600;
+  align-self: center;
+}
+
+.stadium-tooltip__facts dd {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  font-weight: 500;
+  text-align: right;
+}
+
+.stadium-tooltip__visitors {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+}
+
+.stadium-tooltip__visitors-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-right: 4px;
+}
+
+.stadium-tooltip__pill {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--bg);
+  background: var(--accent, var(--ink-soft));
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.02em;
 }
 
 /* ── Responsive ─────────────────────────────────────────────── */

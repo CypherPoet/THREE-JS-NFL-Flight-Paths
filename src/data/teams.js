@@ -2,7 +2,11 @@
 // `accent` is each team's primary brand colour (chosen for legibility against an off-white globe).
 // `lat`/`lon` are the home stadium coordinates.
 //
-// Stadiums sourced from public domain location data.
+// Stadium facts (`capacity`, `opened`, `roof`) are public reference data;
+// capacities are rounded to the nearest 100 since teams quietly re-stripe seats.
+// `wiki` is the Wikipedia article slug used to lazily fetch a thumbnail photo
+// for tooltips (see `src/tooltip.js`). Articles that 404 just show a tooltip
+// without a photo.
 export const TEAMS = {
   ARI: {
     abbr: "ARI",
@@ -13,6 +17,10 @@ export const TEAMS = {
     lon: -112.2626,
     accent: "#97233F",
     division: "NFC West",
+    capacity: 63400,
+    opened: 2006,
+    roof: "Retractable",
+    wiki: "State_Farm_Stadium",
   },
   ATL: {
     abbr: "ATL",
@@ -23,6 +31,10 @@ export const TEAMS = {
     lon: -84.4006,
     accent: "#A71930",
     division: "NFC South",
+    capacity: 71000,
+    opened: 2017,
+    roof: "Retractable",
+    wiki: "Mercedes-Benz_Stadium",
   },
   BAL: {
     abbr: "BAL",
@@ -33,6 +45,10 @@ export const TEAMS = {
     lon: -76.6227,
     accent: "#241773",
     division: "AFC North",
+    capacity: 70700,
+    opened: 1998,
+    roof: "Open-air",
+    wiki: "M%26T_Bank_Stadium",
   },
   BUF: {
     abbr: "BUF",
@@ -43,6 +59,10 @@ export const TEAMS = {
     lon: -78.787,
     accent: "#00338D",
     division: "AFC East",
+    capacity: 71600,
+    opened: 1973,
+    roof: "Open-air",
+    wiki: "Highmark_Stadium_(Orchard_Park)",
   },
   CAR: {
     abbr: "CAR",
@@ -53,6 +73,10 @@ export const TEAMS = {
     lon: -80.8528,
     accent: "#0085CA",
     division: "NFC South",
+    capacity: 73800,
+    opened: 1996,
+    roof: "Open-air",
+    wiki: "Bank_of_America_Stadium",
   },
   CHI: {
     abbr: "CHI",
@@ -63,6 +87,10 @@ export const TEAMS = {
     lon: -87.6167,
     accent: "#0B162A",
     division: "NFC North",
+    capacity: 61500,
+    opened: 1924,
+    roof: "Open-air",
+    wiki: "Soldier_Field",
   },
   CIN: {
     abbr: "CIN",
@@ -73,6 +101,10 @@ export const TEAMS = {
     lon: -84.516,
     accent: "#FB4F14",
     division: "AFC North",
+    capacity: 65500,
+    opened: 2000,
+    roof: "Open-air",
+    wiki: "Paycor_Stadium",
   },
   CLE: {
     abbr: "CLE",
@@ -83,6 +115,10 @@ export const TEAMS = {
     lon: -81.6995,
     accent: "#311D00",
     division: "AFC North",
+    capacity: 67900,
+    opened: 1999,
+    roof: "Open-air",
+    wiki: "Huntington_Bank_Field",
   },
   DAL: {
     abbr: "DAL",
@@ -93,6 +129,10 @@ export const TEAMS = {
     lon: -97.0945,
     accent: "#003594",
     division: "NFC East",
+    capacity: 80000,
+    opened: 2009,
+    roof: "Retractable",
+    wiki: "AT%26T_Stadium",
   },
   DEN: {
     abbr: "DEN",
@@ -103,6 +143,10 @@ export const TEAMS = {
     lon: -105.02,
     accent: "#FB4F14",
     division: "AFC West",
+    capacity: 76100,
+    opened: 2001,
+    roof: "Open-air",
+    wiki: "Empower_Field_at_Mile_High",
   },
   DET: {
     abbr: "DET",
@@ -113,6 +157,10 @@ export const TEAMS = {
     lon: -83.0456,
     accent: "#0076B6",
     division: "NFC North",
+    capacity: 65000,
+    opened: 2002,
+    roof: "Domed",
+    wiki: "Ford_Field",
   },
   GB: {
     abbr: "GB",
@@ -123,6 +171,10 @@ export const TEAMS = {
     lon: -88.0622,
     accent: "#203731",
     division: "NFC North",
+    capacity: 81400,
+    opened: 1957,
+    roof: "Open-air",
+    wiki: "Lambeau_Field",
   },
   HOU: {
     abbr: "HOU",
@@ -133,6 +185,10 @@ export const TEAMS = {
     lon: -95.4107,
     accent: "#03202F",
     division: "AFC South",
+    capacity: 72200,
+    opened: 2002,
+    roof: "Retractable",
+    wiki: "NRG_Stadium",
   },
   IND: {
     abbr: "IND",
@@ -143,6 +199,10 @@ export const TEAMS = {
     lon: -86.1639,
     accent: "#002C5F",
     division: "AFC South",
+    capacity: 67000,
+    opened: 2008,
+    roof: "Retractable",
+    wiki: "Lucas_Oil_Stadium",
   },
   JAX: {
     abbr: "JAX",
@@ -153,6 +213,10 @@ export const TEAMS = {
     lon: -81.6373,
     accent: "#006778",
     division: "AFC South",
+    capacity: 67100,
+    opened: 1995,
+    roof: "Open-air",
+    wiki: "EverBank_Stadium",
   },
   KC: {
     abbr: "KC",
@@ -163,6 +227,10 @@ export const TEAMS = {
     lon: -94.4839,
     accent: "#E31837",
     division: "AFC West",
+    capacity: 76400,
+    opened: 1972,
+    roof: "Open-air",
+    wiki: "Arrowhead_Stadium",
   },
   LV: {
     abbr: "LV",
@@ -173,6 +241,10 @@ export const TEAMS = {
     lon: -115.1834,
     accent: "#000000",
     division: "AFC West",
+    capacity: 65000,
+    opened: 2020,
+    roof: "Domed",
+    wiki: "Allegiant_Stadium",
   },
   LAC: {
     abbr: "LAC",
@@ -183,6 +255,10 @@ export const TEAMS = {
     lon: -118.3387,
     accent: "#0080C6",
     division: "AFC West",
+    capacity: 70200,
+    opened: 2020,
+    roof: "Fixed canopy",
+    wiki: "SoFi_Stadium",
   },
   LAR: {
     abbr: "LAR",
@@ -193,6 +269,10 @@ export const TEAMS = {
     lon: -118.3387,
     accent: "#003594",
     division: "NFC West",
+    capacity: 70200,
+    opened: 2020,
+    roof: "Fixed canopy",
+    wiki: "SoFi_Stadium",
   },
   MIA: {
     abbr: "MIA",
@@ -203,6 +283,10 @@ export const TEAMS = {
     lon: -80.2389,
     accent: "#008E97",
     division: "AFC East",
+    capacity: 65300,
+    opened: 1987,
+    roof: "Open-air",
+    wiki: "Hard_Rock_Stadium",
   },
   MIN: {
     abbr: "MIN",
@@ -213,6 +297,10 @@ export const TEAMS = {
     lon: -93.2581,
     accent: "#4F2683",
     division: "NFC North",
+    capacity: 66800,
+    opened: 2016,
+    roof: "Domed",
+    wiki: "U.S._Bank_Stadium",
   },
   NE: {
     abbr: "NE",
@@ -223,6 +311,10 @@ export const TEAMS = {
     lon: -71.2643,
     accent: "#002244",
     division: "AFC East",
+    capacity: 65900,
+    opened: 2002,
+    roof: "Open-air",
+    wiki: "Gillette_Stadium",
   },
   NO: {
     abbr: "NO",
@@ -233,6 +325,10 @@ export const TEAMS = {
     lon: -90.0812,
     accent: "#D3BC8D",
     division: "NFC South",
+    capacity: 73200,
+    opened: 1975,
+    roof: "Domed",
+    wiki: "Caesars_Superdome",
   },
   NYG: {
     abbr: "NYG",
@@ -243,6 +339,10 @@ export const TEAMS = {
     lon: -74.0744,
     accent: "#0B2265",
     division: "NFC East",
+    capacity: 82500,
+    opened: 2010,
+    roof: "Open-air",
+    wiki: "MetLife_Stadium",
   },
   NYJ: {
     abbr: "NYJ",
@@ -253,6 +353,10 @@ export const TEAMS = {
     lon: -74.0744,
     accent: "#125740",
     division: "AFC East",
+    capacity: 82500,
+    opened: 2010,
+    roof: "Open-air",
+    wiki: "MetLife_Stadium",
   },
   PHI: {
     abbr: "PHI",
@@ -263,6 +367,10 @@ export const TEAMS = {
     lon: -75.1675,
     accent: "#004C54",
     division: "NFC East",
+    capacity: 69300,
+    opened: 2003,
+    roof: "Open-air",
+    wiki: "Lincoln_Financial_Field",
   },
   PIT: {
     abbr: "PIT",
@@ -273,6 +381,10 @@ export const TEAMS = {
     lon: -80.0158,
     accent: "#FFB612",
     division: "AFC North",
+    capacity: 68400,
+    opened: 2001,
+    roof: "Open-air",
+    wiki: "Acrisure_Stadium",
   },
   SF: {
     abbr: "SF",
@@ -283,6 +395,10 @@ export const TEAMS = {
     lon: -121.9698,
     accent: "#AA0000",
     division: "NFC West",
+    capacity: 68500,
+    opened: 2014,
+    roof: "Open-air",
+    wiki: "Levi%27s_Stadium",
   },
   SEA: {
     abbr: "SEA",
@@ -293,6 +409,10 @@ export const TEAMS = {
     lon: -122.3316,
     accent: "#002244",
     division: "NFC West",
+    capacity: 68700,
+    opened: 2002,
+    roof: "Open-air",
+    wiki: "Lumen_Field",
   },
   TB: {
     abbr: "TB",
@@ -303,6 +423,10 @@ export const TEAMS = {
     lon: -82.5033,
     accent: "#D50A0A",
     division: "NFC South",
+    capacity: 65900,
+    opened: 1998,
+    roof: "Open-air",
+    wiki: "Raymond_James_Stadium",
   },
   TEN: {
     abbr: "TEN",
@@ -313,6 +437,10 @@ export const TEAMS = {
     lon: -86.7713,
     accent: "#0C2340",
     division: "AFC South",
+    capacity: 69100,
+    opened: 1999,
+    roof: "Open-air",
+    wiki: "Nissan_Stadium",
   },
   WAS: {
     abbr: "WAS",
@@ -323,71 +451,116 @@ export const TEAMS = {
     lon: -76.8645,
     accent: "#5A1414",
     division: "NFC East",
+    capacity: 67600,
+    opened: 1997,
+    roof: "Open-air",
+    wiki: "Northwest_Stadium",
   },
 };
 
 // Some games are played at neutral international venues (London, Munich, etc.).
-// Listed here so the schedule can reference them by key.
+// Listed here so the schedule can reference them by key. `wiki` mirrors the
+// TEAMS entries — used for lazy thumbnail lookup in tooltips.
 export const INTERNATIONAL_VENUES = {
   LON_TOT: {
     name: "Tottenham Hotspur Stadium",
     city: "London, UK",
     lat: 51.6043,
     lon: -0.0664,
+    capacity: 62800,
+    opened: 2019,
+    roof: "Open-air",
+    wiki: "Tottenham_Hotspur_Stadium",
   },
   LON_WEM: {
     name: "Wembley Stadium",
     city: "London, UK",
     lat: 51.556,
     lon: -0.2796,
+    capacity: 90000,
+    opened: 2007,
+    roof: "Retractable",
+    wiki: "Wembley_Stadium",
   },
   MUN: {
     name: "Allianz Arena",
     city: "Munich, Germany",
     lat: 48.2188,
     lon: 11.6247,
+    capacity: 75000,
+    opened: 2005,
+    roof: "Open-air",
+    wiki: "Allianz_Arena",
   },
   MAD: {
     name: "Estadio Santiago Bernabéu",
     city: "Madrid, Spain",
     lat: 40.4531,
     lon: -3.6883,
+    capacity: 78300,
+    opened: 1947,
+    roof: "Retractable",
+    wiki: "Santiago_Bernab%C3%A9u_Stadium",
   },
   SAO: {
     name: "Neo Química Arena",
     city: "São Paulo, Brazil",
     lat: -23.5453,
     lon: -46.4742,
+    capacity: 47600,
+    opened: 2014,
+    roof: "Open-air",
+    wiki: "Neo_Qu%C3%ADmica_Arena",
   },
   DUB: {
     name: "Croke Park",
     city: "Dublin, Ireland",
     lat: 53.3607,
     lon: -6.2511,
+    capacity: 82300,
+    opened: 1884,
+    roof: "Open-air",
+    wiki: "Croke_Park",
   },
   MEL: {
     name: "Melbourne Cricket Ground",
     city: "Melbourne, Australia",
     lat: -37.82,
     lon: 144.9834,
+    capacity: 100000,
+    opened: 1853,
+    roof: "Open-air",
+    wiki: "Melbourne_Cricket_Ground",
   },
   RIO: {
     name: "Estádio do Maracanã",
     city: "Rio de Janeiro, Brazil",
     lat: -22.9121,
     lon: -43.2302,
+    capacity: 78800,
+    opened: 1950,
+    roof: "Open-air",
+    wiki: "Maracan%C3%A3_Stadium",
   },
   PAR: {
     name: "Stade de France",
     city: "Saint-Denis, France",
     lat: 48.9244,
     lon: 2.3601,
+    capacity: 81300,
+    opened: 1998,
+    roof: "Open-air",
+    wiki: "Stade_de_France",
   },
   MEX: {
     name: "Estadio Banorte",
     city: "Mexico City, Mexico",
     lat: 19.3029,
     lon: -99.1505,
+    capacity: 87000,
+    opened: 1966,
+    roof: "Open-air",
+    wiki: "Estadio_Azteca",
   },
 };
 
