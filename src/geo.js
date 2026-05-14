@@ -1,7 +1,13 @@
 import * as THREE from "three";
 
 export const GLOBE_RADIUS = 1.0;
+// Fractional radius lift of the elevated continent plates. Lives here so the
+// arc/marker layers can reference it without a circular import on relief.js.
+export const RELIEF_LIFT = 0.018;
 const EARTH_RADIUS_MILES = 3958.8;
+// Arc endpoints sit just above the elevated continent plate so flight paths
+// emerge from above the land surface, not from inside the relief geometry.
+const ARC_BASE_OFFSET = RELIEF_LIFT + 0.003;
 
 // Lat/lon in degrees → unit-sphere XYZ at GLOBE_RADIUS.
 export function latLonToVec3(lat, lon, radius = GLOBE_RADIUS, target) {
@@ -65,7 +71,7 @@ export function greatCircleArc(
     tmp.normalize();
     // Lift along the arc — peak at t=0.5, zero at the endpoints.
     const liftAmount = lift * Math.sin(Math.PI * t);
-    const radius = GLOBE_RADIUS + liftAmount + 0.004; // tiny offset above surface
+    const radius = GLOBE_RADIUS + liftAmount + ARC_BASE_OFFSET;
     points.push(tmp.clone().multiplyScalar(radius));
   }
   return points;
