@@ -163,18 +163,16 @@ body {
 }
 
 .topbar__mark {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle at 35% 30%,
-    var(--paper),
-    var(--bg-deep) 75%,
-    var(--ink-mute) 100%
-  );
-  box-shadow:
-    inset 0 0 0 1px var(--line),
-    0 4px 10px var(--shadow);
+  width: auto;
+  height: 56px;
+  flex: 0 0 auto;
+  display: block;
+  overflow: visible;
+  filter: drop-shadow(0 2px 4px var(--shadow));
+}
+
+img.topbar__mark {
+  object-fit: contain;
 }
 
 .topbar__titles h1 {

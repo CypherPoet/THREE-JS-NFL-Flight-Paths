@@ -16,10 +16,11 @@
         document.documentElement.setAttribute("data-theme", theme);
       })();
     </script>
-    <link
-      rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='%23efe7d4' stroke='%236c6354' stroke-width='1.5'/%3E%3Cpath d='M8 14 Q14 8 22 12 M6 18 Q12 22 26 20' stroke='%236c6354' stroke-width='1' fill='none' opacity='.6'/%3E%3C/svg%3E"
-    />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <title>NFL Team Flight Paths</title>
     <meta
       name="description"
@@ -33,7 +34,20 @@
 
       <header class="topbar">
         <div class="topbar__brand">
-          <div class="topbar__mark" aria-hidden="true"></div>
+          <img
+            class="topbar__mark"
+            src="/assets/images/logos/logo_concept-02.png"
+            srcset="
+              /assets/images/logos/logo_concept-02@0_5x.png 0.5x,
+              /assets/images/logos/logo_concept-02.png 1x,
+              /assets/images/logos/logo_concept-02@2x.png 2x
+            "
+            width="67"
+            height="56"
+            alt=""
+            aria-hidden="true"
+            decoding="async"
+          />
           <div class="topbar__titles">
             <h1>NFL Flight Paths</h1>
             <p class="topbar__season" id="season-sublabel">
