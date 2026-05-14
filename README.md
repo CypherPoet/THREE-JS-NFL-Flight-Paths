@@ -1,12 +1,20 @@
 # NFL Flight Paths · A Travel-Schedule Globe
 
-![NFL Flight Paths — every confirmed 2026 NFL road trip drawn as a great-circle arc on a clay globe](media/01-hero.png)
+![NFL Flight Paths — NFL road trips drawn as great-circle arcs on a clay globe](media/01-hero.png)
+
+<div align="center">
+
+[![Live](https://img.shields.io/badge/Live-cypherpoet.github.io-c2410c?style=for-the-badge&logo=githubpages&logoColor=white)](https://cypherpoet.github.io/THREE-JS-NFL-Flight-Paths/) [![Built with](https://img.shields.io/badge/Built_with-Three.js-f5efe2?style=for-the-badge&logo=threedotjs&logoColor=04060d)](https://threejs.org/)
+
+</div>
+
+<div align="center">
 
 [![X](https://img.shields.io/badge/%40cypher__poet-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/cypher_poet) [![PayPal](https://img.shields.io/badge/PayPal-003087?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/ncp/payment/L6M553P28YPDY) [![Cash App](https://img.shields.io/badge/Cash_App-00C244?style=for-the-badge&logo=cashapp&logoColor=white)](https://cash.app/$CypherPoet) [![Buy Me a Coffee](https://img.shields.io/badge/Buy_Me_a_Coffee-FFDD00?style=for-the-badge&logo=buymeacoffee&logoColor=000000)](https://buymeacoffee.com/cypherpoet) [![Linktree](https://img.shields.io/badge/Linktree-43E660?style=for-the-badge&logo=linktree&logoColor=white)](https://linktr.ee/CypherPoet) [![MIT License](https://img.shields.io/badge/MIT_License-ff7300?style=for-the-badge&logo=opensourceinitiative&logoColor=000000)](https://github.com/CypherPoet/THREE-JS-NFL-Flight-Paths/blob/main/LICENSE)
 
-[![Live](https://img.shields.io/badge/Live-cypherpoet.github.io-c2410c?style=for-the-badge&logo=githubpages&logoColor=white)](https://cypherpoet.github.io/THREE-JS-NFL-Flight-Paths/) [![Built with](https://img.shields.io/badge/Built_with-Three.js-f5efe2?style=for-the-badge&logo=threedotjs&logoColor=04060d)](https://threejs.org/) [![Slate](https://img.shields.io/badge/Slate-2026_Confirmed-1c1a16?style=for-the-badge&logo=nfl&logoColor=white)](#the-schedule)
+</div>
 
-A small interactive Three.js scene that plots **every confirmed NFL road trip of the 2026 season** as a great-circle arc on an interactive globe. Pick a team, watch their tour of the league light up, and read off the total air miles they'll log.
+A small interactive Three.js scene that plots **every NFL road trip of the 2025 and 2026 seasons** as a great-circle arc on an interactive globe. Pick a team, watch their tour of the league light up, and read off the total air miles they'll log.
 
 → **Open the live globe · [cypherpoet.github.io/THREE-JS-NFL-Flight-Paths](https://cypherpoet.github.io/THREE-JS-NFL-Flight-Paths/)**
 
@@ -17,10 +25,13 @@ A small interactive Three.js scene that plots **every confirmed NFL road trip of
 - **A sculpted globe with real country shapes.** Continents are rendered as 3D elevated plates with etched country borders, sitting above a smooth ocean.
 - **Animated travelers.** Every arc is ridden by a small team-coloured pellet looping from home stadium to destination venue, with a soft additive glow that pulses in flight.
 - **Team-coloured arcs.** Each flight path uses the travelling team's primary brand accent. Stadium markers and travelers match.
+- **Stadium tooltips with photos.** Hover any stadium or international venue for venue + team info and a lazy-loaded Wikipedia thumbnail.
 - **Light + dark modes.** A toggle in the top bar swaps the whole scene to a coordinated palette and remembers the choice.
 - **Filter by clicking.** Click a team to toggle it; _All_ / _None_ for sweeping selections. The team list is sorted by total miles travelled.
-- **2026 ↔ 2025 toggle.** Flip between the in-progress 2026 slate and a full 2025 reference slate.
+- **2025 ↔ 2026 toggle.** Switch seasons from the header.
 - **Live mileage tally.** League-wide total + sum of selected teams in the header.
+- **Per-team mileage breakdown.** A button in the header opens a modal of all 32 teams as contrail bars with a plane icon at the tip, ordered by miles flown.
+- **Methodology modal.** A small "how mileage is calculated" panel explains the chronological-walk model behind the totals.
 
 ## A Look Around
 
@@ -66,7 +77,8 @@ Make sure GitHub Pages is set to **GitHub Actions** under `Settings → Pages` f
 - **[Three.js](https://threejs.org/)** by [Ricardo Cabello](https://mrdoob.com/) & contributors
 - **[d3-geo](https://github.com/d3/d3-geo)** + **[topojson-client](https://github.com/topojson/topojson-client)** by Mike Bostock
 - **[world-atlas](https://github.com/topojson/world-atlas)** — the 110m TopoJSON used as the land source
-- **2026 schedule data** sourced from the league's pre-release announcements on [nfl.com](https://www.nfl.com/news/2026-nfl-schedule-release-nine-international-games-dates-times-matchups)
+- **2025 schedule data** from [nflverse/nfldata](https://github.com/nflverse/nfldata) (`games.csv`, regular-season subset)
+- **2026 schedule data** from [nfl.com](https://www.nfl.com/news/2026-nfl-schedule-release-nine-international-games-dates-times-matchups) schedule-release announcements
 - **Stadium coordinates** are public-domain venue locations; **team brand colours** are the franchises' own. This project is an educational data visualisation and is not affiliated with the NFL.
 
 ## License
