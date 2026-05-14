@@ -4,7 +4,7 @@
 
 [![X](https://img.shields.io/badge/%40cypher__poet-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/cypher_poet) [![PayPal](https://img.shields.io/badge/PayPal-003087?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/ncp/payment/L6M553P28YPDY) [![Cash App](https://img.shields.io/badge/Cash_App-00C244?style=for-the-badge&logo=cashapp&logoColor=white)](https://cash.app/$CypherPoet) [![Buy Me a Coffee](https://img.shields.io/badge/Buy_Me_a_Coffee-FFDD00?style=for-the-badge&logo=buymeacoffee&logoColor=000000)](https://buymeacoffee.com/cypherpoet) [![Linktree](https://img.shields.io/badge/Linktree-43E660?style=for-the-badge&logo=linktree&logoColor=white)](https://linktr.ee/CypherPoet) [![MIT License](https://img.shields.io/badge/MIT_License-ff7300?style=for-the-badge&logo=opensourceinitiative&logoColor=000000)](https://github.com/CypherPoet/THREE-JS-NFL-Flight-Paths/blob/main/LICENSE)
 
-[![Live](https://img.shields.io/badge/Live-cypherpoet.github.io-c2410c?style=for-the-badge&logo=githubpages&logoColor=white)](https://cypherpoet.github.io/THREE-JS-NFL-Flight-Paths/) [![Built with](https://img.shields.io/badge/Built_with-Three.js-f5efe2?style=for-the-badge&logo=threedotjs&logoColor=04060d)](https://threejs.org/) [![Slate](https://img.shields.io/badge/Slate-2026_Confirmed-1c1a16?style=for-the-badge&logo=nfl&logoColor=white)](#the-2026-confirmed-slate)
+[![Live](https://img.shields.io/badge/Live-cypherpoet.github.io-c2410c?style=for-the-badge&logo=githubpages&logoColor=white)](https://cypherpoet.github.io/THREE-JS-NFL-Flight-Paths/) [![Built with](https://img.shields.io/badge/Built_with-Three.js-f5efe2?style=for-the-badge&logo=threedotjs&logoColor=04060d)](https://threejs.org/) [![Highlights](https://img.shields.io/badge/2026-Highlights-1c1a16?style=for-the-badge&logo=nfl&logoColor=white)](#2026-highlights)
 
 A small interactive Three.js scene that plots **every confirmed NFL road trip of the 2026 season** as a great-circle arc on a clay-styled globe. Pick a team, watch their tour of the league light up, and read off the total air miles they'll log. Built as a way to stare at travel inequality — Seattle vs. Boston, transatlantic detours, the trans-Pacific haul to Melbourne — without squinting at a spreadsheet.
 
@@ -14,13 +14,13 @@ A small interactive Three.js scene that plots **every confirmed NFL road trip of
 
 ## What's inside
 
-- **A clay globe with real country shapes.** Land masses are painted from a world TopoJSON, baked into both a colour map and a bump map so the continents read with genuine relief. A soft drop-shadow underneath the sphere sells the 3D.
+- **A clay globe with real country shapes.** Land masses are painted from a world TopoJSON onto the sphere's diffuse map; a Fresnel-gradient atmosphere shell wraps the limb (subtle in light mode, prominent in dark) and a soft drop-shadow underneath sells the 3D.
 - **Animated travelers.** Every arc is ridden by a small team-coloured pellet, looping from home stadium to destination venue. Each one carries a soft additive glow that pulses while it's in flight — the dot is the plane, and you can see all of them at once.
-- **The 2026 confirmed slate.** All 9 international fixtures (Melbourne, Rio, three London games, Paris, Madrid, Munich, Mexico City) plus the four Week 1 / Week 2 primetime games already announced by the league as of 2026-05-13. The full slate unveils 2026-05-14 at 8 PM ET — see [_The 2026 confirmed slate_](#the-2026-confirmed-slate) below for what's wired up.
+- **Standout 2026 dates.** Nine international fixtures (Melbourne, Rio, three London games, Paris, Madrid, Munich, Mexico City) plus the league's Week 1 / Week 2 primetime openers — see [_2026 highlights_](#2026-highlights) below for the games worth flagging by name.
 - **Team-coloured arcs.** Each flight path is painted in the travelling team's primary brand accent (`#E31837` for KC, `#AA0000` for SF, `#4F2683` for Minnesota, and so on). Stadium markers and travelers wear the same colour.
 - **Light + dark modes.** A sun/moon toggle in the top bar flips the whole scene — the globe textures, ground shadow, lighting rig, and UI chrome all swap to a coordinated dark palette. The choice is remembered across reloads.
 - **Filter by clicking.** Click a team to toggle it off; click again to bring it back. **Solo a single team** with Shift/Cmd-click. Use the *All* / *None* buttons at the top of the panel for sweeping selections. The team list is pre-sorted by total miles travelled.
-- **2026 ↔ 2025 toggle.** A small switch in the top bar flips between the 2026 confirmed slate and the 2025 reference slate (all 256 regular-season games + 8 international fixtures). The 2025 view is there to give the eye something to chew on while the rest of 2026 trickles in.
+- **2026 ↔ 2025 toggle.** A small switch in the top bar flips between the 2026 confirmed slate and the full 2025 season — all 272 regular-season games (265 domestic, 7 international). 2025 is the reference: a complete season's worth of road trips to compare against.
 - **Live mileage tally.** The header shows the league-wide total and the sum of just the teams you've selected — handy for asking *"how far does the NFC West fly?"*
 
 ## A look around
@@ -32,9 +32,9 @@ A small interactive Three.js scene that plots **every confirmed NFL road trip of
 | ![Same view, dark mode](media/04-dark-hero.png) | ![Dark mode rotated to the Atlantic](media/05-dark-atlantic.png) |
 | Dark mode — the travelers' additive glow really earns its keep here | Same Atlantic spin, midnight palette — the European arcs read crisply against the deep navy |
 
-## The 2026 confirmed slate
+## 2026 highlights
 
-As of 2026-05-13, the NFL has publicly announced these 2026 regular-season games. Every entry below is in `src/data/schedule-2026.js`:
+The 2026 international fixtures and primetime openers — the games most teams will plan their season around. Every entry below lives in `src/data/schedule-2026.js`:
 
 | Week | Matchup | Venue | Note |
 |---:|---|---|---|
@@ -51,7 +51,7 @@ As of 2026-05-13, the NFL has publicly announced these 2026 regular-season games
 | 10 | New England vs. Detroit | Allianz Arena, Munich 🇩🇪 | Nov 15 |
 | 11 | Minnesota vs. SF 49ers | Estadio Banorte, Mexico City 🇲🇽 | 49ers' second international game |
 
-When the rest of the slate drops on May 14, swapping in the remaining ~245 games is a one-file append to `src/data/schedule-2026.js` — no other code needs to move.
+Every row in `src/data/schedule-2026.js` is `{ week, away, home, venue? }`. The table above pulls out the games worth naming; the rest fan out as standard great-circle arcs.
 
 A travel leg is the haversine great-circle distance between the away team's home stadium and the destination venue. International games count as a travel leg for **both** teams, since neither plays at home. Coordinates for all 32 stadiums and the international venues live alongside team accent colours in `src/data/teams.js`.
 
@@ -62,7 +62,7 @@ A travel leg is the haversine great-circle distance between the away team's home
 │  Build (vite)                                               │
 │   ├── src/data/teams.js          32 teams + intl venues     │
 │   ├── src/data/schedule-2026.js  confirmed 2026 games       │
-│   ├── src/data/schedule-2025.js  full 2025 reference slate  │
+│   ├── src/data/schedule-2025.js  full 2025 regular season   │
 │   └── data/countries-110m.json   world topology @ 110m      │
 └─────────────────────────────────────────────────────────────┘
                               ↓
@@ -70,9 +70,9 @@ A travel leg is the haversine great-circle distance between the away team's home
 │  Runtime                                                    │
 │   ├── themes.js    light + dark palettes for the scene      │
 │   ├── globe.js     paints land to canvas (d3-geo) →         │
-│   │                  diffuse + bump map on a SphereGeometry │
-│   │                  (theme-swappable; repaint, don't       │
-│   │                  rebuild)                               │
+│   │                  diffuse map on a sphere + Fresnel      │
+│   │                  atmosphere shell (theme-swappable;     │
+│   │                  repaint, don't rebuild)                │
 │   ├── geo.js       lat/lon → Vector3, great-circle arc      │
 │   ├── schedule.js  away-game legs, miles, per-team totals,  │
 │   │                  season registry (2026 default / 2025)  │
@@ -87,7 +87,7 @@ A travel leg is the haversine great-circle distance between the away team's home
 
 | Role | Family | Why |
 |------|--------|-----|
-| Display | [Fraunces](https://fonts.google.com/specimen/Fraunces) | Variable face with optical sizing + a SOFT axis — gives the title a bit of personality without going theatrical |
+| Display | [Bricolage Grotesque](https://fonts.google.com/specimen/Bricolage+Grotesque) | Variable display face with optical-size, weight, and width axes — character without theatrics |
 | UI | [Space Grotesk](https://fonts.google.com/specimen/Space+Grotesk) | Geometric sans with character; reads at 11px without going flat |
 | Mono | [JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono) | Tabular figures for the mileage column |
 
@@ -134,7 +134,7 @@ Make sure GitHub Pages is set to **GitHub Actions** under `Settings → Pages` f
 │   └── countries-110m.json          — Natural Earth via world-atlas
 ├── src/
 │   ├── main.js                      — scene, lighting, controls, season + theme switch
-│   ├── globe.js                     — sphere + painted land + bump map (theme-aware)
+│   ├── globe.js                     — sphere + painted land + Fresnel atmosphere (theme-aware)
 │   ├── themes.js                    — light + dark scene palettes
 │   ├── paths.js                     — great-circle arcs + animated travelers
 │   ├── schedule.js                  — legs → per-team mileage summary
@@ -143,7 +143,7 @@ Make sure GitHub Pages is set to **GitHub Actions** under `Settings → Pages` f
 │   └── data/
 │       ├── teams.js                 — stadium coords + accent colours
 │       ├── schedule-2026.js         — confirmed 2026 games
-│       └── schedule-2025.js         — full 2025 reference slate
+│       └── schedule-2025.js         — full 2025 regular season (272 games)
 ├── media/                           — README screenshots (light + dark)
 ├── .claude/skills/                  — capture-presentational-media + threejs/* reference skills
 └── .github/workflows/deploy.yml     — Pages build/deploy on push to main
@@ -156,7 +156,7 @@ Make sure GitHub Pages is set to **GitHub Actions** under `Settings → Pages` f
 - **[world-atlas](https://github.com/topojson/world-atlas)** — the 110m TopoJSON used as the land source
 - **2026 schedule data** sourced from the league's pre-release announcements on [nfl.com](https://www.nfl.com/news/2026-nfl-schedule-release-nine-international-games-dates-times-matchups)
 - **Stadium coordinates** are public-domain venue locations; **team brand colours** are the franchises' own. This project is an unofficial fan visualisation and is not affiliated with the NFL.
-- **Typefaces**: [Inter](https://fonts.google.com/specimen/Inter) by Rasmus Andersson; [JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono) by JetBrains
+- **Typefaces**: [Bricolage Grotesque](https://fonts.google.com/specimen/Bricolage+Grotesque) by Mathieu Triay; [Space Grotesk](https://fonts.google.com/specimen/Space+Grotesk) by Florian Karsten; [JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono) by JetBrains
 
 ## License
 
