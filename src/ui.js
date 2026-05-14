@@ -6,14 +6,16 @@ export function formatMiles(miles) {
   return numberFormatter.format(Math.round(miles)) + " mi";
 }
 
+export function sortTeamsByMiles(summary) {
+  return [...TEAM_KEYS].sort(
+    (a, b) => summary[b].totalMiles - summary[a].totalMiles,
+  );
+}
+
 // Build the team list, return { setActive, getActive, onChange }.
 export function buildTeamPanel({ summary, listEl, onChange }) {
   const active = new Set(TEAM_KEYS);
-
-  // Sort by total miles descending so the most-travelled team is on top.
-  const sorted = [...TEAM_KEYS].sort(
-    (a, b) => summary[b].totalMiles - summary[a].totalMiles,
-  );
+  const sorted = sortTeamsByMiles(summary);
 
   listEl.innerHTML = "";
   const rowsByTeam = {};
@@ -93,22 +95,32 @@ export function dismissLoading() {
   }
 }
 
-export function wireMethodologyModal() {
-  const modal = document.getElementById("methodology");
-  const toggle = document.getElementById("methodology-toggle");
+// Shared open/close/Esc/focus-return plumbing for the project's `data-show`
+// modals. `onOpen` runs after the modal is unhidden but before the show
+// transition is triggered — a hook for content sync or animation replay.
+export function wireModal({
+  modal,
+  toggle,
+  closeSelector,
+  lockScroll = false,
+  onOpen,
+}) {
   if (!modal || !toggle) return;
 
   function open() {
     modal.hidden = false;
+    onOpen?.();
     requestAnimationFrame(() => {
       modal.dataset.show = "true";
     });
     document.addEventListener("keydown", onKey);
+    if (lockScroll) document.body.style.overflow = "hidden";
   }
 
   function close() {
     modal.dataset.show = "false";
     document.removeEventListener("keydown", onKey);
+    if (lockScroll) document.body.style.overflow = "";
     setTimeout(() => {
       modal.hidden = true;
       toggle.focus();
@@ -121,6 +133,14 @@ export function wireMethodologyModal() {
 
   toggle.addEventListener("click", open);
   modal
-    .querySelectorAll("[data-methodology-close]")
+    .querySelectorAll(closeSelector)
     .forEach((el) => el.addEventListener("click", close));
+}
+
+export function wireMethodologyModal() {
+  wireModal({
+    modal: document.getElementById("methodology"),
+    toggle: document.getElementById("methodology-toggle"),
+    closeSelector: "[data-methodology-close]",
+  });
 }
