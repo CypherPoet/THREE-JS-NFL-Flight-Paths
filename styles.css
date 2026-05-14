@@ -35,8 +35,8 @@
 :root {
   --radius: 10px;
   --pad: 14px;
-  --font-display: "Bricolage Grotesque", "Space Grotesk", "Inter", system-ui, sans-serif;
-  --font-ui: "Space Grotesk", "Inter", system-ui, sans-serif;
+  --font-display: "Unbounded", system-ui, sans-serif;
+  --font-ui: "Manrope", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -115,13 +115,9 @@ body {
 .topbar__titles h1 {
   margin: 0;
   font-family: var(--font-display);
-  font-variation-settings:
-    "opsz" 64,
-    "wdth" 96,
-    "wght" 650;
-  font-size: 23px;
+  font-size: 27px;
   font-weight: 650;
-  letter-spacing: -0.022em;
+  letter-spacing: -0.024em;
   color: var(--ink);
   line-height: 1.02;
 }
@@ -292,10 +288,6 @@ body {
 .panel__head h2 {
   margin: 0;
   font-family: var(--font-display);
-  font-variation-settings:
-    "opsz" 14,
-    "wdth" 88,
-    "wght" 700;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -596,14 +588,10 @@ body {
 .stadium-tooltip__title {
   margin: 0;
   font-family: var(--font-display);
-  font-variation-settings:
-    "opsz" 18,
-    "wdth" 92,
-    "wght" 650;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 650;
-  letter-spacing: -0.012em;
-  line-height: 1.18;
+  letter-spacing: -0.014em;
+  line-height: 1.16;
   color: var(--ink);
 }
 
@@ -808,12 +796,9 @@ body {
 .methodology__head h2 {
   margin: 0;
   font-family: var(--font-display);
-  font-variation-settings:
-    "opsz" 28,
-    "wdth" 92,
-    "wght" 650;
-  font-size: 17px;
-  letter-spacing: -0.01em;
+  font-size: 20px;
+  font-weight: 650;
+  letter-spacing: -0.012em;
   color: var(--ink);
 }
 
