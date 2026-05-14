@@ -1,12 +1,17 @@
 import * as THREE from "three";
 import { TEAMS } from "./data/teams.js";
-import { GLOBE_RADIUS, greatCircleArc, latLonToVec3 } from "./geo.js";
+import { GLOBE_RADIUS, RELIEF_LIFT, greatCircleArc, latLonToVec3 } from "./geo.js";
 
 const SEGMENTS = 96;
 const TRAVELER_BASE_RADIUS = 0.0075;
 const TRAVELER_GLOW_RADIUS = 0.018;
 const TRAVELER_SPEED_PER_RADIAN = 0.22; // radians traversed per second
 const TRAVELER_MIN_CYCLE_SECONDS = 4.5;
+
+// Marker stack — sit above the continent plate top so they don't get
+// swallowed by the elevated land geometry.
+const HOME_DOT_RADIUS = GLOBE_RADIUS * (1 + RELIEF_LIFT + 0.007);
+const AWAY_RING_RADIUS = GLOBE_RADIUS * (1 + RELIEF_LIFT + 0.004);
 
 // Build a Group containing every flight-path arc + every stadium marker
 // + an animated "traveler" sphere riding each arc. Each child is tagged with
@@ -107,7 +112,7 @@ export function createFlightPaths(legs, theme) {
   const homeMarkerRecords = [];
   for (const key of Object.keys(TEAMS)) {
     const team = TEAMS[key];
-    const pos = latLonToVec3(team.lat, team.lon, GLOBE_RADIUS * 1.012);
+    const pos = latLonToVec3(team.lat, team.lon, HOME_DOT_RADIUS);
     const geom = new THREE.SphereGeometry(0.008, 12, 12);
     const mat = new THREE.MeshBasicMaterial({
       color: new THREE.Color(team.accent),
@@ -144,7 +149,7 @@ export function createFlightPaths(legs, theme) {
       seen.get(key).teams.add(leg.team);
       continue;
     }
-    const pos = latLonToVec3(leg.toLat, leg.toLon, GLOBE_RADIUS * 1.01);
+    const pos = latLonToVec3(leg.toLat, leg.toLon, AWAY_RING_RADIUS);
     const geom = new THREE.RingGeometry(0.005, 0.01, 16);
     const mat = new THREE.MeshBasicMaterial({
       color: 0x514a3d,

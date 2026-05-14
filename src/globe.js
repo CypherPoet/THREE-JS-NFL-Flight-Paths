@@ -1,13 +1,12 @@
 import * as THREE from "three";
 import * as topojson from "topojson-client";
-import { geoPath, geoEquirectangular } from "d3-geo";
-import { GLOBE_RADIUS, latLonToVec3 } from "./geo.js";
+import { GLOBE_RADIUS, RELIEF_LIFT, latLonToVec3 } from "./geo.js";
+import { makeContinentRelief } from "./relief.js";
 
-// Build the off-white / midnight globe + country outlines + ground shadow disc.
-// Country shapes are painted onto a 2D equirectangular canvas used as the
-// sphere's diffuse map (with the borders strokes baked in). The sphere itself
-// stays geometrically smooth — markers + arc dots sit cleanly on a perfect
-// sphere instead of getting buried by displaced mountain ranges.
+// Build the off-white / midnight globe: a smooth ocean sphere with each
+// landmass extruded as a slightly-elevated 3D plate (the "relief"), country
+// borders etched as darker engravings sitting on top of the plate, plus
+// atmosphere halo, limb darkening and ground shadow.
 export async function createGlobe({ topoUrl, theme }) {
   const group = new THREE.Group();
   group.name = "globe";
@@ -23,24 +22,24 @@ export async function createGlobe({ topoUrl, theme }) {
   const countries = topojson.feature(topo, topo.objects[objectKey]);
   const meshLines = topojson.mesh(topo, topo.objects[objectKey]);
 
-  const cache = { countries, meshLines };
-
-  // ── Painted canvas → themed diffuse map ──────────────────────
-  const colorTexture = paintWorldCanvas(countries, meshLines, theme);
-
-  // ── Clay sphere ──────────────────────────────────────────────
+  // ── Smooth ocean sphere ──────────────────────────────────────
+  // No diffuse map any more — landmasses are real 3D plates on top.
   const sphereGeo = new THREE.SphereGeometry(GLOBE_RADIUS, 128, 128);
   const sphereMat = new THREE.MeshStandardMaterial({
     color: theme.sphereColor,
     roughness: 0.95,
     metalness: 0.0,
-    map: colorTexture,
   });
   const sphere = new THREE.Mesh(sphereGeo, sphereMat);
   sphere.castShadow = true;
   sphere.receiveShadow = true;
   sphere.name = "globe-sphere";
   group.add(sphere);
+
+  // ── Elevated continent plates (3D relief) ────────────────────
+  const relief = makeContinentRelief({ countries, theme });
+  relief.mesh.name = "continent-relief";
+  group.add(relief.mesh);
 
   // ── Soft inner limb darkening ────────────────────────────────
   const limbGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.015, 64, 64);
@@ -71,28 +70,22 @@ export async function createGlobe({ topoUrl, theme }) {
   return {
     group,
     sphere,
+    relief,
     lineGroup,
     limb,
     atmosphere,
     shadow,
-    cache,
   };
 }
 
 // Repaint everything theme-dependent on the existing globe meshes — used
 // when the user flips the dark-mode toggle. Avoids rebuilding geometry.
 export function applyThemeToGlobe(globe, theme) {
-  const { sphere, lineGroup, limb, atmosphere, shadow, cache } = globe;
+  const { sphere, relief, lineGroup, limb, atmosphere, shadow } = globe;
 
-  const colorTexture = paintWorldCanvas(
-    cache.countries,
-    cache.meshLines,
-    theme,
-  );
   sphere.material.color.set(theme.sphereColor);
-  sphere.material.map?.dispose();
-  sphere.material.map = colorTexture;
   sphere.material.needsUpdate = true;
+  relief.applyTheme(theme);
 
   // Atmosphere shader uniforms.
   atmosphere.material.uniforms.innerColor.value.set(theme.glowInnerColor);
@@ -113,42 +106,6 @@ export function applyThemeToGlobe(globe, theme) {
   shadow.material.map?.dispose();
   shadow.material.map = newShadowTexture;
   shadow.material.needsUpdate = true;
-}
-
-function paintWorldCanvas(countries, meshLines, theme) {
-  const width = 4096;
-  const height = 2048;
-
-  const colorCanvas = document.createElement("canvas");
-  colorCanvas.width = width;
-  colorCanvas.height = height;
-  const cctx = colorCanvas.getContext("2d");
-
-  cctx.fillStyle = theme.oceanFill;
-  cctx.fillRect(0, 0, width, height);
-
-  const projection = geoEquirectangular()
-    .scale(width / (2 * Math.PI))
-    .translate([width / 2, height / 2]);
-  const pathColor = geoPath(projection, cctx);
-
-  cctx.fillStyle = theme.landFill;
-  cctx.beginPath();
-  pathColor({ type: "FeatureCollection", features: countries.features });
-  cctx.fill();
-
-  cctx.strokeStyle = theme.borderStroke;
-  cctx.lineWidth = theme.borderWidth;
-  cctx.beginPath();
-  pathColor(meshLines);
-  cctx.stroke();
-
-  const colorTexture = new THREE.CanvasTexture(colorCanvas);
-  colorTexture.colorSpace = THREE.SRGBColorSpace;
-  colorTexture.anisotropy = 8;
-  colorTexture.wrapS = THREE.RepeatWrapping;
-
-  return colorTexture;
 }
 
 function makeAtmosphere(theme) {
@@ -207,16 +164,16 @@ function makeAtmosphere(theme) {
 }
 
 function countryLines(meshGeometry, theme) {
+  // Country borders sit just above the relief plate top, so they read as
+  // darker engravings carved into the elevated land rather than floating
+  // above the ocean.
+  const lineRadius = GLOBE_RADIUS * (1 + RELIEF_LIFT + 0.0008);
   // topojson.mesh() returns a bare GeoJSON geometry (no enclosing Feature).
   const positions = [];
   const consume = (coords) => {
     for (let i = 0; i < coords.length - 1; i++) {
-      const a = latLonToVec3(coords[i][1], coords[i][0], GLOBE_RADIUS * 1.004);
-      const b = latLonToVec3(
-        coords[i + 1][1],
-        coords[i + 1][0],
-        GLOBE_RADIUS * 1.004,
-      );
+      const a = latLonToVec3(coords[i][1], coords[i][0], lineRadius);
+      const b = latLonToVec3(coords[i + 1][1], coords[i + 1][0], lineRadius);
       positions.push(a.x, a.y, a.z, b.x, b.y, b.z);
     }
   };
