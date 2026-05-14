@@ -80,14 +80,6 @@
   --shadow: rgba(28, 26, 22, 0.18);
   --tooltip-bg: rgba(28, 26, 22, 0.92);
   --tooltip-ink: #f6f1e6;
-  --logo-football-fill: #8a5a3b;
-  --logo-football-stroke: #4a2f1f;
-  --logo-football-lace: #f5ecdc;
-  --logo-globe-stroke: #a89878;
-  --logo-orbit-red: #d4453a;
-  --logo-orbit-yellow: #e3a720;
-  --logo-orbit-blue: #4a8bc6;
-  --logo-orbit-purple: #8c5fb8;
 }
 
 [data-theme="dark"] {
@@ -104,14 +96,6 @@
   --shadow: rgba(0, 0, 0, 0.65);
   --tooltip-bg: rgba(241, 236, 221, 0.95);
   --tooltip-ink: #10131a;
-  --logo-football-fill: #a06840;
-  --logo-football-stroke: #2a1a10;
-  --logo-football-lace: #f5ecdc;
-  --logo-globe-stroke: rgba(241, 236, 221, 0.35);
-  --logo-orbit-red: #e76055;
-  --logo-orbit-yellow: #f0b73a;
-  --logo-orbit-blue: #5fa3dd;
-  --logo-orbit-purple: #a679cd;
 }
 
 :root {
@@ -189,49 +173,6 @@ body {
 
 img.topbar__mark {
   object-fit: contain;
-}
-
-.topbar__mark-globe {
-  stroke: var(--logo-globe-stroke);
-  fill: var(--paper);
-  opacity: 0.65;
-}
-
-.topbar__mark-orbit ellipse {
-  fill: none;
-}
-.topbar__mark-orbit circle {
-  stroke: none;
-}
-.topbar__mark-orbit--red ellipse,
-.topbar__mark-orbit--red circle {
-  stroke: var(--logo-orbit-red);
-  fill: var(--logo-orbit-red);
-}
-.topbar__mark-orbit--yellow ellipse,
-.topbar__mark-orbit--yellow circle {
-  stroke: var(--logo-orbit-yellow);
-  fill: var(--logo-orbit-yellow);
-}
-.topbar__mark-orbit--blue ellipse,
-.topbar__mark-orbit--blue circle {
-  stroke: var(--logo-orbit-blue);
-  fill: var(--logo-orbit-blue);
-}
-.topbar__mark-orbit--purple ellipse,
-.topbar__mark-orbit--purple circle {
-  stroke: var(--logo-orbit-purple);
-  fill: var(--logo-orbit-purple);
-}
-
-.topbar__mark-football > ellipse {
-  fill: var(--logo-football-fill);
-  stroke: var(--logo-football-stroke);
-}
-
-.topbar__mark-laces path {
-  stroke: var(--logo-football-lace);
-  fill: none;
 }
 
 .topbar__titles h1 {
