@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { TEAMS } from "./data/teams.js";
+import { TEAMS, INTERNATIONAL_VENUES } from "./data/teams.js";
 import { GLOBE_RADIUS, RELIEF_LIFT, greatCircleArc, latLonToVec3 } from "./geo.js";
 
 const SEGMENTS = 96;
@@ -12,6 +12,12 @@ const TRAVELER_MIN_CYCLE_SECONDS = 4.5;
 // swallowed by the elevated land geometry.
 const HOME_DOT_RADIUS = GLOBE_RADIUS * (1 + RELIEF_LIFT + 0.007);
 const AWAY_RING_RADIUS = GLOBE_RADIUS * (1 + RELIEF_LIFT + 0.004);
+
+// Invisible proxy spheres are larger than the visible markers so cursor
+// targeting feels forgiving without requiring pixel-perfect aim. Tuned so
+// the leave zone feels snappy (smaller is sticky) — roughly a 20 px target
+// on screen at the default camera distance.
+const HIT_TEST_RADIUS = 0.03;
 
 // Build a Group containing every flight-path arc + every stadium marker
 // + an animated "traveler" sphere riding each arc. Each child is tagged with
@@ -32,6 +38,13 @@ export function createFlightPaths(legs, theme) {
   const travelersGroup = new THREE.Group();
   travelersGroup.name = "travelers";
   group.add(travelersGroup);
+
+  // Invisible raycast proxies sit slightly above each visible marker. They
+  // give the cursor a generous target without touching marker styling, and
+  // dedupe shared-stadium teams (LAR/LAC, NYG/NYJ) to a single hit.
+  const hitTestGroup = new THREE.Group();
+  hitTestGroup.name = "hitTests";
+  group.add(hitTestGroup);
 
   // ── Arcs ──────────────────────────────────────────────────────
   const arcRecords = [];
@@ -170,14 +183,79 @@ export function createFlightPaths(legs, theme) {
     markersGroup.add(ring);
   }
 
+  // ── Hit-test proxies ──────────────────────────────────────────
+  // One proxy per home stadium location (NYG/NYJ at MetLife and LAR/LAC at
+  // SoFi share a single hit). Plus one proxy per international venue used
+  // in the current schedule, since those don't overlap any home marker.
+  const hitTestRecords = [];
+
+  const homeByLocation = new Map();
+  for (const key of Object.keys(TEAMS)) {
+    const team = TEAMS[key];
+    const locKey = `${team.lat.toFixed(3)},${team.lon.toFixed(3)}`;
+    if (!homeByLocation.has(locKey)) {
+      homeByLocation.set(locKey, {
+        teams: [],
+        pos: latLonToVec3(team.lat, team.lon, HOME_DOT_RADIUS),
+      });
+    }
+    homeByLocation.get(locKey).teams.push(key);
+  }
+  for (const { teams, pos } of homeByLocation.values()) {
+    const hit = makeHitProxy(pos);
+    hit.userData = { kind: "home", teams };
+    hitTestGroup.add(hit);
+    hitTestRecords.push(hit);
+  }
+
+  const internationalSeen = new Map();
+  for (const leg of legs) {
+    if (!leg.destinationVenueKey) continue;
+    const venue = INTERNATIONAL_VENUES[leg.destinationVenueKey];
+    if (!venue) continue;
+    if (internationalSeen.has(leg.destinationVenueKey)) {
+      internationalSeen.get(leg.destinationVenueKey).teams.add(leg.team);
+      continue;
+    }
+    const pos = latLonToVec3(venue.lat, venue.lon, AWAY_RING_RADIUS);
+    const hit = makeHitProxy(pos);
+    hit.userData = {
+      kind: "international",
+      venueKey: leg.destinationVenueKey,
+      teams: new Set([leg.team]),
+    };
+    internationalSeen.set(leg.destinationVenueKey, hit.userData);
+    hitTestGroup.add(hit);
+    hitTestRecords.push(hit);
+  }
+
   return {
     group,
     arcsGroup,
     markersGroup,
     travelersGroup,
+    hitTestGroup,
     arcRecords,
     homeMarkerRecords,
+    hitTestRecords,
   };
+}
+
+function makeHitProxy(pos) {
+  const geom = new THREE.SphereGeometry(HIT_TEST_RADIUS, 8, 8);
+  // Don't render anything but keep the mesh raycastable. `material.visible`
+  // is a brittle signal — different Three releases have toggled whether the
+  // raycaster respects it. opacity 0 + colorWrite/depthWrite off is the
+  // belt-and-braces version that works everywhere.
+  const mat = new THREE.MeshBasicMaterial({
+    transparent: true,
+    opacity: 0,
+    depthWrite: false,
+    colorWrite: false,
+  });
+  const mesh = new THREE.Mesh(geom, mat);
+  mesh.position.copy(pos);
+  return mesh;
 }
 
 // Show/hide arcs + markers + travelers based on the currently-selected set

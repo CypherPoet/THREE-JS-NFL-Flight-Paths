@@ -20,6 +20,7 @@ import {
   updateHeaderMetrics,
   dismissLoading,
 } from "./ui.js";
+import { createTooltip } from "./tooltip.js";
 import { THEMES, getInitialTheme, persistTheme } from "./themes.js";
 
 const canvas = document.getElementById("scene-canvas");
@@ -112,6 +113,68 @@ let currentFlightPaths = null;
 let currentPanel = null;
 let currentSeason = DEFAULT_SEASON;
 
+// ── Stadium tooltip + hover raycaster ───────────────────────────
+const tooltip = createTooltip({
+  camera,
+  renderer,
+  getGlobeGroup: () => globe?.group ?? null,
+});
+const raycaster = new THREE.Raycaster();
+const pointerNDC = new THREE.Vector2();
+const hitWorld = new THREE.Vector3();
+const globeWorld = new THREE.Vector3();
+let pointerInside = false;
+
+function teamIsActive(teamKey) {
+  return currentPanel ? currentPanel.active.has(teamKey) : true;
+}
+
+// The raycaster has no concept of the globe occluding back-side proxies, so
+// the ray can pierce through to a marker on the far side. The marker is on
+// the visible hemisphere iff the angle between its outward normal (M − G)
+// and the camera vector (C − G) is acute.
+function isFrontFacing(hit) {
+  if (!globe) return true;
+  hit.object.getWorldPosition(hitWorld);
+  globe.group.getWorldPosition(globeWorld);
+  const dot =
+    (hitWorld.x - globeWorld.x) * (camera.position.x - globeWorld.x) +
+    (hitWorld.y - globeWorld.y) * (camera.position.y - globeWorld.y) +
+    (hitWorld.z - globeWorld.z) * (camera.position.z - globeWorld.z);
+  return dot > 0;
+}
+
+function updateHover() {
+  if (!currentFlightPaths || !pointerInside) {
+    tooltip.setHover(null, teamIsActive);
+    return;
+  }
+  raycaster.setFromCamera(pointerNDC, camera);
+  const hits = raycaster.intersectObjects(
+    currentFlightPaths.hitTestGroup.children,
+    false,
+  );
+  const front = hits.find(isFrontFacing);
+  tooltip.setHover(front ?? null, teamIsActive);
+}
+
+renderer.domElement.addEventListener("pointermove", (event) => {
+  const rect = renderer.domElement.getBoundingClientRect();
+  pointerNDC.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+  pointerNDC.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+  pointerInside = true;
+  updateHover();
+});
+
+renderer.domElement.addEventListener("pointerleave", () => {
+  pointerInside = false;
+  tooltip.setHover(null, teamIsActive);
+});
+
+window.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") tooltip.clear();
+});
+
 async function start() {
   const TOPO_URL = new URL(
     "../data/countries-110m.json",
@@ -161,6 +224,9 @@ async function start() {
       onChange: (active) => {
         applyTeamFilter(currentFlightPaths, active);
         updateHeaderMetrics({ active, summary });
+        // Re-evaluate the tooltip — a toggled-off team's marker should drop
+        // its tooltip, and a toggled-on team should pick one up.
+        updateHover();
       },
     });
     wireSelectAllNone(currentPanel);
@@ -213,6 +279,7 @@ function animate() {
   const elapsed = timer.getElapsed();
   controls.update(delta);
   if (currentFlightPaths) tickTravelers(currentFlightPaths, elapsed);
+  if (tooltip.isVisible()) tooltip.updatePosition();
   renderer.render(scene, camera);
 }
 
