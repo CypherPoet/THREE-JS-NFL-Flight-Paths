@@ -21,6 +21,5 @@ Source modules live in `src/` — `ls src/` for the current map. Worth knowing o
 
 ## Conventions
 
-- Match the gitmoji-prefixed commit style in `git log` (`🎨` style/refactor, `🔧` config, `✨` feature, `📝` docs, `🐛` fix).
 - Three.js reference skills are installed under `.claude/skills/threejs-*` — reach for them when working with Three APIs.
 - Session handoffs live in `.claude/handoffs/` (latest file = current state, chained via "Continues from"). Use the `session-handoff` skill to read/write them.

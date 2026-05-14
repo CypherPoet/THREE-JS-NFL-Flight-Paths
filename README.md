@@ -6,7 +6,7 @@
 
 [![Live](https://img.shields.io/badge/Live-cypherpoet.github.io-c2410c?style=for-the-badge&logo=githubpages&logoColor=white)](https://cypherpoet.github.io/THREE-JS-NFL-Flight-Paths/) [![Built with](https://img.shields.io/badge/Built_with-Three.js-f5efe2?style=for-the-badge&logo=threedotjs&logoColor=04060d)](https://threejs.org/) [![Slate](https://img.shields.io/badge/Slate-2026_Confirmed-1c1a16?style=for-the-badge&logo=nfl&logoColor=white)](#the-schedule)
 
-A small interactive Three.js scene that plots **every confirmed NFL road trip of the 2026 season** as a great-circle arc on an interactive globe. Pick a team, watch their tour of the league light up, and read off the total air miles they'll log. Built as a way to stare at travel inequality — Seattle vs. Boston, transatlantic detours, the trans-Pacific haul to Melbourne — without squinting at a spreadsheet.
+A small interactive Three.js scene that plots **every confirmed NFL road trip of the 2026 season** as a great-circle arc on an interactive globe. Pick a team, watch their tour of the league light up, and read off the total air miles they'll log.
 
 → **Open the live globe · [cypherpoet.github.io/THREE-JS-NFL-Flight-Paths](https://cypherpoet.github.io/THREE-JS-NFL-Flight-Paths/)**
 
@@ -18,16 +18,16 @@ A small interactive Three.js scene that plots **every confirmed NFL road trip of
 - **Animated travelers.** Every arc is ridden by a small team-coloured pellet looping from home stadium to destination venue, with a soft additive glow that pulses in flight.
 - **Team-coloured arcs.** Each flight path uses the travelling team's primary brand accent. Stadium markers and travelers match.
 - **Light + dark modes.** A toggle in the top bar swaps the whole scene to a coordinated palette and remembers the choice.
-- **Filter by clicking.** Click a team to toggle it; *All* / *None* for sweeping selections. The team list is sorted by total miles travelled.
+- **Filter by clicking.** Click a team to toggle it; _All_ / _None_ for sweeping selections. The team list is sorted by total miles travelled.
 - **2026 ↔ 2025 toggle.** Flip between the in-progress 2026 slate and a full 2025 reference slate.
 - **Live mileage tally.** League-wide total + sum of selected teams in the header.
 
 ## A Look Around
 
-| | |
-|---|---|
+|                                                                     |                                                                                 |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
 | ![Atlantic spin showing trans-Atlantic arcs](media/02-atlantic.png) | ![A single team solo'd, showing a long trans-Pacific arc](media/03-pacific.png) |
-| ![Dark mode hero](media/04-dark-hero.png) | ![Dark mode rotated to the Atlantic](media/05-dark-atlantic.png) |
+| ![Dark mode hero](media/04-dark-hero.png)                           | ![Dark mode rotated to the Atlantic](media/05-dark-atlantic.png)                |
 
 ## The Schedule
 
