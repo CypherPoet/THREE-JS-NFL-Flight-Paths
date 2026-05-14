@@ -8,6 +8,7 @@ dist
 !.env.example
 /tmp
 .playwright-cli
+.claude/worktrees/
 
 
 private/
