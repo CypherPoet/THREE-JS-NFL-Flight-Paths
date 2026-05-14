@@ -223,6 +223,7 @@ async function start() {
       onChange: (active) => {
         applyTeamFilter(currentFlightPaths, active);
         updateHeaderMetrics({ active, summary });
+        tooltip.refreshActive();
         updateHover();
       },
     });

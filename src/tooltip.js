@@ -92,7 +92,14 @@ export function createTooltip({
     currentHover = null;
   }
 
-  function render(content, hit) {
+  function render(hit) {
+    // Recompute content here (rather than reusing whatever setHover saw)
+    // so the panel filter that fired between hover and timer fire is honoured.
+    const content = buildContent(hit.object.userData);
+    if (!content) {
+      clear();
+      return;
+    }
     body.innerHTML = content.bodyHTML;
     photoImg.src = "";
     photo.dataset.state = "loading";
@@ -115,6 +122,21 @@ export function createTooltip({
     tipWidth = tipRect.width;
     tipHeight = tipRect.height;
     place();
+  }
+
+  // Re-render or dismiss an already-showing tooltip after the active-team
+  // set changes. Photo stays — the venue itself didn't change.
+  function refreshActive() {
+    if (!anchor) return;
+    const fresh = buildContent(anchor.userData);
+    if (!fresh) {
+      clear();
+      return;
+    }
+    body.innerHTML = fresh.bodyHTML;
+    const tipRect = root.getBoundingClientRect();
+    tipWidth = tipRect.width;
+    tipHeight = tipRect.height;
   }
 
   function buildContent(userData) {
@@ -205,8 +227,7 @@ export function createTooltip({
       return;
     }
 
-    const content = buildContent(userData);
-    if (!content) {
+    if (!buildContent(userData)) {
       scheduleHide();
       return;
     }
@@ -214,7 +235,7 @@ export function createTooltip({
     currentHover = userData;
     clearTimers();
     showTimer = setTimeout(() => {
-      render(content, hit);
+      render(hit);
       show();
     }, anchor ? 0 : SHOW_DELAY_MS);
   }
@@ -272,6 +293,7 @@ export function createTooltip({
 
   return {
     setHover,
+    refreshActive,
     clear,
     updatePosition: place,
     isVisible: () => root.dataset.show === "true",
