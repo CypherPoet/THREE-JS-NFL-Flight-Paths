@@ -78,6 +78,27 @@
           </span>
           <button
             type="button"
+            id="mileage-toggle"
+            class="theme-toggle"
+            aria-label="Per-team mileage breakdown"
+            aria-haspopup="dialog"
+            aria-controls="mileage"
+            title="Per-team mileage breakdown"
+          >
+            <svg
+              viewBox="-14 -10 28 20"
+              width="20"
+              height="20"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                d="M13 0L0 -1.8L-4 -8L-6 -8L-3 -1.8L-10 -1.8L-12 -4L-13 -4L-11 0L-13 4L-12 4L-10 1.8L-3 1.8L-6 8L-4 8L0 1.8Z"
+              />
+            </svg>
+          </button>
+          <button
+            type="button"
             id="methodology-toggle"
             class="theme-toggle"
             aria-label="How travel miles are calculated"
@@ -179,6 +200,37 @@
       <div class="loading" id="loading">
         <div class="loading__bar"></div>
         <span>Loading globe</span>
+      </div>
+
+      <div
+        class="mileage"
+        id="mileage"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="mileage-title"
+        data-show="false"
+        hidden
+      >
+        <div class="mileage__scrim" data-mileage-close></div>
+        <article class="mileage__card">
+          <header class="mileage__head">
+            <div>
+              <h2 id="mileage-title">Team travel miles</h2>
+              <p class="mileage__subtitle" id="mileage-subtitle">
+                Full-season distances by team
+              </p>
+            </div>
+            <button
+              type="button"
+              class="mileage__close"
+              aria-label="Close"
+              data-mileage-close
+            >
+              ×
+            </button>
+          </header>
+          <ol class="mileage__list" id="mileage-list"></ol>
+        </article>
       </div>
 
       <div

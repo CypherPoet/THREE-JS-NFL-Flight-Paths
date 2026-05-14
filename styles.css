@@ -903,3 +903,259 @@ body {
     max-height: 88vh;
   }
 }
+
+/* ── Mileage breakdown modal ───────────────────────────────── */
+.mileage[hidden] {
+  display: none;
+}
+
+.mileage {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+}
+
+.mileage[data-show="true"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mileage__scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--shadow);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.mileage__card {
+  position: relative;
+  max-width: 720px;
+  max-height: 84vh;
+  width: 100%;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 24px 60px -20px var(--shadow);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: translateY(8px);
+  transition: transform 200ms ease;
+}
+
+.mileage[data-show="true"] .mileage__card {
+  transform: translateY(0);
+}
+
+.mileage__head {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.mileage__head h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-variation-settings:
+    "opsz" 28,
+    "wdth" 92,
+    "wght" 650;
+  font-size: 17px;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.mileage__subtitle {
+  margin: 4px 0 0;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ink-mute);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.mileage__close {
+  background: transparent;
+  border: 0;
+  color: var(--ink-mute);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition:
+    color 120ms ease,
+    background 120ms ease;
+}
+.mileage__close:hover {
+  color: var(--ink);
+  background: var(--bg-deep);
+}
+
+.mileage__list {
+  list-style: none;
+  margin: 0;
+  padding: 8px 8px 14px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ink-mute) transparent;
+}
+
+.mileage__list::-webkit-scrollbar {
+  width: 6px;
+}
+.mileage__list::-webkit-scrollbar-thumb {
+  background: var(--ink-mute);
+  border-radius: 3px;
+  opacity: 0.4;
+}
+
+.mileage-row {
+  display: grid;
+  grid-template-columns: 188px 1fr 84px;
+  align-items: center;
+  gap: 14px;
+  padding: 9px 14px;
+  border-radius: 6px;
+  --accent: var(--accent-light);
+}
+
+[data-theme="dark"] .mileage-row {
+  --accent: var(--accent-dark);
+}
+
+.mileage-row + .mileage-row {
+  border-top: 1px solid var(--line);
+}
+
+.mileage-row__label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.mileage-row__chip {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  background: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+}
+
+.mileage-row__abbr {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ink-mute);
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+.mileage-row__name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mileage-row__track {
+  position: relative;
+  height: 18px;
+  padding-right: 22px;
+}
+
+.mileage-row__trail {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 2px;
+  width: 0;
+  transform: translateY(-50%);
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    color-mix(in srgb, var(--accent) 12%, transparent) 18%,
+    color-mix(in srgb, var(--accent) 55%, transparent) 55%,
+    var(--accent) 100%
+  );
+  border-radius: 999px;
+  filter: drop-shadow(0 0 2px color-mix(in srgb, var(--accent) 35%, transparent));
+  transition: width 780ms cubic-bezier(0.18, 0.7, 0.22, 1);
+}
+
+.mileage-row--drawn .mileage-row__trail {
+  width: calc(var(--pct) - 6px);
+}
+
+.mileage-row__plane {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 22px;
+  height: 14px;
+  color: var(--accent);
+  transform: translate(0, -50%) scale(0.6);
+  opacity: 0;
+  transition:
+    left 780ms cubic-bezier(0.18, 0.7, 0.22, 1),
+    transform 780ms cubic-bezier(0.18, 0.7, 0.22, 1),
+    opacity 240ms ease 120ms;
+  filter: drop-shadow(0 1px 1px var(--shadow));
+}
+
+.mileage-row--drawn .mileage-row__plane {
+  left: calc(var(--pct) - 6px);
+  transform: translate(0, -50%) scale(1);
+  opacity: 1;
+}
+
+.mileage-row__value {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 760px) {
+  .mileage {
+    padding: 14px;
+  }
+  .mileage__card {
+    max-height: 90vh;
+  }
+  .mileage-row {
+    grid-template-columns: 130px 1fr 70px;
+    gap: 10px;
+    padding: 8px 10px;
+  }
+  .mileage-row__name {
+    display: none;
+  }
+  .mileage-row__track {
+    height: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mileage-row__trail,
+  .mileage-row__plane {
+    transition: none;
+  }
+}
