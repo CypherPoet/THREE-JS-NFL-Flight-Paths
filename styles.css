@@ -54,7 +54,6 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-ui);
-  font-feature-settings: "ss01", "cv11";
   overflow: hidden;
   transition: background-color 250ms ease;
 }
