@@ -31,7 +31,7 @@ A small interactive Three.js scene that plots **every confirmed NFL road trip of
 
 ## The Schedule
 
-Schedules live in `src/data/schedule-2026.js` (current season) and `src/data/schedule-2025.js` (prior season, full 272-game slate). Stadiums + international venues + team accent colours live in `src/data/teams.js`. A travel leg is the great-circle distance from the away team's home stadium to the destination venue; for international games, **both** teams get a leg since neither plays at home.
+Schedules live in `src/data/schedule-2026.js` (current season) and `src/data/schedule-2025.js`. Stadiums + international venues + team accent colors live in `src/data/teams.js`. A travel leg is the great-circle distance from the away team's home stadium to the destination venue; for international games, **both** teams get a leg since neither plays at home.
 
 ## Run It Locally
 
@@ -64,11 +64,10 @@ Make sure GitHub Pages is set to **GitHub Actions** under `Settings → Pages` f
 ## Acknowledgements
 
 - **[Three.js](https://threejs.org/)** by [Ricardo Cabello](https://mrdoob.com/) & contributors
-- **[d3-geo](https://github.com/d3/d3-geo)** + **[topojson-client](https://github.com/topojson/topojson-client)** by Mike Bostock — for working with the world topology
+- **[d3-geo](https://github.com/d3/d3-geo)** + **[topojson-client](https://github.com/topojson/topojson-client)** by Mike Bostock
 - **[world-atlas](https://github.com/topojson/world-atlas)** — the 110m TopoJSON used as the land source
 - **2026 schedule data** sourced from the league's pre-release announcements on [nfl.com](https://www.nfl.com/news/2026-nfl-schedule-release-nine-international-games-dates-times-matchups)
-- **Stadium coordinates** are public-domain venue locations; **team brand colours** are the franchises' own. This project is an unofficial fan visualisation and is not affiliated with the NFL.
-- **Typefaces** served via [Google Fonts](https://fonts.google.com/) — current selection is wired in `index.html`
+- **Stadium coordinates** are public-domain venue locations; **team brand colours** are the franchises' own. This project is an educational data visualisation and is not affiliated with the NFL.
 
 ## License
 
