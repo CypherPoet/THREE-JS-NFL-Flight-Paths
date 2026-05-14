@@ -31,7 +31,7 @@ A small interactive Three.js scene that plots **every confirmed NFL road trip of
 
 ## The Schedule
 
-Schedules live in `src/data/schedule-2026.js` and `src/data/schedule-2025.js` — the 2026 file is the load-bearing input and the 2025 file is a full-season reference. Stadiums + international venues + team accent colours live in `src/data/teams.js`. A travel leg is the great-circle distance from the away team's home stadium to the destination venue; for international games, **both** teams get a leg since neither plays at home.
+Schedules live in `src/data/schedule-2026.js` (current season) and `src/data/schedule-2025.js` (prior season, full 272-game slate). Stadiums + international venues + team accent colours live in `src/data/teams.js`. A travel leg is the great-circle distance from the away team's home stadium to the destination venue; for international games, **both** teams get a leg since neither plays at home.
 
 ## Run It Locally
 

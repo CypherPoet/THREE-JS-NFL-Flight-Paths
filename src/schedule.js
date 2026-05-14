@@ -6,12 +6,12 @@ import { greatCircleMiles } from "./geo.js";
 export const SCHEDULES = {
   "2026": {
     label: "2026 Season",
-    sublabel: "Confirmed slate — full release 2026-05-14",
+    sublabel: "Full regular-season schedule",
     games: SCHEDULE_2026,
   },
   "2025": {
     label: "2025 Season",
-    sublabel: "Sample reference slate",
+    sublabel: "Full regular-season schedule",
     games: SCHEDULE_2025,
   },
 };
