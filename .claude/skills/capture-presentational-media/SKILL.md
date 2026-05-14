@@ -1,123 +1,105 @@
 ---
 name: capture-presentational-media
-description: Regenerate every screenshot + walkthrough video under media/ for a presentational Three.js project. Use when the scene changes, the HUD restyles, theme variants are added, or anything visual gets refreshed. Triggers on phrases like "refresh the screenshots", "regenerate media", "update the README images", or "capture new walkthrough".
-allowed-tools: Bash(playwright-cli:*), Read, Bash(python3:*), Bash(lsof:*), Bash(kill:*), Bash(ls:*), Bash(rm:*), Bash(trash:*)
+description: Regenerate every screenshot + walkthrough video under media/ for a presentational frontend project (Three.js, WebGL, or any interactive web scene). Use when the scene changes, the HUD restyles, theme variants are added, or anything visual gets refreshed. Triggers on phrases like "refresh the screenshots", "regenerate media", "update the README images", or "capture new walkthrough".
+allowed-tools: Bash(playwright-cli:*), Read, Bash(npm:*), Bash(python3:*), Bash(lsof:*), Bash(kill:*), Bash(ls:*), Bash(rm:*), Bash(trash:*), Bash(node:*), Bash(ffmpeg:*), Bash(git:*)
 ---
 
 # capture-presentational-media
 
-Reusable automation for the screenshots and walkthrough recording committed to `media/`. Replaces the by-hand playwright dance from the project's early sessions.
+Reusable automation for the screenshots and walkthrough recording committed to `media/`. The skill is project-agnostic — it documents the playwright-cli + Playwright Node API patterns that work for any presentational frontend, plus the gotchas that bite during capture.
 
 ## When to use
 
-- The Three.js scene was edited (new geometry, lighting, materials)
-- The HUD or boot screen was restyled
-- The radio gained or renamed stations
-- The reader modal layout shifted
-- Before tagging a release / sharing the live URL
+- The 3D scene, animation, or visual effect was edited
+- The HUD, chrome, or theme palette restyled
+- A new state, mode, or variant was added that should appear in README
+- Typography, layout, or copy in headings changed (screenshots go stale)
+- Before tagging a release or sharing a live URL
 
-## Prerequisites
+## Before you start
 
-1. A local HTTP server is serving the project root at **http://localhost:8767**
-   - If not running, start one in the background:
-     ```bash
-     python3 -m http.server 8767 -d /Users/ethan/Projects/Misc-Experiments/NASA-APOD-Showcase-01 \
-       > /tmp/apod-server.log 2>&1 &
-     ```
-2. `playwright-cli` is on PATH (verify with `playwright-cli --version`)
-3. The Chrome browser is available to playwright-cli
+Gather four things from the project — do not assume.
 
-## Outputs
+1. **Dev server URL.** Check `package.json` scripts and run the project's dev command (`npm run dev`, `pnpm dev`, `python3 -m http.server`, etc.). Vite defaults to `http://localhost:5173/`; many projects add a base path (e.g. `/<repo-name>/` for gh-pages). Verify with `lsof -iTCP:<port> -sTCP:LISTEN -P`.
+2. **Current `media/` contents.** `ls media/` tells you the filenames to replace. Match the existing naming (don't rename them — README links will break). If `README.md` references images, `grep -n "media/" README.md` confirms which are load-bearing.
+3. **What changed visually since the last capture.** `git log --oneline -- media/` shows when media was last touched; `git log --oneline <last-media-commit>..HEAD` shows what's been visually relevant since. This determines whether you need all shots refreshed or just a subset.
+4. **How to drive the scene from the outside.** Most projects don't expose `window.__app = { camera, controls }`. You'll usually need to drive the scene via real pointer events on the canvas (rotation, zoom) and DOM clicks on the UI (mode toggles, selections). `grep -n "window\." src/` confirms what's exported.
 
-All written under `media/` in the project root:
+Then verify `playwright-cli --version` works and Chrome is available.
 
-| File | What it shows |
-|------|---------------|
-| `01-boot.png` | Boot screen with "Press enter to begin" |
-| `02-gallery.png` | Main 3D scene with full HUD chrome (mug visible on plinth) |
-| `03-dial.png` | Radio dial open, current station highlighted |
-| `04-dial-voyager.png` | Switched to Voyager Echo to demonstrate station change |
-| `05-reader.png` | Curator's note (full APOD explanation) modal |
-| `06-hud-voyager.png` | Back in gallery with the new station playing |
-| `09-mug-easter-egg.png` | Close-up of the coffee-mug easter egg on the plinth |
-| `walkthrough.mp4` | ~15 second H.264 recording of the whole tour |
+## Capture loop pattern
 
-## Capture sequence
+For each shot:
 
-Two passes: screenshots first (analysis-friendly, can pause between shots), then the walkthrough video as a single tight chain (no pauses — the recording captures every second the playwright session is alive).
+1. **Set up** — `playwright-cli close-all 2>/dev/null; playwright-cli open --browser=chrome && playwright-cli resize 1920 1200`
+2. **Navigate** — `playwright-cli goto "<url>?cb=$(date +%s)"` (cache-buster avoids stale-asset confusion across iterations)
+3. **Wait for the scene to settle** — `sleep 3-5`, longer if assets load over the network. If unsure, `playwright-cli eval` a state check (e.g. `() => document.querySelectorAll('.thing').length`) before screenshotting.
+4. **Manipulate the scene** — drag the canvas, click UI elements, toggle themes (see idioms below)
+5. **Park the mouse off-canvas** — `playwright-cli mousemove 5 5`. Critical: leaving the cursor over the canvas can leave a hover tooltip visible in the screenshot.
+6. **Wait for damping/transition to finish** — `sleep 1-2`. OrbitControls with `dampingFactor: 0.08` needs ~500ms after the last pointer event.
+7. **Screenshot** — `playwright-cli screenshot --filename=<absolute-path-inside-project-root>/media/<n>.png`. Paths outside the project root are rejected by playwright-cli's sandbox.
+8. **Verify** — `Read` the PNG. Confirm the framing, theme, selection, and tooltips/overlays match expectation. Iterate.
 
-### Pass 1 — Screenshots
+After the last shot: `playwright-cli close` and stop the dev server.
 
-```bash
-# Reset any prior session
-playwright-cli close-all 2>/dev/null
-playwright-cli open --browser=chrome
-playwright-cli resize 1920 1200
+## playwright-cli idioms
 
-# ---- BOOT ----
-playwright-cli goto "http://localhost:8767/?cb=$(date +%s)"
-sleep 2
-playwright-cli screenshot --filename=/Users/ethan/Projects/Misc-Experiments/NASA-APOD-Showcase-01/media/01-boot.png
+| Need | Command |
+|---|---|
+| Drag the canvas to rotate / pan | `mousemove X1 Y` → `mousedown` → `mousemove X2 Y` (multiple intermediate stops for smoothness) → `mouseup` |
+| Zoom (OrbitControls dolly) | `mousewheel 0 dy` (positive `dy` = zoom out in default OrbitControls) |
+| Click a button by DOM | `playwright-cli eval "() => document.getElementById('foo').click()"` |
+| Click via accessibility ref | `playwright-cli snapshot --raw \| grep "<text>"` to find the ref, then `playwright-cli click eNN` — **refs regenerate every snapshot**, never paste literal refs from a script |
+| Read app state | `playwright-cli eval "() => ({ theme: document.documentElement.dataset.theme })"` |
+| Toggle theme | usually `eval "() => document.getElementById('theme-toggle').click()"` |
+| Press a key | `playwright-cli press Escape` |
 
-# ---- GALLERY ----
-playwright-cli eval "() => document.getElementById('boot-enter').click()"
-sleep 3
-playwright-cli screenshot --filename=/Users/ethan/Projects/Misc-Experiments/NASA-APOD-Showcase-01/media/02-gallery.png
+Sandbox note: `playwright-cli screenshot --filename=` only accepts paths inside the project root or `.playwright-cli/`. Write final shots straight into `media/`; throw test shots into `.playwright-cli/` (git-ignored).
 
-# ---- RADIO DIAL ----
-playwright-cli snapshot --raw 2>&1 | grep "Cassini Drift Saturn" | head -1
-playwright-cli click eYY    # station-name button — replace with current ref
-sleep 1
-playwright-cli screenshot --filename=/Users/ethan/Projects/Misc-Experiments/NASA-APOD-Showcase-01/media/03-dial.png
+## Calibrating canvas drag for rotation
 
-playwright-cli snapshot --raw 2>&1 | grep "03 Voyager" | head -1
-playwright-cli click eZZ    # replace with current ref
-sleep 1
-playwright-cli screenshot --filename=/Users/ethan/Projects/Misc-Experiments/NASA-APOD-Showcase-01/media/04-dial-voyager.png
+OrbitControls' rotation depends on `rotateSpeed`, canvas height, and the drag delta. There's no universal pixel count — calibrate per project:
 
-# ---- READER MODAL ----
-playwright-cli press Escape
-sleep 0.5
-# DOM-click the hud prompt — reliable in headless without pointer-lock.
-playwright-cli eval "() => document.getElementById('hud-prompt').click()"
-sleep 1
-playwright-cli screenshot --filename=/Users/ethan/Projects/Misc-Experiments/NASA-APOD-Showcase-01/media/05-reader.png
+1. Take a baseline screenshot at the default view.
+2. Drag a small distance (e.g. 200 px). Screenshot. Read. Estimate how many drag-units per visible-rotation.
+3. Scale up to hit the desired framing.
+4. If a drag overshoots, **reload the page** (`goto` with a new cache-buster) rather than trying to drag back — damping makes opposite drags imprecise.
 
-# ---- HUD WITH NEW STATION ----
-playwright-cli press Escape
-sleep 1
-playwright-cli screenshot --filename=/Users/ethan/Projects/Misc-Experiments/NASA-APOD-Showcase-01/media/06-hud-voyager.png
+Direction in OrbitControls: dragging right rotates the camera *left* around the target, which makes the scene appear to rotate right (things on the left come to center). Dragging left does the opposite. Vertical drag tilts polar angle.
 
-# ---- MUG EASTER EGG ----
-# window.__museum.{camera,mug} is exported from src/main.js for this.
-playwright-cli eval "() => { const c = window.__museum.camera; c.position.set(1.6, 1.5, 1.9); c.lookAt(0.78, 1.18, 0.95); return 'ok'; }"
-sleep 0.6
-playwright-cli screenshot --filename=/Users/ethan/Projects/Misc-Experiments/NASA-APOD-Showcase-01/media/09-mug-easter-egg.png
+## Gotchas
 
-playwright-cli close
-```
+- **Stale tooltip in shot.** A hover tooltip lingers if the cursor is over the canvas at screenshot time. Always `mousemove 5 5` after the last drag.
+- **Pointer-lock console error.** Expected in headless Chrome; safe to ignore.
+- **Background dev server "completed"** in the Bash tool's notification doesn't mean it exited — verify with `lsof -iTCP:<port> -sTCP:LISTEN -P` before assuming it's down.
+- **Module-scoped Three.js state.** If `camera`, `controls`, `scene` are module-locals and not put on `window`, you can't read or set them from `eval`. Drive the scene through the same pointer/click events the user would.
+- **Damping settle.** After releasing a drag, the view keeps rotating briefly. Always sleep 1-2s before screenshotting.
+- **Pre-paint theme scripts.** Some projects set `data-theme` from an inline script reading `localStorage`. If you need a specific theme, clear `localStorage` or set it explicitly before `goto`, then reload.
+- **First-load cost.** A cold scene with HDR/glb assets may need 5-8s to look right. Bump the post-`goto` sleep if early shots look unfinished.
 
-### Pass 2 — Walkthrough video (Playwright Node API, 1280×800)
+## Walkthrough video (optional, Playwright Node API)
 
-`playwright-cli` records at a fixed 800×450 with a right-side gray strip — too small for showcase use. Drop down to the Playwright Node API to get a real 1280×800 recording with smooth camera tweens.
+Skip if the project doesn't ship a video. When it does, use the Playwright Node API instead of `playwright-cli video-start` — the CLI's video is locked at 800×450 with a gray right-side pad. The Node API lets you set `recordVideo.size` and write smooth camera tweens.
 
-**One-time setup**: ensure Playwright is available via npx — running `npx playwright --version` installs it into `~/.npm/_npx/<hash>/node_modules/playwright`. Find the install dir:
+### One-time setup
 
 ```bash
-find ~/.npm/_npx -name playwright -type d -maxdepth 4 | head -1
-# → /Users/ethan/.npm/_npx/<hash>/node_modules/playwright
-# Use the parent of that as PW_HOME below.
+npx playwright --version    # installs into ~/.npm/_npx/<hash>/node_modules/
 PW_HOME=$(dirname $(dirname $(find ~/.npm/_npx -name playwright -type d -maxdepth 4 | head -1)))
 ```
 
-**Write the capture script** to `$PW_HOME/capture-walkthrough.mjs` so its `import 'playwright'` resolves naturally:
+Place the capture script inside `$PW_HOME` so `import 'playwright'` resolves naturally.
+
+### Capture script shape
 
 ```js
 import { chromium } from 'playwright';
 import { mkdir, rename, rm } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
+const URL = process.env.URL ?? 'http://localhost:5173/';
 const OUT = '/tmp/walkthrough-out';
+
 await rm(OUT, { recursive: true, force: true });
 await mkdir(OUT, { recursive: true });
 
@@ -128,112 +110,74 @@ const context = await browser.newContext({
 });
 const page = await context.newPage();
 
-// Smooth camera tween helper — interpolates position + lookAt over `duration` ms.
+// If the project exports controls on window, tween the camera directly:
 async function tween({ fromPos, toPos, fromTarget, toTarget, duration }) {
   await page.evaluate(({ fromPos, toPos, fromTarget, toTarget, duration }) => {
     return new Promise((res) => {
-      const c = window.__museum.camera;
+      const c = window.__app.camera;          // adjust to project's export
       const start = performance.now();
       function step(now) {
         const t = Math.min((now - start) / duration, 1);
-        const e = t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3) / 2;
-        c.position.x = fromPos[0] + (toPos[0] - fromPos[0]) * e;
-        c.position.y = fromPos[1] + (toPos[1] - fromPos[1]) * e;
-        c.position.z = fromPos[2] + (toPos[2] - fromPos[2]) * e;
+        const e = t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
+        c.position.set(
+          fromPos[0] + (toPos[0] - fromPos[0]) * e,
+          fromPos[1] + (toPos[1] - fromPos[1]) * e,
+          fromPos[2] + (toPos[2] - fromPos[2]) * e,
+        );
         c.lookAt(
           fromTarget[0] + (toTarget[0] - fromTarget[0]) * e,
           fromTarget[1] + (toTarget[1] - fromTarget[1]) * e,
           fromTarget[2] + (toTarget[2] - fromTarget[2]) * e,
         );
-        if (t < 1) requestAnimationFrame(step);
-        else res();
+        if (t < 1) requestAnimationFrame(step); else res();
       }
       requestAnimationFrame(step);
     });
   }, { fromPos, toPos, fromTarget, toTarget, duration });
 }
 
-await page.goto('http://localhost:8769/?cb=walkthrough');
+// If no window export, use page.mouse.{move,down,up} on the canvas instead.
+
+await page.goto(`${URL}?cb=walkthrough`);
 await page.waitForTimeout(2000);
 
-await page.evaluate(() => document.getElementById('boot-enter').click());
-await page.waitForTimeout(3500);
+// — project-specific choreography here —
 
-// Pan left
-await tween({ fromPos: [0,1.7,9], toPos: [-3.5,1.7,8],
-              fromTarget: [0,2.5,0], toTarget: [0,2.0,0], duration: 2800 });
-await page.waitForTimeout(700);
-
-// Pan across to right
-await tween({ fromPos: [-3.5,1.7,8], toPos: [3.5,1.7,8],
-              fromTarget: [0,2.0,0], toTarget: [0,2.0,0], duration: 3400 });
-await page.waitForTimeout(700);
-
-// Back to center
-await tween({ fromPos: [3.5,1.7,8], toPos: [0,1.7,9],
-              fromTarget: [0,2.0,0], toTarget: [0,2.5,0], duration: 2000 });
-await page.waitForTimeout(600);
-
-// Reader modal
-await page.evaluate(() => document.getElementById('hud-prompt').click());
-await page.waitForTimeout(2600);
-await page.keyboard.press('Escape');
-await page.waitForTimeout(1300);
-
-// Tween to mug
-await tween({ fromPos: [0,1.7,9], toPos: [1.6,1.5,1.9],
-              fromTarget: [0,2.5,0], toTarget: [0.78,1.18,0.95], duration: 2400 });
-await page.waitForTimeout(2200);
+// At the instant the visible action starts, log TRIM_MS:
+console.log(`TRIM_MS=${Date.now() - startMs}`);
 
 const videoPath = await page.video().path();
 await context.close();
 await browser.close();
 await rename(videoPath, resolve(OUT, 'walkthrough.webm'));
-console.log(resolve(OUT, 'walkthrough.webm'));
 ```
 
-**Run + trim + interpolate + encode**:
-
-The script prints `TRIM_MS=<n>` representing how long the page took to fully settle before the visible hover began. Pass that as `-ss` to ffmpeg so the final MP4 starts on the stable, already-rendered boot screen (no logo settle, no telemetry typing, no layout shift).
+### Trim + interpolate + encode
 
 ```bash
 TRIM_MS=$(cd "$PW_HOME" && node capture-walkthrough.mjs | grep TRIM_MS | cut -d= -f2)
 TRIM_SECONDS=$(echo "scale=3; $TRIM_MS/1000" | bc)
 
-# 1) trim the unstable opening, 2) interpolate 25→60 fps (mci+bidir),
-# 3) encode as H.264 MP4 for portfolio embedding.
 ffmpeg -ss "$TRIM_SECONDS" -i /tmp/walkthrough-out/walkthrough.webm \
   -vf "minterpolate=fps=60:mi_mode=mci:mc_mode=aobmc:me_mode=bidir" \
   -c:v libx264 -crf 22 -preset slow -pix_fmt yuv420p -movflags +faststart -an \
-  -y /Users/ethan/Projects/Misc-Experiments/NASA-APOD-Showcase-01/media/walkthrough.mp4
+  -y <project-root>/media/walkthrough.mp4
 
 trash /tmp/walkthrough-out
 ```
 
-Why this path:
-- `playwright-cli`'s `video-start` records at a fixed 800×450 and pads the right with a gray strip — no flag to change it. The Node API exposes `recordVideo.size`, the only way to get a usable resolution.
-- The Node script also lets us add eased camera tweens (impossible in the chained-eval approach without timing precision) and a deliberate `page.hover('#boot-enter')` for the amber highlight before click.
-- Recording starts the moment `context.newPage()` runs, capturing the boot screen's settle (telemetry typing, layout shift, button disabled→enabled). The script logs `TRIM_MS` at the exact instant the page is stable, so ffmpeg can trim from there.
-- Playwright's video output is locked at 25fps. `minterpolate` with `mci` (motion-compensated, bidirectional motion estimation) synthesizes true intermediate frames — buttery for the camera pans, no visible artifacts at the modal transitions in our flow.
+Why this shape:
 
-## Notes on element refs
-
-`playwright-cli` regenerates element refs (`e3`, `e27`, …) every snapshot. **Do not paste literal refs from this file** — always run a fresh `snapshot --raw | grep` immediately before each `click` to pick the current ref. The grep targets above are stable selectors that survive script reflows.
-
-## Frame-by-frame verification
-
-After every screenshot, call the Read tool on its path to confirm the image actually shows what's expected. Common failure modes:
-
-- **Pointer-lock error in console** — expected in headless Chrome; safe to ignore (the rest of the page still renders)
-- **Mug invisible / hint missing** — check that `window.__museum` is defined (`playwright-cli eval "typeof window.__museum"`) and that the camera position lookAt actually puts the mug in frame
-- **Reader modal not showing** — the explanation only fills in after the APOD fetch resolves; bump the post-Enter `sleep` to 4-5s on slow connections
+- **Resolution.** `playwright-cli video-start` records at a fixed 800×450 with right-edge gray padding. The Node API's `recordVideo.size` is the only knob that yields 1280×800.
+- **Easing.** Cubic ease-in-out via the `t < 0.5 ? 4t³ : 1 - (-2t+2)³/2` shape avoids the linear-tween "robotic" feel.
+- **Trim.** Recording starts the moment `context.newPage()` runs, so the first ~1-2s captures layout shift, font swap, and asset load. Log `TRIM_MS` at the visible-action moment and pass to ffmpeg's `-ss` to start the final clip there.
+- **25→60 fps.** Playwright caps recordings at 25 fps. `minterpolate` with `mci`/`bidir` synthesizes motion-compensated intermediate frames — buttery pans, no visible artifacts at modal transitions.
 
 ## Cleanup
 
-Delete any `media/.tmp-*` files that may have been left behind from prior debug sessions:
-
 ```bash
-trash /Users/ethan/Projects/Misc-Experiments/NASA-APOD-Showcase-01/media/.tmp-*.png 2>/dev/null
+trash <project-root>/media/.tmp-*.png 2>/dev/null   # any debug shots left in media/
+trash <project-root>/.playwright-cli/test-*.png 2>/dev/null   # scratch test shots
 ```
 
-The `.playwright-cli/` directory at the project root holds session snapshots and console logs and is git-ignored — leave it alone.
+`.playwright-cli/` is git-ignored — leave it alone otherwise.
