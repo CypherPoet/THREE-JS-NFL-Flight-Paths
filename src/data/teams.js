@@ -585,3 +585,39 @@ export const INTERNATIONAL_VENUES = {
 };
 
 export const TEAM_KEYS = Object.keys(TEAMS);
+
+// Canonical league IA: 2 conferences × 4 divisions × 4 teams. The order below
+// matches how broadcast standings render — AFC first, East→North→South→West
+// in each conference. Used to group the team panel.
+export const DIVISIONS = [
+  "AFC East",
+  "AFC North",
+  "AFC South",
+  "AFC West",
+  "NFC East",
+  "NFC North",
+  "NFC South",
+  "NFC West",
+];
+
+export const CONFERENCES = ["AFC", "NFC"];
+
+// Each team's `division` is a string like "NFC West"; this returns ["NFC", "West"].
+export function splitDivision(division) {
+  return division.split(" ");
+}
+
+export function teamConference(teamKey) {
+  return splitDivision(TEAMS[teamKey].division)[0];
+}
+
+// Group team keys by their full division string. Preserves DIVISIONS order so
+// the panel renders AFC East → NFC West regardless of TEAMS key ordering.
+export function groupTeamsByDivision() {
+  const groups = Object.fromEntries(DIVISIONS.map((d) => [d, []]));
+  for (const key of TEAM_KEYS) {
+    const division = TEAMS[key].division;
+    if (groups[division]) groups[division].push(key);
+  }
+  return groups;
+}

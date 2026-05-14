@@ -123,18 +123,55 @@ function computeSequentialMiles(teamKey, sortedLegs) {
 }
 
 // Per-team aggregate: total miles via the sequential walk above, plus the
-// list of legs (sorted by week) for downstream rendering.
+// list of legs (sorted by week) and the international-miles breakdown so the
+// panel can stack-bar each row.
+//
+// `internationalMiles` is the raw great-circle distance of legs whose
+// destination is a neutral international venue (Wembley, Munich, Sao Paulo,
+// …). `totalMiles` is the chronological sequential walk including return
+// flights — they live in different accounting spaces, so the international
+// share is bar-relative (`internationalMiles / max(legs miles)`), not a
+// fraction of `totalMiles`.
 export function summariseByTeam(legs) {
   const byTeam = {};
   for (const key of Object.keys(TEAMS)) {
-    byTeam[key] = { team: key, totalMiles: 0, legs: [] };
+    byTeam[key] = {
+      team: key,
+      totalMiles: 0,
+      legMiles: 0,
+      internationalMiles: 0,
+      internationalCount: 0,
+      legs: [],
+    };
   }
   for (const leg of legs) {
-    byTeam[leg.team].legs.push(leg);
+    const summary = byTeam[leg.team];
+    summary.legs.push(leg);
+    summary.legMiles += leg.miles;
+    if (leg.destinationInternational) {
+      summary.internationalMiles += leg.miles;
+      summary.internationalCount += 1;
+    }
   }
   for (const summary of Object.values(byTeam)) {
     summary.legs.sort((a, b) => a.week - b.week);
     summary.totalMiles = computeSequentialMiles(summary.team, summary.legs);
   }
   return byTeam;
+}
+
+// Roll the per-team summary into one league-wide international view for the
+// metric card and the panel-head call-out.
+export function summariseInternational(summary) {
+  let teamCount = 0;
+  let totalMiles = 0;
+  let gameCount = 0;
+  for (const team of Object.values(summary)) {
+    if (team.internationalCount > 0) {
+      teamCount += 1;
+      totalMiles += team.internationalMiles;
+      gameCount += team.internationalCount;
+    }
+  }
+  return { teamCount, totalMiles, gameCount };
 }
