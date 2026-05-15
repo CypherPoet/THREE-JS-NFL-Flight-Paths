@@ -43,7 +43,6 @@ export function buildTeamPanel({ summary, intl, listEl, onChange }) {
 
   function renderRows() {
     listEl.innerHTML = "";
-    rowsByTeam.length = 0;
     for (const k of Object.keys(rowsByTeam)) delete rowsByTeam[k];
 
     if (currentSort === "division") {
@@ -209,11 +208,19 @@ export function buildTeamPanel({ summary, intl, listEl, onChange }) {
     }
   }
 
+  // Preset chips and sort-toggle buttons live in static index.html and are
+  // never recreated; buildTeamPanel() runs once per season switch, so naive
+  // addEventListener would stack a fresh closure on every reload. Clone-and-
+  // replace each button to drop existing listeners before binding.
   for (const btn of document.querySelectorAll(".panel__preset")) {
-    btn.addEventListener("click", () => applyPreset(btn.dataset.preset));
+    const fresh = btn.cloneNode(true);
+    btn.parentNode.replaceChild(fresh, btn);
+    fresh.addEventListener("click", () => applyPreset(fresh.dataset.preset));
   }
   for (const btn of document.querySelectorAll(".panel__sort-button")) {
-    btn.addEventListener("click", () => setSort(btn.dataset.sort));
+    const fresh = btn.cloneNode(true);
+    btn.parentNode.replaceChild(fresh, btn);
+    fresh.addEventListener("click", () => setSort(fresh.dataset.sort));
   }
 
   renderRows();
