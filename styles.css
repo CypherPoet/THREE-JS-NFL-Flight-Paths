@@ -153,7 +153,10 @@ body {
   flex: 0 0 auto;
   display: block;
   overflow: visible;
-  filter: drop-shadow(0 2px 4px var(--shadow));
+  /* Light shadow for contrast against the same-tone page backdrop. Half the
+     blur radius of the old 0 2px 4px halo — keeps enough lift for the logo
+     to read without contributing visual mass to the title cluster. */
+  filter: drop-shadow(0 1px 2px var(--shadow));
 }
 
 img.topbar__mark {

@@ -127,10 +127,12 @@ export function createFlightPaths(legs, theme) {
     const team = TEAMS[key];
     const pos = latLonToVec3(team.lat, team.lon, HOME_DOT_RADIUS);
     const geom = new THREE.SphereGeometry(0.008, 12, 12);
+    // Opaque so back-hemisphere dots get depth-culled by the sphere. The old
+    // transparent: true + opacity 0.95 put these in Three's transparent
+    // render queue where back-side fragments could slip past depth-test and
+    // bleed through (visible in the previous 03-pacific.png hero shot).
     const mat = new THREE.MeshBasicMaterial({
       color: new THREE.Color(team.accent),
-      transparent: true,
-      opacity: 0.95,
     });
     const dot = new THREE.Mesh(geom, mat);
     dot.position.copy(pos);

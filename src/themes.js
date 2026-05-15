@@ -10,9 +10,13 @@ export const THEMES = {
     countryLineOpacity: 0.55,
     limbColor: 0xc4b89f,
     limbOpacity: 0.18,
-    glowInnerColor: 0xeef6ff,
-    glowOuterColor: 0xa5cfe8,
-    glowIntensity: 0.0,
+    // Warm vellum halo at low intensity — gives the limb a touch of
+    // parchment-paper depth without going saccharine. Light register stays
+    // quieter than dark (which runs sodium-vapor at 0.65) so the page
+    // backdrop remains the dominant surface.
+    glowInnerColor: 0xfff6e3,
+    glowOuterColor: 0xf3e6c8,
+    glowIntensity: 0.25,
     ambientSky: 0xffffff,
     ambientGround: 0xb8b09c,
     ambientIntensity: 1.05,
