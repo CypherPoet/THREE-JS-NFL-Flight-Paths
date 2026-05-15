@@ -75,10 +75,10 @@ Make sure GitHub Pages is set to **GitHub Actions** under `Settings → Pages` f
 ## Acknowledgements
 
 - **[Three.js](https://threejs.org/)** by [Ricardo Cabello](https://mrdoob.com/) & contributors
-- **[d3-geo](https://github.com/d3/d3-geo)** + **[topojson-client](https://github.com/topojson/topojson-client)** by Mike Bostock
-- **[world-atlas](https://github.com/topojson/world-atlas)** — the 110m TopoJSON used as the land source
-- **2025 schedule data** from [nflverse/nfldata](https://github.com/nflverse/nfldata) (`games.csv`, regular-season subset)
-- **2026 schedule data** from [nfl.com](https://www.nfl.com/news/2026-nfl-schedule-release-nine-international-games-dates-times-matchups) schedule-release announcements
+- **[topojson-client](https://github.com/topojson/topojson-client)** by Mike Bostock — reads the bundled country TopoJSON at runtime
+- **[world-atlas](https://github.com/topojson/world-atlas)** — origin of the bundled `data/countries-110m.json` used as the land source
+- **2025 schedule data** from [Pro Football Reference](https://www.pro-football-reference.com/years/2025/games.htm) (regular-season subset)
+- **2026 schedule data** from [Pro Football Reference](https://www.pro-football-reference.com/years/2026/games.htm) (regular-season subset)
 - **Stadium coordinates** are public-domain venue locations; **team brand colours** are the franchises' own. This project is an educational data visualisation and is not affiliated with the NFL.
 
 ## License
