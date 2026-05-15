@@ -1,8 +1,16 @@
 import * as THREE from "three";
+import { Line2 } from "three/examples/jsm/lines/Line2.js";
+import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js";
+import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { TEAMS, INTERNATIONAL_VENUES } from "./data/teams.js";
 import { GLOBE_RADIUS, RELIEF_LIFT, greatCircleArc, latLonToVec3 } from "./geo.js";
 
 const SEGMENTS = 96;
+// Pixels. gl.LINES is locked to 1px on every desktop driver, which lets the
+// Northeast corridor braid into illegibility on the all-on view. 2px through
+// Line2's screen-space shader reads as a cleaner stroke than gl.LINES at 1px
+// because of the shader's built-in anti-aliasing.
+const ARC_LINEWIDTH = 2.0;
 const TRAVELER_BASE_RADIUS = 0.0075;
 const TRAVELER_GLOW_RADIUS = 0.018;
 const TRAVELER_SPEED_PER_RADIAN = 0.22; // radians traversed per second
@@ -56,14 +64,29 @@ export function createFlightPaths(legs, theme) {
       leg.toLon,
       SEGMENTS,
     );
-    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+    const positions = new Float32Array(points.length * 3);
+    for (let p = 0; p < points.length; p++) {
+      positions[p * 3] = points[p].x;
+      positions[p * 3 + 1] = points[p].y;
+      positions[p * 3 + 2] = points[p].z;
+    }
+    const geometry = new LineGeometry();
+    geometry.setPositions(positions);
     const teamColor = new THREE.Color(TEAMS[leg.team].accent);
-    const material = new THREE.LineBasicMaterial({
+    const material = new LineMaterial({
       color: teamColor,
+      linewidth: ARC_LINEWIDTH,
       transparent: true,
       opacity: 0.78,
+      // resolution is updated by the resize listener so the pixel-width math
+      // stays right across viewport / DPR changes.
+      resolution: new THREE.Vector2(window.innerWidth, window.innerHeight),
+      worldUnits: false,
+      dashed: false,
+      // No alphaToCoverage: it dithers low-opacity fragments into a stipple
+      // pattern that turns the fade-non-selected state into dashed lines.
     });
-    const line = new THREE.Line(geometry, material);
+    const line = new Line2(geometry, material);
     line.userData = { team: leg.team, leg, baseOpacity: 0.78 };
     arcsGroup.add(line);
 

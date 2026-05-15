@@ -410,6 +410,14 @@ window.addEventListener("resize", () => {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
   refreshCanvasRect();
+  // LineMaterial computes screen-space pixel width from the resolution
+  // uniform, so every arc needs a fresh viewport on resize or the lines
+  // render at the wrong thickness.
+  if (currentFlightPaths) {
+    for (const { line } of currentFlightPaths.arcRecords) {
+      line.material.resolution.set(window.innerWidth, window.innerHeight);
+    }
+  }
 });
 
 start().catch((err) => {
