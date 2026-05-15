@@ -216,6 +216,7 @@ async function start() {
     const intl = summariseInternational(summary);
     currentFlightPaths = createFlightPaths(legs, THEMES[currentThemeName]);
     globe.group.add(currentFlightPaths.group);
+    if (prefersReducedMotion) tickTravelers(currentFlightPaths, 0);
 
     currentPanel = buildTeamPanel({
       summary,
@@ -271,13 +272,29 @@ function setTheme(name) {
 // ── Animation loop ──────────────────────────────────────────────
 const timer = new THREE.Timer();
 timer.connect(document); // pause delta accumulation when tab is hidden
+
+// Respect prefers-reduced-motion for the WebGL traveler loop. The CSS rule
+// only stops DOM transitions; travelers spin in their own rAF until we gate
+// them here. When reduced motion is on we still position them once (at
+// elapsed=0) so they stay visible as static markers along each arc.
+const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+let prefersReducedMotion = reducedMotionQuery.matches;
+reducedMotionQuery.addEventListener("change", (event) => {
+  prefersReducedMotion = event.matches;
+  if (prefersReducedMotion && currentFlightPaths) {
+    tickTravelers(currentFlightPaths, 0);
+  }
+});
+
 function animate() {
   requestAnimationFrame(animate);
   timer.update();
   const delta = timer.getDelta();
   const elapsed = timer.getElapsed();
   controls.update(delta);
-  if (currentFlightPaths) tickTravelers(currentFlightPaths, elapsed);
+  if (currentFlightPaths && !prefersReducedMotion) {
+    tickTravelers(currentFlightPaths, elapsed);
+  }
   if (tooltip.isVisible()) tooltip.updatePosition();
   renderer.render(scene, camera);
 }

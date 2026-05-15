@@ -281,6 +281,39 @@ img.topbar__mark {
   transform: translateY(-1px);
 }
 
+/* CSS-driven tooltip for the icon-only topbar buttons. Native title="..."
+   tooltips have a ~1s delay that makes the affordance discoverable only by
+   accident; this surfaces the label fast enough to teach what the icons do
+   on first hover, and on keyboard focus for screen-reader-adjacent users. */
+.theme-toggle[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  white-space: nowrap;
+  font-family: var(--font-ui);
+  font-size: var(--text-micro);
+  color: var(--ink-soft);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 6px 10px;
+  box-shadow: 0 4px 18px -8px var(--shadow);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-2px);
+  transition:
+    opacity 140ms ease 80ms,
+    transform 140ms ease 80ms;
+  z-index: 60;
+}
+
+.theme-toggle[data-tooltip]:hover::after,
+.theme-toggle[data-tooltip]:focus-visible::after {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .theme-toggle__icon {
   position: absolute;
   transition:
