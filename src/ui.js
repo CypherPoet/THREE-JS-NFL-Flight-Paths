@@ -43,7 +43,6 @@ export function buildTeamPanel({ summary, intl, listEl, onChange }) {
 
   function renderRows() {
     listEl.innerHTML = "";
-    rowsByTeam.length = 0;
     for (const k of Object.keys(rowsByTeam)) delete rowsByTeam[k];
 
     if (currentSort === "division") {
@@ -209,12 +208,17 @@ export function buildTeamPanel({ summary, intl, listEl, onChange }) {
     }
   }
 
-  for (const btn of document.querySelectorAll(".panel__preset")) {
-    btn.addEventListener("click", () => applyPreset(btn.dataset.preset));
+  // Preset/sort buttons are static in index.html; clone-replace drops listeners
+  // from prior season switches.
+  function rebind(selector, datasetKey, handler) {
+    for (const btn of document.querySelectorAll(selector)) {
+      const fresh = btn.cloneNode(true);
+      btn.parentNode.replaceChild(fresh, btn);
+      fresh.addEventListener("click", () => handler(fresh.dataset[datasetKey]));
+    }
   }
-  for (const btn of document.querySelectorAll(".panel__sort-button")) {
-    btn.addEventListener("click", () => setSort(btn.dataset.sort));
-  }
+  rebind(".panel__preset", "preset", applyPreset);
+  rebind(".panel__sort-button", "sort", setSort);
 
   renderRows();
   updatePresetState();

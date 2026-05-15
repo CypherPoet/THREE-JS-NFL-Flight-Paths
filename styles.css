@@ -21,47 +21,19 @@
     U+A720-A7FF;
 }
 @font-face {
-  font-family: "Manrope";
+  font-family: "Geist";
   font-style: normal;
-  font-weight: 400 700;
+  font-weight: 100 900;
   font-display: swap;
-  src: url("./fonts/manrope/manrope-latin.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
-    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
-    U+2212, U+2215, U+FEFF, U+FFFD;
+  src: url("./fonts/geist/geist-variable.woff2") format("woff2-variations");
 }
+
 @font-face {
-  font-family: "Manrope";
+  font-family: "Departure Mono";
   font-style: normal;
-  font-weight: 400 700;
+  font-weight: 400;
   font-display: swap;
-  src: url("./fonts/manrope/manrope-latin-ext.woff2") format("woff2");
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7,
-    U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F,
-    U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
-    U+A720-A7FF;
-}
-@font-face {
-  font-family: "JetBrains Mono";
-  font-style: normal;
-  font-weight: 400 600;
-  font-display: swap;
-  src: url("./fonts/jetbrains-mono/jetbrains-mono-latin.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
-    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
-    U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: "JetBrains Mono";
-  font-style: normal;
-  font-weight: 400 600;
-  font-display: swap;
-  src: url("./fonts/jetbrains-mono/jetbrains-mono-latin-ext.woff2")
-    format("woff2");
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7,
-    U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F,
-    U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
-    U+A720-A7FF;
+  src: url("./fonts/departure-mono/departure-mono.woff2") format("woff2");
 }
 
 /* ── Theme palettes ─────────────────────────────────────────── */
@@ -104,8 +76,14 @@
   --radius: 10px;
   --pad: 14px;
   --font-display: "Unbounded", system-ui, sans-serif;
-  --font-ui: "Manrope", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-ui: "Geist", system-ui, sans-serif;
+  --font-mono: "Departure Mono", ui-monospace, monospace;
+  /* Keep chrome on the fixed rem rungs; only the H1 breathes via clamp(). */
+  --text-micro: 0.625rem;
+  --text-meta: 0.8125rem;
+  --text-base: 1rem;
+  --text-section: 1.25rem;
+  --text-display: clamp(1.5rem, 1.25rem + 1vw, 2rem);
   /* International-segment marker for stacked mileage bars. Reads as a
      "distinct material" overlay against any team accent. */
   --intl-marker: #7a6b3d;
@@ -187,7 +165,7 @@ img.topbar__mark {
 .topbar__titles h1 {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 27px;
+  font-size: var(--text-display);
   font-weight: 650;
   letter-spacing: -0.024em;
   color: var(--ink);
@@ -195,13 +173,11 @@ img.topbar__mark {
 }
 
 .topbar__season {
-  margin: 2px 0 0;
+  margin: 4px 0 0;
   font-family: var(--font-ui);
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--ink-mute);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: var(--text-meta);
+  font-weight: 400;
+  color: var(--ink-soft);
 }
 
 .season-switch {
@@ -219,10 +195,10 @@ img.topbar__mark {
   border: 0;
   background: transparent;
   font: inherit;
-  font-family: var(--font-ui);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
   color: var(--ink-mute);
   padding: 5px 10px;
   border-radius: 999px;
@@ -263,29 +239,25 @@ img.topbar__mark {
 
 .metric__label {
   font-family: var(--font-ui);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-size: var(--text-micro);
+  font-weight: 500;
   color: var(--ink-mute);
 }
 
 .metric__value {
   font-family: var(--font-mono);
-  font-size: 16px;
-  font-weight: 500;
+  font-size: var(--text-base);
+  font-weight: 400;
   color: var(--ink);
-  margin-top: 2px;
+  margin-top: 4px;
   font-variant-numeric: tabular-nums;
 }
 
 .metric__sub {
-  margin-top: 1px;
+  margin-top: 2px;
   font-family: var(--font-ui);
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: var(--text-micro);
+  font-weight: 400;
   color: var(--ink-mute);
 }
 
@@ -368,12 +340,14 @@ img.topbar__mark {
   gap: 8px;
 }
 
+/* The one kept kicker. Every other tracked-uppercase label in the chrome
+   was demoted so this slot can carry the voice on its own. */
 .panel__head h2 {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 12px;
+  font-size: var(--text-meta);
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--ink-soft);
 }
@@ -395,11 +369,10 @@ img.topbar__mark {
   color: var(--ink-mute);
   font: inherit;
   font-family: var(--font-ui);
-  font-size: 10px;
-  font-weight: 600;
+  font-size: var(--text-micro);
+  font-weight: 500;
   padding: 4px 8px;
   cursor: pointer;
-  letter-spacing: 0.02em;
   transition:
     background 120ms ease,
     color 120ms ease;
@@ -426,8 +399,8 @@ img.topbar__mark {
   margin: 0;
   padding: 6px 14px 10px;
   font-family: var(--font-ui);
-  font-size: 11.5px;
-  line-height: 1.35;
+  font-size: var(--text-meta);
+  line-height: 1.4;
   color: var(--ink-soft);
 }
 
@@ -452,12 +425,11 @@ img.topbar__mark {
   color: var(--ink-soft);
   font: inherit;
   font-family: var(--font-ui);
-  font-size: 10.5px;
-  font-weight: 600;
-  padding: 3px 8px;
+  font-size: var(--text-meta);
+  font-weight: 500;
+  padding: 4px 10px;
   border-radius: 999px;
   cursor: pointer;
-  letter-spacing: 0.02em;
   transition:
     background 120ms ease,
     color 120ms ease,
@@ -525,16 +497,15 @@ img.topbar__mark {
 
 .team-group__name {
   font-family: var(--font-display);
-  font-size: 11.5px;
+  font-size: var(--text-meta);
   font-weight: 700;
   color: var(--ink);
-  letter-spacing: 0;
 }
 
 .team-group__miles {
   font-family: var(--font-mono);
-  font-size: 10.5px;
-  font-weight: 500;
+  font-size: var(--text-micro);
+  font-weight: 400;
   color: var(--ink-mute);
   font-variant-numeric: tabular-nums;
 }
@@ -552,7 +523,7 @@ img.topbar__mark {
   padding: 5px 14px 7px;
   cursor: pointer;
   transition: background 100ms ease;
-  font-size: 13px;
+  font-size: var(--text-meta);
 }
 
 .team-row:hover {
@@ -582,9 +553,8 @@ img.topbar__mark {
   grid-column: 2;
   color: var(--ink-mute);
   font-family: var(--font-mono);
-  font-weight: 500;
-  font-size: 10.5px;
-  letter-spacing: 0.02em;
+  font-weight: 400;
+  font-size: var(--text-micro);
 }
 
 .team-row__name {
@@ -601,7 +571,7 @@ img.topbar__mark {
   grid-row: 1;
   grid-column: 4;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--text-micro);
   color: var(--ink-soft);
   font-variant-numeric: tabular-nums;
 }
@@ -657,11 +627,9 @@ img.topbar__mark {
   bottom: 18px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 11px;
-  font-weight: 500;
+  font-size: var(--text-micro);
+  font-weight: 400;
   color: var(--ink-mute);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
   z-index: 3;
   pointer-events: none;
   background: var(--paper-soft);
@@ -678,7 +646,7 @@ img.topbar__mark {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 11px;
+  font-size: var(--text-micro);
   color: var(--ink-soft);
   background: var(--paper-soft);
   backdrop-filter: blur(6px);
@@ -718,11 +686,9 @@ img.topbar__mark {
   gap: 12px;
   background: var(--bg);
   z-index: 100;
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-size: var(--text-meta);
   color: var(--ink-mute);
-  font-weight: 500;
+  font-weight: 400;
   transition: opacity 300ms ease;
 }
 
@@ -843,7 +809,7 @@ img.topbar__mark {
 .stadium-tooltip__title {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 16px;
+  font-size: var(--text-base);
   font-weight: 650;
   letter-spacing: -0.014em;
   line-height: 1.16;
@@ -859,10 +825,9 @@ img.topbar__mark {
 }
 
 .stadium-tooltip__team {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: var(--text-meta);
+  font-weight: 500;
   color: var(--ink-soft);
-  letter-spacing: 0.01em;
   position: relative;
   padding-left: 9px;
 }
@@ -881,10 +846,8 @@ img.topbar__mark {
 
 .stadium-tooltip__intl-badge {
   font-family: var(--font-ui);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-size: var(--text-micro);
+  font-weight: 500;
   color: var(--ink-mute);
   border: 1px solid var(--line-strong);
   border-radius: 999px;
@@ -893,9 +856,8 @@ img.topbar__mark {
 
 .stadium-tooltip__city {
   margin-top: 6px;
-  font-size: 11px;
+  font-size: var(--text-meta);
   color: var(--ink-mute);
-  letter-spacing: 0.02em;
 }
 
 .stadium-tooltip__facts {
@@ -906,15 +868,13 @@ img.topbar__mark {
   grid-template-columns: auto 1fr;
   column-gap: 14px;
   row-gap: 4px;
-  font-size: 11px;
+  font-size: var(--text-meta);
 }
 
 .stadium-tooltip__facts dt {
   color: var(--ink-mute);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  font-size: 9px;
-  font-weight: 600;
+  font-size: var(--text-micro);
+  font-weight: 500;
   align-self: center;
 }
 
@@ -923,8 +883,8 @@ img.topbar__mark {
   color: var(--ink);
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
-  font-size: 11px;
-  font-weight: 500;
+  font-size: var(--text-meta);
+  font-weight: 400;
   text-align: right;
 }
 
@@ -939,23 +899,20 @@ img.topbar__mark {
 }
 
 .stadium-tooltip__visitors-label {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-size: var(--text-micro);
+  font-weight: 500;
   color: var(--ink-mute);
   margin-right: 4px;
 }
 
 .stadium-tooltip__pill {
   font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 600;
+  font-size: var(--text-micro);
+  font-weight: 400;
   color: var(--bg);
   background: var(--accent, var(--ink-soft));
   padding: 2px 6px;
   border-radius: 4px;
-  letter-spacing: 0.02em;
 }
 
 /* ── Responsive ─────────────────────────────────────────────── */
@@ -967,9 +924,6 @@ img.topbar__mark {
     left: 18px;
     right: 18px;
     height: 38%;
-  }
-  .topbar__titles h1 {
-    font-size: 20px;
   }
   .topbar__meta {
     flex-direction: column;
@@ -1054,7 +1008,7 @@ img.topbar__mark {
 .methodology__head h2 {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 20px;
+  font-size: var(--text-section);
   font-weight: 650;
   letter-spacing: -0.012em;
   color: var(--ink);
@@ -1081,7 +1035,7 @@ img.topbar__mark {
 .methodology__body {
   padding: 18px 22px 22px;
   overflow-y: auto;
-  font-size: 13.5px;
+  font-size: var(--text-meta);
   line-height: 1.55;
   color: var(--ink-soft);
   scrollbar-width: thin;
@@ -1090,12 +1044,10 @@ img.topbar__mark {
 
 .methodology__body h3 {
   font-family: var(--font-display);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
-  margin: 18px 0 8px;
+  font-size: var(--text-base);
+  font-weight: 650;
+  color: var(--ink);
+  margin: 20px 0 6px;
 }
 .methodology__body h3:first-child {
   margin-top: 0;
@@ -1111,7 +1063,7 @@ img.topbar__mark {
 .methodology__body code,
 .methodology__body pre {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--text-meta);
   background: var(--bg-deep);
   color: var(--ink);
   border-radius: 6px;
@@ -1214,18 +1166,16 @@ img.topbar__mark {
     "opsz" 28,
     "wdth" 92,
     "wght" 650;
-  font-size: 17px;
+  font-size: var(--text-section);
   letter-spacing: -0.01em;
   color: var(--ink);
 }
 
 .mileage__subtitle {
   margin: 4px 0 0;
-  font-size: 11px;
-  font-weight: 500;
+  font-size: var(--text-meta);
+  font-weight: 400;
   color: var(--ink-mute);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 
 .mileage__close {
@@ -1300,15 +1250,14 @@ img.topbar__mark {
 
 .mileage-row__abbr {
   font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 500;
+  font-size: var(--text-micro);
+  font-weight: 400;
   color: var(--ink-mute);
-  letter-spacing: 0.02em;
   flex-shrink: 0;
 }
 
 .mileage-row__name {
-  font-size: 13px;
+  font-size: var(--text-meta);
   font-weight: 500;
   color: var(--ink);
   white-space: nowrap;
@@ -1369,8 +1318,8 @@ img.topbar__mark {
 
 .mileage-row__value {
   font-family: var(--font-mono);
-  font-size: 12px;
-  font-weight: 500;
+  font-size: var(--text-meta);
+  font-weight: 400;
   color: var(--ink);
   text-align: right;
   font-variant-numeric: tabular-nums;
