@@ -1,70 +1,314 @@
-// 2026 NFL regular season — confirmed games only.
-//
-// As of the day before the full unveiling (2026-05-14 8 PM ET), the NFL has
-// already publicly confirmed:
-//   • all 9 international fixtures across Australia, Brazil, the UK,
-//     France, Spain, Germany, and Mexico
-//   • the NFL Kickoff game (Wed Sep 9, Seattle hosts TBA opponent — opponent
-//     not yet announced, so omitted here)
-//   • Week 1 Sunday Night Football: Dallas at NY Giants
-//   • Week 1 Monday Night Football: Denver at Kansas City
-//   • Week 2 Thursday Night Football: Detroit at Buffalo
-//
-// Every entry below has been verified from public NFL announcements. When the
-// full slate drops on May 14, the remaining ~245 games will be appended.
-//
-// Sources:
-//   nfl.com/news/2026-nfl-schedule-release-nine-international-games
-//   nfl.com/news/cowboys-giants-snf-week-1-nbc-2026-nfl-schedule-release
-//   nfl.com/news/2026-nfl-schedule-release-chiefs-broncos-mnf
-//   nfl.com/news/lions-bills-week-2-prime-video
+// 2026 NFL regular season — all 272 games as scheduled.
+// Each row is a single game; `away` flies to `home`'s stadium.
+// `venue` overrides the home stadium when a game is played at an international site.
+// Source: nfl.com/schedules/2026/by-week/ (scraped 2026-05-14, the night of the schedule release).
 
 export const SCHEDULE_2026 = [
-  // ── Week 1 — Australia debut ──────────────────────────────────
-  // Friday Sept 11 in Melbourne (Thursday night ET).
-  { week: 1, away: "SF", home: "LAR", venue: "MEL" },
-
-  // ── Week 1 — Sunday Night Football ────────────────────────────
-  // Sept 13 — MetLife Stadium.
+  // ── Week 1 ───────────────────────────────────────────────────
+  { week: 1, away: "NE", home: "SEA" },
+  { week: 1, away: "SF", home: "LAR", venue: "MEL" }, // Melbourne
+  { week: 1, away: "CHI", home: "CAR" },
+  { week: 1, away: "TB", home: "CIN" },
+  { week: 1, away: "NO", home: "DET" },
+  { week: 1, away: "BUF", home: "HOU" },
+  { week: 1, away: "BAL", home: "IND" },
+  { week: 1, away: "CLE", home: "JAX" },
+  { week: 1, away: "ATL", home: "PIT" },
+  { week: 1, away: "NYJ", home: "TEN" },
+  { week: 1, away: "ARI", home: "LAC" },
+  { week: 1, away: "MIA", home: "LV" },
+  { week: 1, away: "GB", home: "MIN" },
+  { week: 1, away: "WAS", home: "PHI" },
   { week: 1, away: "DAL", home: "NYG" },
-
-  // ── Week 1 — Monday Night Football ────────────────────────────
-  // Sept 14 — Arrowhead.
   { week: 1, away: "DEN", home: "KC" },
 
-  // ── Week 2 — Thursday Night Football ──────────────────────────
-  // Sept 17 — Buffalo's new stadium.
+  // ── Week 2 ───────────────────────────────────────────────────
   { week: 2, away: "DET", home: "BUF" },
+  { week: 2, away: "CAR", home: "ATL" },
+  { week: 2, away: "NO", home: "BAL" },
+  { week: 2, away: "MIN", home: "CHI" },
+  { week: 2, away: "CIN", home: "HOU" },
+  { week: 2, away: "PIT", home: "NE" },
+  { week: 2, away: "GB", home: "NYJ" },
+  { week: 2, away: "CLE", home: "TB" },
+  { week: 2, away: "PHI", home: "TEN" },
+  { week: 2, away: "JAX", home: "DEN" },
+  { week: 2, away: "LV", home: "LAC" },
+  { week: 2, away: "SEA", home: "ARI" },
+  { week: 2, away: "WAS", home: "DAL" },
+  { week: 2, away: "MIA", home: "SF" },
+  { week: 2, away: "IND", home: "KC" },
+  { week: 2, away: "NYG", home: "LAR" },
 
-  // ── Week 3 — São Paulo (Brazil) ───────────────────────────────
-  // The home/away designation for the 2026 Brazil game is Cowboys (home
-  // designate) vs Ravens, but the league lists the matchup as Ravens-Cowboys.
-  // Treating Dallas as home designate, Baltimore travels — both fly to Rio.
-  { week: 3, away: "BAL", home: "DAL", venue: "RIO" },
+  // ── Week 3 ───────────────────────────────────────────────────
+  { week: 3, away: "ATL", home: "GB" },
+  { week: 3, away: "LAC", home: "BUF" },
+  { week: 3, away: "CAR", home: "CLE" },
+  { week: 3, away: "NYJ", home: "DET" },
+  { week: 3, away: "HOU", home: "IND" },
+  { week: 3, away: "NE", home: "JAX" },
+  { week: 3, away: "KC", home: "MIA" },
+  { week: 3, away: "TEN", home: "NYG" },
+  { week: 3, away: "CIN", home: "PIT" },
+  { week: 3, away: "SEA", home: "WAS" },
+  { week: 3, away: "ARI", home: "SF" },
+  { week: 3, away: "MIN", home: "TB" },
+  { week: 3, away: "LV", home: "NO" },
+  { week: 3, away: "BAL", home: "DAL", venue: "RIO" }, // Rio de Janeiro
+  { week: 3, away: "LAR", home: "DEN" },
+  { week: 3, away: "PHI", home: "CHI" },
 
-  // ── Week 4 — London (Tottenham Hotspur Stadium) — Oct 4 ──────
-  // Commanders are the road team; Colts are the host designate.
-  { week: 4, away: "WAS", home: "IND", venue: "LON_TOT" },
+  // ── Week 4 ───────────────────────────────────────────────────
+  { week: 4, away: "PIT", home: "CLE" },
+  { week: 4, away: "IND", home: "WAS", venue: "LON_TOT" }, // London · Tottenham
+  { week: 4, away: "TEN", home: "BAL" },
+  { week: 4, away: "NE", home: "BUF" },
+  { week: 4, away: "NYJ", home: "CHI" },
+  { week: 4, away: "JAX", home: "CIN" },
+  { week: 4, away: "DAL", home: "HOU" },
+  { week: 4, away: "ARI", home: "NYG" },
+  { week: 4, away: "LAR", home: "PHI" },
+  { week: 4, away: "GB", home: "TB" },
+  { week: 4, away: "MIA", home: "MIN" },
+  { week: 4, away: "KC", home: "LV" },
+  { week: 4, away: "LAC", home: "SEA" },
+  { week: 4, away: "DEN", home: "SF" },
+  { week: 4, away: "DET", home: "CAR" },
+  { week: 4, away: "ATL", home: "NO" },
 
-  // ── Week 5 — London (Tottenham) — Oct 11 ──────────────────────
-  // Jaguars play this one as home designate.
-  { week: 5, away: "PHI", home: "JAX", venue: "LON_TOT" },
+  // ── Week 5 ───────────────────────────────────────────────────
+  { week: 5, away: "TB", home: "DAL" },
+  { week: 5, away: "PHI", home: "JAX", venue: "LON_TOT" }, // London · Tottenham
+  { week: 5, away: "CIN", home: "MIA" },
+  { week: 5, away: "LV", home: "NE" },
+  { week: 5, away: "MIN", home: "NO" },
+  { week: 5, away: "CLE", home: "NYJ" },
+  { week: 5, away: "IND", home: "PIT" },
+  { week: 5, away: "HOU", home: "TEN" },
+  { week: 5, away: "NYG", home: "WAS" },
+  { week: 5, away: "DEN", home: "LAC" },
+  { week: 5, away: "DET", home: "ARI" },
+  { week: 5, away: "CHI", home: "GB" },
+  { week: 5, away: "SF", home: "SEA" },
+  { week: 5, away: "BAL", home: "ATL" },
+  { week: 5, away: "BUF", home: "LAR" },
 
-  // ── Week 6 — London (Wembley Stadium) — Oct 18 ────────────────
-  // Jaguars' second straight London game, this time as the road team.
-  { week: 6, away: "HOU", home: "JAX", venue: "LON_WEM" },
+  // ── Week 6 ───────────────────────────────────────────────────
+  { week: 6, away: "SEA", home: "DEN" },
+  { week: 6, away: "HOU", home: "JAX", venue: "LON_WEM" }, // London · Wembley
+  { week: 6, away: "CHI", home: "ATL" },
+  { week: 6, away: "BAL", home: "CLE" },
+  { week: 6, away: "TEN", home: "IND" },
+  { week: 6, away: "NYJ", home: "NE" },
+  { week: 6, away: "NO", home: "NYG" },
+  { week: 6, away: "CAR", home: "PHI" },
+  { week: 6, away: "PIT", home: "TB" },
+  { week: 6, away: "ARI", home: "LAR" },
+  { week: 6, away: "LAC", home: "KC" },
+  { week: 6, away: "BUF", home: "LV" },
+  { week: 6, away: "DAL", home: "GB" },
+  { week: 6, away: "WAS", home: "SF" },
 
-  // ── Week 7 — Paris (Stade de France) — Oct 25 ─────────────────
-  // First-ever regular-season game in France. Saints are home designate.
-  { week: 7, away: "PIT", home: "NO", venue: "PAR" },
+  // ── Week 7 ───────────────────────────────────────────────────
+  { week: 7, away: "NE", home: "CHI" },
+  { week: 7, away: "PIT", home: "NO", venue: "PAR" }, // Saint-Denis (Paris)
+  { week: 7, away: "SF", home: "ATL" },
+  { week: 7, away: "CIN", home: "BAL" },
+  { week: 7, away: "TB", home: "CAR" },
+  { week: 7, away: "NYG", home: "HOU" },
+  { week: 7, away: "IND", home: "MIN" },
+  { week: 7, away: "MIA", home: "NYJ" },
+  { week: 7, away: "CLE", home: "TEN" },
+  { week: 7, away: "DEN", home: "ARI" },
+  { week: 7, away: "GB", home: "DET" },
+  { week: 7, away: "LAR", home: "LV" },
+  { week: 7, away: "KC", home: "SEA" },
+  { week: 7, away: "DAL", home: "PHI" },
 
-  // ── Week 9 — Madrid (Santiago Bernabéu) — Nov 8 ───────────────
-  { week: 9, away: "CIN", home: "ATL", venue: "MAD" },
+  // ── Week 8 ───────────────────────────────────────────────────
+  { week: 8, away: "CAR", home: "GB" },
+  { week: 8, away: "BAL", home: "BUF" },
+  { week: 8, away: "TEN", home: "CIN" },
+  { week: 8, away: "ARI", home: "DAL" },
+  { week: 8, away: "MIN", home: "DET" },
+  { week: 8, away: "IND", home: "JAX" },
+  { week: 8, away: "LV", home: "NYJ" },
+  { week: 8, away: "CLE", home: "PIT" },
+  { week: 8, away: "ATL", home: "TB" },
+  { week: 8, away: "LAC", home: "LAR" },
+  { week: 8, away: "KC", home: "DEN" },
+  { week: 8, away: "NE", home: "MIA" },
+  { week: 8, away: "PHI", home: "WAS" },
+  { week: 8, away: "CHI", home: "SEA" },
 
-  // ── Week 10 — Munich (Allianz Arena) — Nov 15 ─────────────────
-  { week: 10, away: "NE", home: "DET", venue: "MUN" },
+  // ── Week 9 ───────────────────────────────────────────────────
+  { week: 9, away: "JAX", home: "BAL" },
+  { week: 9, away: "CIN", home: "ATL", venue: "MAD" }, // Madrid
+  { week: 9, away: "DEN", home: "CAR" },
+  { week: 9, away: "DAL", home: "IND" },
+  { week: 9, away: "NYJ", home: "KC" },
+  { week: 9, away: "DET", home: "MIA" },
+  { week: 9, away: "CLE", home: "NO" },
+  { week: 9, away: "NYG", home: "PHI" },
+  { week: 9, away: "LAR", home: "WAS" },
+  { week: 9, away: "HOU", home: "LAC" },
+  { week: 9, away: "LV", home: "SF" },
+  { week: 9, away: "GB", home: "NE" },
+  { week: 9, away: "ARI", home: "SEA" },
+  { week: 9, away: "TB", home: "CHI" },
+  { week: 9, away: "BUF", home: "MIN" },
 
-  // ── Week 11 — Mexico City (Estadio Banorte) ───────────────────
-  // 49ers' second international game of the season.
-  { week: 11, away: "MIN", home: "SF", venue: "MEX" },
+  // ── Week 10 ──────────────────────────────────────────────────
+  { week: 10, away: "WAS", home: "NYG" },
+  { week: 10, away: "NE", home: "DET", venue: "MUN" }, // Munich
+  { week: 10, away: "KC", home: "ATL" },
+  { week: 10, away: "HOU", home: "CLE" },
+  { week: 10, away: "MIN", home: "GB" },
+  { week: 10, away: "MIA", home: "IND" },
+  { week: 10, away: "CAR", home: "NO" },
+  { week: 10, away: "BUF", home: "NYJ" },
+  { week: 10, away: "JAX", home: "TEN" },
+  { week: 10, away: "LAR", home: "ARI" },
+  { week: 10, away: "SEA", home: "LV" },
+  { week: 10, away: "SF", home: "DAL" },
+  { week: 10, away: "PIT", home: "CIN" },
+  { week: 10, away: "LAC", home: "BAL" },
+
+  // ── Week 11 ──────────────────────────────────────────────────
+  { week: 11, away: "IND", home: "HOU" },
+  { week: 11, away: "MIA", home: "BUF" },
+  { week: 11, away: "BAL", home: "CAR" },
+  { week: 11, away: "NO", home: "CHI" },
+  { week: 11, away: "TEN", home: "DAL" },
+  { week: 11, away: "TB", home: "DET" },
+  { week: 11, away: "ARI", home: "KC" },
+  { week: 11, away: "JAX", home: "NYG" },
+  { week: 11, away: "NYJ", home: "LAC" },
+  { week: 11, away: "LV", home: "DEN" },
+  { week: 11, away: "PIT", home: "PHI" },
+  { week: 11, away: "MIN", home: "SF", venue: "MEX" }, // Mexico City
+  { week: 11, away: "CIN", home: "WAS" },
+
+  // ── Week 12 ──────────────────────────────────────────────────
+  { week: 12, away: "GB", home: "LAR" },
+  { week: 12, away: "CHI", home: "DET" },
+  { week: 12, away: "PHI", home: "DAL" },
+  { week: 12, away: "KC", home: "BUF" },
+  { week: 12, away: "DEN", home: "PIT" },
+  { week: 12, away: "NO", home: "CIN" },
+  { week: 12, away: "LV", home: "CLE" },
+  { week: 12, away: "BAL", home: "HOU" },
+  { week: 12, away: "NYG", home: "IND" },
+  { week: 12, away: "NYJ", home: "MIA" },
+  { week: 12, away: "ATL", home: "MIN" },
+  { week: 12, away: "TEN", home: "JAX" },
+  { week: 12, away: "WAS", home: "ARI" },
+  { week: 12, away: "SEA", home: "SF" },
+  { week: 12, away: "NE", home: "LAC" },
+  { week: 12, away: "CAR", home: "TB" },
+
+  // ── Week 13 ──────────────────────────────────────────────────
+  { week: 13, away: "KC", home: "LAR" },
+  { week: 13, away: "DET", home: "ATL" },
+  { week: 13, away: "JAX", home: "CHI" },
+  { week: 13, away: "CIN", home: "CLE" },
+  { week: 13, away: "GB", home: "NO" },
+  { week: 13, away: "SF", home: "NYG" },
+  { week: 13, away: "LAC", home: "TB" },
+  { week: 13, away: "WAS", home: "TEN" },
+  { week: 13, away: "PHI", home: "ARI" },
+  { week: 13, away: "MIA", home: "DEN" },
+  { week: 13, away: "CAR", home: "MIN" },
+  { week: 13, away: "BUF", home: "NE" },
+  { week: 13, away: "HOU", home: "PIT" },
+  { week: 13, away: "DAL", home: "SEA" },
+
+  // ── Week 14 ──────────────────────────────────────────────────
+  { week: 14, away: "MIN", home: "NE" },
+  { week: 14, away: "TB", home: "BAL" },
+  { week: 14, away: "NO", home: "CAR" },
+  { week: 14, away: "ATL", home: "CLE" },
+  { week: 14, away: "TEN", home: "DET" },
+  { week: 14, away: "CHI", home: "MIA" },
+  { week: 14, away: "DEN", home: "NYJ" },
+  { week: 14, away: "IND", home: "PHI" },
+  { week: 14, away: "HOU", home: "WAS" },
+  { week: 14, away: "LAC", home: "LV" },
+  { week: 14, away: "KC", home: "CIN" },
+  { week: 14, away: "NYG", home: "SEA" },
+  { week: 14, away: "LAR", home: "SF" },
+  { week: 14, away: "BUF", home: "GB" },
+  { week: 14, away: "PIT", home: "JAX" },
+
+  // ── Week 15 ──────────────────────────────────────────────────
+  { week: 15, away: "SF", home: "LAC" },
+  { week: 15, away: "SEA", home: "PHI" },
+  { week: 15, away: "CHI", home: "BUF" },
+  { week: 15, away: "CIN", home: "CAR" },
+  { week: 15, away: "MIA", home: "GB" },
+  { week: 15, away: "JAX", home: "HOU" },
+  { week: 15, away: "CLE", home: "NYG" },
+  { week: 15, away: "BAL", home: "PIT" },
+  { week: 15, away: "NO", home: "TB" },
+  { week: 15, away: "IND", home: "TEN" },
+  { week: 15, away: "ATL", home: "WAS" },
+  { week: 15, away: "NYJ", home: "ARI" },
+  { week: 15, away: "DAL", home: "LAR" },
+  { week: 15, away: "DEN", home: "LV" },
+  { week: 15, away: "DET", home: "MIN" },
+  { week: 15, away: "NE", home: "KC" },
+
+  // ── Week 16 ──────────────────────────────────────────────────
+  { week: 16, away: "HOU", home: "PHI" },
+  { week: 16, away: "GB", home: "CHI" },
+  { week: 16, away: "BUF", home: "DEN" },
+  { week: 16, away: "LAR", home: "SEA" },
+  { week: 16, away: "CLE", home: "BAL" },
+  { week: 16, away: "LAC", home: "MIA" },
+  { week: 16, away: "ARI", home: "NO" },
+  { week: 16, away: "NE", home: "NYJ" },
+  { week: 16, away: "TEN", home: "LV" },
+  { week: 16, away: "SF", home: "KC" },
+  { week: 16, away: "JAX", home: "DAL" },
+  { week: 16, away: "NYG", home: "DET" },
+  { week: 16, away: "TB", home: "ATL" },
+  { week: 16, away: "CIN", home: "IND" },
+  { week: 16, away: "WAS", home: "MIN" },
+  { week: 16, away: "CAR", home: "PIT" },
+
+  // ── Week 17 ──────────────────────────────────────────────────
+  { week: 17, away: "BAL", home: "CIN" },
+  { week: 17, away: "NO", home: "ATL" },
+  { week: 17, away: "SEA", home: "CAR" },
+  { week: 17, away: "IND", home: "CLE" },
+  { week: 17, away: "NYG", home: "DAL" },
+  { week: 17, away: "BUF", home: "MIA" },
+  { week: 17, away: "MIN", home: "NYJ" },
+  { week: 17, away: "PIT", home: "TEN" },
+  { week: 17, away: "LV", home: "ARI" },
+  { week: 17, away: "DET", home: "CHI" },
+  { week: 17, away: "PHI", home: "SF" },
+  { week: 17, away: "HOU", home: "GB" },
+  { week: 17, away: "WAS", home: "JAX" },
+  { week: 17, away: "KC", home: "LAC" },
+  { week: 17, away: "DEN", home: "NE" },
+  { week: 17, away: "LAR", home: "TB" },
+
+  // ── Week 18 ──────────────────────────────────────────────────
+  { week: 18, away: "SF", home: "ARI" },
+  { week: 18, away: "PIT", home: "BAL" },
+  { week: 18, away: "NYJ", home: "BUF" },
+  { week: 18, away: "ATL", home: "CAR" },
+  { week: 18, away: "CLE", home: "CIN" },
+  { week: 18, away: "LAC", home: "DEN" },
+  { week: 18, away: "DET", home: "GB" },
+  { week: 18, away: "TEN", home: "HOU" },
+  { week: 18, away: "JAX", home: "IND" },
+  { week: 18, away: "LV", home: "KC" },
+  { week: 18, away: "SEA", home: "LAR" },
+  { week: 18, away: "CHI", home: "MIN" },
+  { week: 18, away: "MIA", home: "NE" },
+  { week: 18, away: "TB", home: "NO" },
+  { week: 18, away: "PHI", home: "NYG" },
+  { week: 18, away: "DAL", home: "WAS" },
 ];
