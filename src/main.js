@@ -25,8 +25,73 @@ import { wireMileageModal } from "./mileage-modal.js";
 import { createTooltip } from "./tooltip.js";
 import { isFrontOfSphere } from "./geo.js";
 import { THEMES, getInitialTheme, persistTheme } from "./themes.js";
+import { TEAM_KEYS } from "./data/teams.js";
 
 const canvas = document.getElementById("scene-canvas");
+
+// ── URL state ───────────────────────────────────────────────────
+// Round-trip filter + season + camera through the URL so a link captures the
+// scene the user assembled. `teams=` is omitted when all 32 are active so the
+// default URL stays clean; `view=` is omitted when the camera sits at its
+// boot framing within rounding tolerance. Writes go through replaceState so
+// rotation/filter changes don't pollute history.
+const urlParams = new URLSearchParams(window.location.search);
+
+function parseTeamsParam(raw) {
+  if (raw === null) return null;
+  if (raw === "none") return new Set();
+  if (raw === "all") return new Set(TEAM_KEYS);
+  const teamSet = new Set(TEAM_KEYS);
+  const picked = raw
+    .split(",")
+    .map((s) => s.trim().toUpperCase())
+    .filter((k) => teamSet.has(k));
+  return new Set(picked);
+}
+
+function parseSeasonParam(raw) {
+  if (raw && Object.prototype.hasOwnProperty.call(SCHEDULES, raw)) return raw;
+  return null;
+}
+
+function parseViewParam(raw) {
+  if (!raw) return null;
+  const parts = raw.split(",").map((s) => Number.parseFloat(s));
+  if (parts.length !== 3 || parts.some((n) => !Number.isFinite(n))) return null;
+  return { theta: parts[0], phi: parts[1], r: parts[2] };
+}
+
+const urlTeams = parseTeamsParam(urlParams.get("teams"));
+const urlSeason = parseSeasonParam(urlParams.get("season"));
+const urlView = parseViewParam(urlParams.get("view"));
+
+// Serializers. Each writes its slice into a shared mutable URLSearchParams
+// pulled fresh from window.location at call time, so they compose without
+// stomping each other when filter + season + camera change in the same tick.
+function writeUrlState({ active, season, controls }) {
+  const params = new URLSearchParams(window.location.search);
+
+  if (active.size === TEAM_KEYS.length) params.delete("teams");
+  else if (active.size === 0) params.set("teams", "none");
+  else params.set("teams", [...active].join(","));
+
+  if (season === DEFAULT_SEASON) params.delete("season");
+  else params.set("season", season);
+
+  if (controls) {
+    const theta = controls.getAzimuthalAngle();
+    const phi = controls.getPolarAngle();
+    const r = controls.getDistance();
+    params.set(
+      "view",
+      `${theta.toFixed(3)},${phi.toFixed(3)},${r.toFixed(2)}`,
+    );
+  }
+
+  const query = params.toString();
+  const next = `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`;
+  window.history.replaceState(null, "", next);
+}
 
 // Theme is resolved before paint by the inline script in index.html; we just
 // read it here so the scene's first frame is already in the right palette.
@@ -110,11 +175,19 @@ controls.maxDistance = 5.5;
 controls.minPolarAngle = 0.25;
 controls.maxPolarAngle = Math.PI - 0.45;
 
+// Restore camera from `view=` if present (clamped by OrbitControls' own
+// min/max distance + polar limits when update() runs).
+if (urlView) {
+  const spherical = new THREE.Spherical(urlView.r, urlView.phi, urlView.theta);
+  camera.position.setFromSpherical(spherical).add(controls.target);
+  controls.update();
+}
+
 // ── Build the world ─────────────────────────────────────────────
 let globe = null;
 let currentFlightPaths = null;
 let currentPanel = null;
-let currentSeason = DEFAULT_SEASON;
+let currentSeason = urlSeason ?? DEFAULT_SEASON;
 
 // ── Stadium tooltip + hover raycaster ───────────────────────────
 // Cache the canvas rect — both the tooltip's per-frame anchoring and the
@@ -216,6 +289,7 @@ async function start() {
     const intl = summariseInternational(summary);
     currentFlightPaths = createFlightPaths(legs, THEMES[currentThemeName]);
     globe.group.add(currentFlightPaths.group);
+    if (prefersReducedMotion) tickTravelers(currentFlightPaths, 0);
 
     currentPanel = buildTeamPanel({
       summary,
@@ -224,12 +298,31 @@ async function start() {
       onChange: (active) => {
         applyTeamFilter(currentFlightPaths, active);
         updateHover();
+        writeUrlState({ active, season: currentSeason, controls });
       },
     });
+
+    // Apply `teams=` from the URL once the panel is built. Mutating the
+    // active Set directly + calling refresh() drives the same code path a
+    // click would (applyActiveState → updatePresetState → onChange).
+    if (initialUrlTeamsApplied === false && urlTeams) {
+      currentPanel.active.clear();
+      for (const k of urlTeams) currentPanel.active.add(k);
+      currentPanel.refresh();
+      initialUrlTeamsApplied = true;
+    }
+
     updateHeaderMetrics({ summary, intl });
     mileageModal.setSummary(summary, `${meta.label} · regular-season totals`);
   }
 
+  // Sync season-switch button data-active to whatever URL state resolved to,
+  // before the wiring loop below caches the initial active button.
+  for (const btn of document.querySelectorAll(".season-switch__button")) {
+    btn.dataset.active = btn.dataset.season === currentSeason ? "true" : "false";
+  }
+
+  let initialUrlTeamsApplied = false;
   loadSeason(currentSeason);
 
   // ── Season switch wiring ───────────────────────────────────
@@ -241,8 +334,22 @@ async function start() {
         other.dataset.active = other === btn ? "true" : "false";
       }
       loadSeason(target);
+      writeUrlState({ active: currentPanel.active, season: target, controls });
     });
   }
+
+  // ── Camera → URL (debounced) ───────────────────────────────
+  // OrbitControls fires 'change' on every damped frame (~60Hz). Debounce so a
+  // single rotate/zoom gesture writes once when motion settles, not 60 times
+  // per second mid-drag.
+  let cameraWriteTimer = 0;
+  controls.addEventListener("change", () => {
+    window.clearTimeout(cameraWriteTimer);
+    cameraWriteTimer = window.setTimeout(() => {
+      if (!currentPanel) return;
+      writeUrlState({ active: currentPanel.active, season: currentSeason, controls });
+    }, 220);
+  });
 
   // ── Theme toggle wiring ────────────────────────────────────
   document.getElementById("theme-toggle").addEventListener("click", () => {
@@ -271,13 +378,29 @@ function setTheme(name) {
 // ── Animation loop ──────────────────────────────────────────────
 const timer = new THREE.Timer();
 timer.connect(document); // pause delta accumulation when tab is hidden
+
+// Respect prefers-reduced-motion for the WebGL traveler loop. The CSS rule
+// only stops DOM transitions; travelers spin in their own rAF until we gate
+// them here. When reduced motion is on we still position them once (at
+// elapsed=0) so they stay visible as static markers along each arc.
+const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+let prefersReducedMotion = reducedMotionQuery.matches;
+reducedMotionQuery.addEventListener("change", (event) => {
+  prefersReducedMotion = event.matches;
+  if (prefersReducedMotion && currentFlightPaths) {
+    tickTravelers(currentFlightPaths, 0);
+  }
+});
+
 function animate() {
   requestAnimationFrame(animate);
   timer.update();
   const delta = timer.getDelta();
   const elapsed = timer.getElapsed();
   controls.update(delta);
-  if (currentFlightPaths) tickTravelers(currentFlightPaths, elapsed);
+  if (currentFlightPaths && !prefersReducedMotion) {
+    tickTravelers(currentFlightPaths, elapsed);
+  }
   if (tooltip.isVisible()) tooltip.updatePosition();
   renderer.render(scene, camera);
 }

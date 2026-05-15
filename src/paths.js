@@ -127,10 +127,12 @@ export function createFlightPaths(legs, theme) {
     const team = TEAMS[key];
     const pos = latLonToVec3(team.lat, team.lon, HOME_DOT_RADIUS);
     const geom = new THREE.SphereGeometry(0.008, 12, 12);
+    // Opaque so back-hemisphere dots get depth-culled by the sphere. The old
+    // transparent: true + opacity 0.95 put these in Three's transparent
+    // render queue where back-side fragments could slip past depth-test and
+    // bleed through (visible in the previous 03-pacific.png hero shot).
     const mat = new THREE.MeshBasicMaterial({
       color: new THREE.Color(team.accent),
-      transparent: true,
-      opacity: 0.95,
     });
     const dot = new THREE.Mesh(geom, mat);
     dot.position.copy(pos);
@@ -256,16 +258,35 @@ function makeHitProxy(pos) {
   return mesh;
 }
 
+// Arc opacity for teams that are NOT in the active filter, when a filter is
+// actively narrowing the selection. Fade rather than hide so the selected
+// team's arcs read clearly against the league context instead of as a
+// disembodied few lines on an empty globe.
+const INACTIVE_ARC_OPACITY = 0.1;
+const TEAM_COUNT = Object.keys(TEAMS).length;
+
 // Show/hide arcs + markers + travelers based on the currently-selected set
 // of teams. `active` is a Set of team keys. Hit-test proxies aren't toggled
 // here — every venue stays hoverable regardless of team selection so the
 // tooltip can describe the stadium even when no team filter includes it.
 export function applyTeamFilter({ arcRecords, homeMarkerRecords }, active) {
+  // Fade inactive arcs only when the user has assembled a partial selection.
+  // All-on (no filter) and all-off (Clear) both keep the old binary behavior.
+  const filterIsNarrowing = active.size > 0 && active.size < TEAM_COUNT;
+
   for (const { line, leg, traveler } of arcRecords) {
-    const visible = active.has(leg.team);
-    line.visible = visible;
-    line.material.opacity = visible ? line.userData.baseOpacity : 0;
-    traveler.visible = visible;
+    const isActive = active.has(leg.team);
+    if (isActive) {
+      line.visible = true;
+      line.material.opacity = line.userData.baseOpacity;
+    } else if (filterIsNarrowing) {
+      line.visible = true;
+      line.material.opacity = INACTIVE_ARC_OPACITY;
+    } else {
+      line.visible = false;
+      line.material.opacity = 0;
+    }
+    traveler.visible = isActive;
   }
   for (const { team, dot, ring } of homeMarkerRecords) {
     const visible = active.has(team);
