@@ -1,4 +1,10 @@
-import { TEAMS, TEAM_KEYS } from "./data/teams.js";
+import {
+  TEAMS,
+  TEAM_KEYS,
+  DIVISIONS,
+  teamConference,
+  groupTeamsByDivision,
+} from "./data/teams.js";
 
 export const numberFormatter = new Intl.NumberFormat("en-US");
 
@@ -12,79 +18,230 @@ export function sortTeamsByMiles(summary) {
   );
 }
 
-// Build the team list, return { setActive, getActive, onChange }.
-export function buildTeamPanel({ summary, listEl, onChange }) {
+// Build the team list. Renders 32 rows grouped by division (default) or
+// flat-sorted by mileage, each row carrying a stacked mileage bar (team
+// accent + international segment). Preset chips above the list apply
+// canonical filters (All / AFC / NFC / Longest 5 / International / Clear).
+//
+// Returns { active, refresh, setAll, ... } so main.js can drive header
+// metric updates from the same active Set.
+export function buildTeamPanel({ summary, intl, listEl, onChange }) {
   const active = new Set(TEAM_KEYS);
-  const sorted = sortTeamsByMiles(summary);
+  const maxMiles = Math.max(
+    1,
+    ...TEAM_KEYS.map((k) => summary[k].totalMiles),
+  );
+  const byDivision = groupTeamsByDivision();
+  const sortedByMiles = sortTeamsByMiles(summary);
+  const longest5 = new Set(sortedByMiles.slice(0, 5));
+  const internationalTeams = new Set(
+    TEAM_KEYS.filter((k) => summary[k].internationalCount > 0),
+  );
 
-  listEl.innerHTML = "";
+  let currentSort = "division";
   const rowsByTeam = {};
 
-  for (const key of sorted) {
-    const team = TEAMS[key];
+  function renderRows() {
+    listEl.innerHTML = "";
+    rowsByTeam.length = 0;
+    for (const k of Object.keys(rowsByTeam)) delete rowsByTeam[k];
+
+    if (currentSort === "division") {
+      for (const division of DIVISIONS) {
+        const teamsInDivision = byDivision[division];
+        const divisionTotal = teamsInDivision.reduce(
+          (sum, k) => sum + summary[k].totalMiles,
+          0,
+        );
+
+        const groupHeader = document.createElement("li");
+        groupHeader.className = "team-group__head";
+        groupHeader.dataset.division = division;
+        groupHeader.innerHTML = `
+          <span class="team-group__name">${division}</span>
+          <span class="team-group__miles">${formatMiles(divisionTotal)}</span>
+        `;
+        listEl.appendChild(groupHeader);
+
+        for (const teamKey of teamsInDivision) {
+          listEl.appendChild(buildTeamRow(teamKey));
+        }
+      }
+    } else {
+      // mileage sort
+      for (const teamKey of sortedByMiles) {
+        listEl.appendChild(buildTeamRow(teamKey));
+      }
+    }
+
+    applyActiveState();
+  }
+
+  function buildTeamRow(teamKey) {
+    const team = TEAMS[teamKey];
+    const teamSummary = summary[teamKey];
+    const miles = teamSummary.totalMiles;
+    const legMiles = teamSummary.legMiles;
+    const intlMiles = teamSummary.internationalMiles;
+    const pct = (miles / maxMiles) * 100;
+    // Bar length scales with the team's sequential-walk total (matches the
+    // numeric readout). The international segment within the bar is a
+    // legMiles-space ratio — internationalMiles is a subset of legMiles, so
+    // the share is bounded ≤ 1 by construction.
+    const intlShare = legMiles > 0 ? intlMiles / legMiles : 0;
+    const intlSharePct = pct * intlShare;
+    const teamPct = pct - intlSharePct;
+
     const row = document.createElement("li");
     row.className = "team-row";
-    row.dataset.team = key;
+    row.dataset.team = teamKey;
     row.dataset.active = "true";
+    row.style.setProperty("--accent", team.accent);
+    row.style.setProperty("--accent-dark", team.accentDark ?? team.accent);
+    row.style.setProperty("--team-pct", `${teamPct.toFixed(2)}%`);
+    row.style.setProperty("--intl-pct", `${intlSharePct.toFixed(2)}%`);
     row.innerHTML = `
-      <span class="team-row__chip" style="background:${team.accent}"></span>
-      <span class="team-row__name">
-        <span class="team-row__abbr">${team.abbr}</span>${team.name.replace(`${team.abbr.length > 0 ? "" : ""}`, "")}
+      <span class="team-row__chip"></span>
+      <span class="team-row__abbr">${team.abbr}</span>
+      <span class="team-row__name">${team.name}</span>
+      <span class="team-row__bar" aria-hidden="true">
+        <span class="team-row__bar-team"></span>
+        <span class="team-row__bar-intl"></span>
       </span>
-      <span class="team-row__miles">${formatMiles(summary[key].totalMiles)}</span>
+      <span class="team-row__miles">${formatMiles(miles)}</span>
     `;
     row.addEventListener("click", (e) => {
-      // Shift-click → solo; plain click → toggle.
+      // Shift / cmd / ctrl / alt → solo this team; plain click → toggle.
       if (e.shiftKey || e.metaKey || e.ctrlKey || e.altKey) {
         active.clear();
-        active.add(key);
-      } else if (active.has(key)) {
-        active.delete(key);
+        active.add(teamKey);
+      } else if (active.has(teamKey)) {
+        active.delete(teamKey);
       } else {
-        active.add(key);
+        active.add(teamKey);
       }
       refresh();
     });
-    listEl.appendChild(row);
-    rowsByTeam[key] = row;
+    rowsByTeam[teamKey] = row;
+    return row;
   }
 
-  function refresh() {
+  function applyActiveState() {
     for (const [key, row] of Object.entries(rowsByTeam)) {
       row.dataset.active = active.has(key) ? "true" : "false";
     }
+  }
+
+  function refresh() {
+    applyActiveState();
+    updatePresetState();
     onChange(active);
   }
 
-  function setAll(on) {
+  // Each preset corresponds to a canonical Set of teams. "All" sets every
+  // team active; "AFC" / "NFC" filter by conference; "Longest 5" picks the
+  // top 5 by mileage; "International" picks teams with overseas games;
+  // "Clear" empties the selection.
+  function applyPreset(preset) {
     active.clear();
-    if (on) for (const k of TEAM_KEYS) active.add(k);
+    if (preset === "all") {
+      for (const k of TEAM_KEYS) active.add(k);
+    } else if (preset === "afc") {
+      for (const k of TEAM_KEYS) if (teamConference(k) === "AFC") active.add(k);
+    } else if (preset === "nfc") {
+      for (const k of TEAM_KEYS) if (teamConference(k) === "NFC") active.add(k);
+    } else if (preset === "longest5") {
+      for (const k of longest5) active.add(k);
+    } else if (preset === "international") {
+      for (const k of internationalTeams) active.add(k);
+    }
+    // 'none' leaves active empty.
     refresh();
+  }
+
+  // Mark a preset chip "active" only if the current selection exactly
+  // matches its canonical set. Custom selections leave every chip inactive.
+  function updatePresetState() {
+    const presetButtons = document.querySelectorAll(".panel__preset");
+    const matched = matchActiveToPreset();
+    for (const btn of presetButtons) {
+      btn.dataset.active = btn.dataset.preset === matched ? "true" : "false";
+    }
+  }
+
+  function setsEqual(a, b) {
+    if (a.size !== b.size) return false;
+    for (const k of a) if (!b.has(k)) return false;
+    return true;
+  }
+
+  function matchActiveToPreset() {
+    if (active.size === 0) return "none";
+    if (active.size === TEAM_KEYS.length) return "all";
+    const afc = new Set(TEAM_KEYS.filter((k) => teamConference(k) === "AFC"));
+    const nfc = new Set(TEAM_KEYS.filter((k) => teamConference(k) === "NFC"));
+    if (setsEqual(active, afc)) return "afc";
+    if (setsEqual(active, nfc)) return "nfc";
+    if (setsEqual(active, longest5)) return "longest5";
+    if (setsEqual(active, internationalTeams)) return "international";
+    return null;
+  }
+
+  function setSort(sort) {
+    if (sort === currentSort) return;
+    currentSort = sort;
+    for (const btn of document.querySelectorAll(".panel__sort-button")) {
+      btn.dataset.active = btn.dataset.sort === sort ? "true" : "false";
+    }
+    renderRows();
+  }
+
+  // Wire the panel-intl call-out, the preset chips, and the sort toggle.
+  // We do this once at build time; subsequent state updates flow through
+  // applyPreset/setSort which target the existing DOM nodes.
+  const intlEl = document.getElementById("panel-intl");
+  if (intlEl) {
+    if (intl && intl.teamCount > 0) {
+      intlEl.textContent = `${intl.teamCount} teams travel internationally · ${formatMiles(intl.totalMiles)} total`;
+      intlEl.hidden = false;
+    } else {
+      intlEl.hidden = true;
+    }
+  }
+
+  for (const btn of document.querySelectorAll(".panel__preset")) {
+    btn.addEventListener("click", () => applyPreset(btn.dataset.preset));
+  }
+  for (const btn of document.querySelectorAll(".panel__sort-button")) {
+    btn.addEventListener("click", () => setSort(btn.dataset.sort));
+  }
+
+  renderRows();
+  updatePresetState();
+
+  function setAll(on) {
+    applyPreset(on ? "all" : "none");
   }
 
   return { active, refresh, setAll };
 }
 
-export function wireSelectAllNone(panel) {
-  document
-    .getElementById("select-all")
-    .addEventListener("click", () => panel.setAll(true));
-  document
-    .getElementById("select-none")
-    .addEventListener("click", () => panel.setAll(false));
-}
-
-export function updateHeaderMetrics({ active, summary }) {
-  const selected = [...active].reduce(
-    (sum, key) => sum + summary[key].totalMiles,
-    0,
-  );
+// Header metric cards: League total + International miles (with game count).
+// Both display season facts, not filter state — the active filter shapes
+// the globe + panel, not the season totals.
+export function updateHeaderMetrics({ summary, intl }) {
   const total = Object.values(summary).reduce(
     (sum, s) => sum + s.totalMiles,
     0,
   );
-  document.getElementById("selected-miles").textContent = formatMiles(selected);
-  document.getElementById("league-miles").textContent = formatMiles(total);
+  const leagueEl = document.getElementById("league-miles");
+  const intlMilesEl = document.getElementById("international-miles");
+  const intlGamesEl = document.getElementById("international-games");
+  if (leagueEl) leagueEl.textContent = formatMiles(total);
+  if (intlMilesEl) intlMilesEl.textContent = formatMiles(intl.totalMiles);
+  if (intlGamesEl) {
+    intlGamesEl.textContent = `${intl.gameCount} game${intl.gameCount === 1 ? "" : "s"}`;
+  }
 }
 
 export function dismissLoading() {

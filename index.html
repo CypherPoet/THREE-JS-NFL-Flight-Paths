@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#efe9dd" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#10131a" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#0f0d0a" media="(prefers-color-scheme: dark)" />
     <script>
       // Resolve theme before paint to avoid a flash.
       (function () {
@@ -77,12 +77,13 @@
         </div>
         <div class="topbar__meta">
           <span class="metric">
-            <span class="metric__label">Selected miles</span>
-            <span class="metric__value" id="selected-miles">—</span>
+            <span class="metric__label">League total miles</span>
+            <span class="metric__value" id="league-miles">—</span>
           </span>
           <span class="metric">
-            <span class="metric__label">League total</span>
-            <span class="metric__value" id="league-miles">—</span>
+            <span class="metric__label">International miles</span>
+            <span class="metric__value" id="international-miles">—</span>
+            <span class="metric__sub" id="international-games">— games</span>
           </span>
           <button
             type="button"
@@ -199,24 +200,78 @@
       <aside class="panel" id="team-panel">
         <div class="panel__head">
           <h2>Teams</h2>
-          <div class="panel__actions">
+          <div class="panel__sort" role="group" aria-label="Sort teams">
             <button
               type="button"
-              class="panel__button"
-              id="select-all"
-              title="Show every team"
+              class="panel__sort-button"
+              data-sort="division"
+              data-active="true"
+              title="Group by AFC / NFC division"
             >
-              All
+              By division
             </button>
             <button
               type="button"
-              class="panel__button"
-              id="select-none"
-              title="Clear selection"
+              class="panel__sort-button"
+              data-sort="mileage"
+              data-active="false"
+              title="Sort by total travel miles, longest first"
             >
-              None
+              By miles
             </button>
           </div>
+        </div>
+        <p class="panel__intl" id="panel-intl">
+          <!-- populated by buildTeamPanel: "8 teams travel internationally · 32,140 mi total" -->
+        </p>
+        <div class="panel__presets" role="group" aria-label="Filter teams">
+          <button
+            type="button"
+            class="panel__preset"
+            data-preset="all"
+            data-active="true"
+          >
+            All
+          </button>
+          <button
+            type="button"
+            class="panel__preset"
+            data-preset="afc"
+          >
+            AFC
+          </button>
+          <button
+            type="button"
+            class="panel__preset"
+            data-preset="nfc"
+          >
+            NFC
+          </button>
+          <button
+            type="button"
+            class="panel__preset"
+            data-preset="longest5"
+            title="Five teams with the longest travel"
+          >
+            Longest 5
+          </button>
+          <button
+            type="button"
+            class="panel__preset"
+            data-preset="international"
+            title="Teams playing a game abroad"
+          >
+            International
+          </button>
+          <button
+            type="button"
+            class="panel__preset panel__preset--clear"
+            data-preset="none"
+            title="Clear selection"
+            aria-label="Clear selection"
+          >
+            Clear
+          </button>
         </div>
         <ol class="team-list" id="team-list"></ol>
       </aside>
@@ -341,10 +396,12 @@ d = R·c</pre>
 
             <h3>What gets totalled</h3>
             <p>
-              <strong>Selected miles</strong> sums the totals for the active
-              (visible) teams. <strong>League total</strong> sums all 32
-              teams. Per-team rows in the sidebar show that team's full-season
-              miles.
+              <strong>League total miles</strong> sums all 32 teams across the
+              full schedule. <strong>International miles</strong> sums only the
+              great-circle distance to neutral overseas venues, counted once
+              per traveling team. Per-team rows in the sidebar show each team's
+              full-season miles and stack the international portion as a
+              contrasting bar segment.
             </p>
 
             <h3>Arcs vs. totals</h3>

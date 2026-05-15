@@ -82,20 +82,22 @@
   --tooltip-ink: #f6f1e6;
 }
 
+/* Dark theme: Sunday Night Football primetime broadcast. Warm-graphite tunnel
+   axis (stadium-tunnel shadow + sodium-vapor key light), not cool-navy. */
 [data-theme="dark"] {
-  --bg: #10131a;
-  --bg-deep: #070a10;
-  --paper: #1a1f2b;
-  --paper-trans: rgba(26, 31, 43, 0.78);
-  --paper-soft: rgba(26, 31, 43, 0.55);
-  --ink: #f1ecdd;
-  --ink-soft: #c0b9a4;
-  --ink-mute: #7a8194;
-  --line: rgba(241, 236, 221, 0.12);
-  --line-strong: rgba(241, 236, 221, 0.3);
+  --bg: #0f0d0a;
+  --bg-deep: #070604;
+  --paper: #1a1612;
+  --paper-trans: rgba(26, 22, 18, 0.82);
+  --paper-soft: rgba(26, 22, 18, 0.6);
+  --ink: #f3ecd6;
+  --ink-soft: #c4b89a;
+  --ink-mute: #7a705e;
+  --line: rgba(243, 236, 214, 0.12);
+  --line-strong: rgba(243, 236, 214, 0.3);
   --shadow: rgba(0, 0, 0, 0.65);
-  --tooltip-bg: rgba(241, 236, 221, 0.95);
-  --tooltip-ink: #10131a;
+  --tooltip-bg: rgba(243, 236, 214, 0.95);
+  --tooltip-ink: #0f0d0a;
 }
 
 :root {
@@ -104,8 +106,15 @@
   --font-display: "Unbounded", system-ui, sans-serif;
   --font-ui: "Manrope", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  /* International-segment marker for stacked mileage bars. Reads as a
+     "distinct material" overlay against any team accent. */
+  --intl-marker: #7a6b3d;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+}
+
+[data-theme="dark"] {
+  --intl-marker: #f3ecd6;
 }
 
 * {
@@ -270,6 +279,16 @@ img.topbar__mark {
   font-variant-numeric: tabular-nums;
 }
 
+.metric__sub {
+  margin-top: 1px;
+  font-family: var(--font-ui);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+
 /* ── Theme toggle ───────────────────────────────────────────── */
 .theme-toggle {
   background: var(--paper-trans);
@@ -342,11 +361,11 @@ img.topbar__mark {
 }
 
 .panel__head {
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--line);
+  padding: 12px 14px 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
 }
 
 .panel__head h2 {
@@ -359,31 +378,113 @@ img.topbar__mark {
   color: var(--ink-soft);
 }
 
-.panel__actions {
-  display: flex;
-  gap: 4px;
+/* Sort toggle: a two-state switch (by division / by miles). Plain text
+   chips, no glass-blur — chrome distillation is out of scope for this pass
+   but new chrome shouldn't add to the glassmorphism count. */
+.panel__sort {
+  display: inline-flex;
+  gap: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
 }
 
-.panel__button {
+.panel__sort-button {
   background: transparent;
-  border: 1px solid var(--line);
-  color: var(--ink-soft);
+  border: 0;
+  color: var(--ink-mute);
   font: inherit;
   font-family: var(--font-ui);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   padding: 4px 8px;
-  border-radius: 6px;
   cursor: pointer;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   transition:
     background 120ms ease,
     color 120ms ease;
 }
 
-.panel__button:hover {
-  background: var(--bg-deep);
+.panel__sort-button + .panel__sort-button {
+  border-left: 1px solid var(--line);
+}
+
+.panel__sort-button[data-active="true"] {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.panel__sort-button:not([data-active="true"]):hover {
   color: var(--ink);
+  background: var(--line);
+}
+
+/* Panel-head international call-out — telegraphs the season story
+   (e.g. "8 teams travel internationally · 32,140 mi total") in body
+   sentence case, deliberately NOT another uppercase-tracked kicker. */
+.panel__intl {
+  margin: 0;
+  padding: 6px 14px 10px;
+  font-family: var(--font-ui);
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: var(--ink-soft);
+}
+
+.panel__intl[hidden] {
+  display: none;
+}
+
+/* Preset filter chips: plain text buttons, no blur, no glass. The active
+   chip is filled; inactive chips are ghost. "Clear" sits at the end as a
+   quieter variant. */
+.panel__presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 0 14px 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.panel__preset {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--ink-soft);
+  font: inherit;
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 999px;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition:
+    background 120ms ease,
+    color 120ms ease,
+    border-color 120ms ease;
+}
+
+.panel__preset:hover {
+  color: var(--ink);
+  border-color: var(--line-strong);
+}
+
+.panel__preset[data-active="true"] {
+  background: var(--ink);
+  color: var(--bg);
+  border-color: var(--ink);
+}
+
+.panel__preset--clear {
+  margin-left: auto;
+  color: var(--ink-mute);
+  border-color: transparent;
+}
+
+.panel__preset--clear:hover {
+  color: var(--ink);
+  background: transparent;
+  border-color: var(--line);
 }
 
 .team-list {
@@ -405,12 +506,50 @@ img.topbar__mark {
   opacity: 0.4;
 }
 
+/* Division group header (e.g. "AFC East · 41,402 mi"). A different
+   grammar from the panel's uppercase-tracked H2 so the panel doesn't
+   stack two kicker labels. Display font, normal case, generous tracking. */
+.team-group__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 14px 4px;
+  border-top: 1px solid var(--line);
+}
+
+.team-group__head:first-child {
+  border-top: 0;
+  padding-top: 8px;
+}
+
+.team-group__name {
+  font-family: var(--font-display);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: 0;
+}
+
+.team-group__miles {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--ink-mute);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Team row — chip + abbr + name + miles on the top line, full-width
+   stacked mileage bar across the bottom. Bar segments: team-accent fill
+   for total miles, cream/dark overlay for the international portion. */
 .team-row {
   display: grid;
-  grid-template-columns: 18px 1fr auto;
+  grid-template-columns: 12px auto minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
   align-items: center;
-  gap: 10px;
-  padding: 7px 14px;
+  column-gap: 8px;
+  row-gap: 4px;
+  padding: 5px 14px 7px;
   cursor: pointer;
   transition: background 100ms ease;
   font-size: 13px;
@@ -429,13 +568,28 @@ img.topbar__mark {
 }
 
 .team-row__chip {
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
+  grid-row: 1;
+  grid-column: 1;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--accent, var(--ink-mute));
   box-shadow: inset 0 0 0 1px var(--line-strong);
 }
 
+.team-row__abbr {
+  grid-row: 1;
+  grid-column: 2;
+  color: var(--ink-mute);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 10.5px;
+  letter-spacing: 0.02em;
+}
+
 .team-row__name {
+  grid-row: 1;
+  grid-column: 3;
   font-weight: 500;
   color: var(--ink);
   white-space: nowrap;
@@ -443,21 +597,58 @@ img.topbar__mark {
   text-overflow: ellipsis;
 }
 
-.team-row__abbr {
-  color: var(--ink-mute);
-  font-family: var(--font-mono);
-  font-weight: 500;
-  margin-right: 6px;
-  font-size: 11px;
-  letter-spacing: 0.02em;
-}
-
 .team-row__miles {
+  grid-row: 1;
+  grid-column: 4;
   font-family: var(--font-mono);
   font-size: 11px;
   color: var(--ink-soft);
-  letter-spacing: 0;
   font-variant-numeric: tabular-nums;
+}
+
+.team-row__bar {
+  grid-row: 2;
+  grid-column: 1 / -1;
+  position: relative;
+  height: 3px;
+  background: transparent;
+}
+
+.team-row__bar-team,
+.team-row__bar-intl {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  border-radius: 1.5px;
+  transition:
+    width 320ms cubic-bezier(0.18, 0.7, 0.22, 1),
+    left 320ms cubic-bezier(0.18, 0.7, 0.22, 1),
+    opacity 200ms ease;
+}
+
+.team-row__bar-team {
+  left: 0;
+  width: var(--team-pct, 0%);
+  background: var(--accent, var(--ink-mute));
+}
+
+.team-row__bar-intl {
+  left: var(--team-pct, 0%);
+  width: var(--intl-pct, 0%);
+  background: var(--intl-marker);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.team-row[data-active="false"] .team-row__bar-team,
+.team-row[data-active="false"] .team-row__bar-intl {
+  opacity: 0.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .team-row__bar-team,
+  .team-row__bar-intl {
+    transition: none;
+  }
 }
 
 /* ── Hint + legend ──────────────────────────────────────────── */

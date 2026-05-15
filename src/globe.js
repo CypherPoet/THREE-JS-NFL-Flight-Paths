@@ -3,11 +3,17 @@ import * as topojson from "topojson-client";
 import { GLOBE_RADIUS, RELIEF_LIFT, latLonToVec3 } from "./geo.js";
 import { makeContinentRelief } from "./relief.js";
 
+// Default atmosphere light direction (world space). The dark-theme halo
+// brightens toward this vector so the halo reads as light spilling from the
+// key light side, not a uniform orbit ring. Kept in sync with main.js's key
+// light position via createGlobe's `keyLightPosition` option.
+const DEFAULT_LIGHT_DIR = new THREE.Vector3(-2.6, 3.4, 3.2).normalize();
+
 // Build the off-white / midnight globe: a smooth ocean sphere with each
 // landmass extruded as a slightly-elevated 3D plate (the "relief"), country
 // borders etched as darker engravings sitting on top of the plate, plus
 // atmosphere halo, limb darkening and ground shadow.
-export async function createGlobe({ topoUrl, theme }) {
+export async function createGlobe({ topoUrl, theme, keyLightPosition }) {
   const group = new THREE.Group();
   group.name = "globe";
 
@@ -55,7 +61,10 @@ export async function createGlobe({ topoUrl, theme }) {
   group.add(limb);
 
   // ── Atmospheric Fresnel halo (subtle in light, prominent in dark) ──
-  const atmosphere = makeAtmosphere(theme);
+  const lightDir = keyLightPosition
+    ? new THREE.Vector3().copy(keyLightPosition).normalize()
+    : DEFAULT_LIGHT_DIR.clone();
+  const atmosphere = makeAtmosphere(theme, lightDir);
   group.add(atmosphere);
 
   // ── Crisp 3D country outlines (silhouette near the limb) ────
@@ -108,24 +117,30 @@ export function applyThemeToGlobe(globe, theme) {
   shadow.material.needsUpdate = true;
 }
 
-function makeAtmosphere(theme) {
-  // Wide back-side shell with a two-stop Fresnel gradient: a hot near-white
-  // edge hugging the planet's silhouette, fading through a saturated mid
-  // blue, then softly to black. Mirrors low-orbit photos of Earth.
+function makeAtmosphere(theme, lightDir) {
+  // Wide back-side shell with a two-stop Fresnel gradient: a hot stadium-
+  // cream edge hugging the planet's silhouette, fading through warm amber,
+  // then softly out. The `lightDir` uniform biases the halo brightness
+  // toward the lit hemisphere — so the warm spill reads as stadium lights
+  // catching the limb, not a uniform "Earth from orbit" ring.
   const geometry = new THREE.SphereGeometry(GLOBE_RADIUS * 1.18, 96, 96);
   const material = new THREE.ShaderMaterial({
     uniforms: {
       innerColor: { value: new THREE.Color(theme.glowInnerColor) },
       outerColor: { value: new THREE.Color(theme.glowOuterColor) },
       intensity: { value: theme.glowIntensity },
+      lightDir: { value: lightDir.clone() },
     },
     vertexShader: /* glsl */ `
       varying vec3 vNormal;
       varying vec3 vViewDir;
+      varying vec3 vWorldNormal;
       void main() {
         vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
         vNormal = normalize(normalMatrix * normal);
         vViewDir = normalize(-mvPos.xyz);
+        // World-space normal, used to bias the halo toward the lit side.
+        vWorldNormal = normalize(mat3(modelMatrix) * normal);
         gl_Position = projectionMatrix * mvPos;
       }
     `,
@@ -133,8 +148,10 @@ function makeAtmosphere(theme) {
       uniform vec3 innerColor;
       uniform vec3 outerColor;
       uniform float intensity;
+      uniform vec3 lightDir;
       varying vec3 vNormal;
       varying vec3 vViewDir;
+      varying vec3 vWorldNormal;
       void main() {
         // BackSide rendering: only the far hemisphere of the shell paints,
         // and the planet blocks everything inside its silhouette — what we
@@ -145,10 +162,17 @@ function makeAtmosphere(theme) {
         //   ≈ -0.55 right where the annulus touches the planet (when shell ≈ 1.18 × planet).
         // We want the gradient bright near the planet, fading outward.
         float t = clamp(-dot(vNormal, vViewDir) / 0.55, 0.0, 1.0);
-        float halo = pow(t, 0.7);                  // wide soft blue
-        float hot  = smoothstep(0.65, 1.0, t);     // bright cyan-white edge
+        float halo = pow(t, 0.7);                  // wide soft warm spill
+        float hot  = smoothstep(0.65, 1.0, t);     // bright cream edge
         vec3 color = mix(outerColor, innerColor, hot);
-        float alpha = (halo * 0.7 + hot * 0.55) * intensity;
+
+        // Bias toward the key-light direction so the halo isn't a uniform
+        // orbital ring. Remap dot(N, L) from [-1, 1] to [0, 1], then keep a
+        // floor so the unlit side is dim but not pitch black.
+        float lit = clamp(dot(vWorldNormal, lightDir) * 0.5 + 0.5, 0.0, 1.0);
+        float spill = mix(0.18, 1.0, lit);
+
+        float alpha = (halo * 0.7 + hot * 0.55) * intensity * spill;
         gl_FragColor = vec4(color * alpha, alpha);
       }
     `,

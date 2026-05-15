@@ -11,12 +11,12 @@ import {
 import {
   buildTravelLegs,
   summariseByTeam,
+  summariseInternational,
   SCHEDULES,
   DEFAULT_SEASON,
 } from "./schedule.js";
 import {
   buildTeamPanel,
-  wireSelectAllNone,
   updateHeaderMetrics,
   dismissLoading,
   wireMethodologyModal,
@@ -180,6 +180,7 @@ async function start() {
   globe = await createGlobe({
     topoUrl: TOPO_URL,
     theme: THEMES[currentThemeName],
+    keyLightPosition: lights.key.position,
   });
   scene.add(globe.group);
 
@@ -212,20 +213,20 @@ async function start() {
 
     const legs = buildTravelLegs(meta.games);
     const summary = summariseByTeam(legs);
+    const intl = summariseInternational(summary);
     currentFlightPaths = createFlightPaths(legs, THEMES[currentThemeName]);
     globe.group.add(currentFlightPaths.group);
 
     currentPanel = buildTeamPanel({
       summary,
+      intl,
       listEl,
       onChange: (active) => {
         applyTeamFilter(currentFlightPaths, active);
-        updateHeaderMetrics({ active, summary });
         updateHover();
       },
     });
-    wireSelectAllNone(currentPanel);
-    updateHeaderMetrics({ active: currentPanel.active, summary });
+    updateHeaderMetrics({ summary, intl });
     mileageModal.setSummary(summary, `${meta.label} · regular-season totals`);
   }
 
