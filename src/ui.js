@@ -208,20 +208,17 @@ export function buildTeamPanel({ summary, intl, listEl, onChange }) {
     }
   }
 
-  // Preset chips and sort-toggle buttons live in static index.html and are
-  // never recreated; buildTeamPanel() runs once per season switch, so naive
-  // addEventListener would stack a fresh closure on every reload. Clone-and-
-  // replace each button to drop existing listeners before binding.
-  for (const btn of document.querySelectorAll(".panel__preset")) {
-    const fresh = btn.cloneNode(true);
-    btn.parentNode.replaceChild(fresh, btn);
-    fresh.addEventListener("click", () => applyPreset(fresh.dataset.preset));
+  // Preset/sort buttons are static in index.html; clone-replace drops listeners
+  // from prior season switches.
+  function rebind(selector, datasetKey, handler) {
+    for (const btn of document.querySelectorAll(selector)) {
+      const fresh = btn.cloneNode(true);
+      btn.parentNode.replaceChild(fresh, btn);
+      fresh.addEventListener("click", () => handler(fresh.dataset[datasetKey]));
+    }
   }
-  for (const btn of document.querySelectorAll(".panel__sort-button")) {
-    const fresh = btn.cloneNode(true);
-    btn.parentNode.replaceChild(fresh, btn);
-    fresh.addEventListener("click", () => setSort(fresh.dataset.sort));
-  }
+  rebind(".panel__preset", "preset", applyPreset);
+  rebind(".panel__sort-button", "sort", setSort);
 
   renderRows();
   updatePresetState();

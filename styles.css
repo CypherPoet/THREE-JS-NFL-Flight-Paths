@@ -20,7 +20,6 @@
     U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
     U+A720-A7FF;
 }
-/* Body / UI — Geist (variable, full latin coverage in a single woff2). */
 @font-face {
   font-family: "Geist";
   font-style: normal;
@@ -29,9 +28,6 @@
   src: url("./fonts/geist/geist-variable.woff2") format("woff2-variations");
 }
 
-/* Numerals — Departure Mono. Early-LCD / scoreboard voice for the
-   metric readouts; pairs with the SNF dark mode and reads as a vintage
-   instrument scale in light. */
 @font-face {
   font-family: "Departure Mono";
   font-style: normal;
@@ -82,13 +78,12 @@
   --font-display: "Unbounded", system-ui, sans-serif;
   --font-ui: "Geist", system-ui, sans-serif;
   --font-mono: "Departure Mono", ui-monospace, monospace;
-  /* Five-step type scale, base 16px, ~1.25 ratio. Keep chrome on the fixed
-     rem rungs; only the H1 breathes via clamp(). */
-  --text-micro: 0.625rem; /* 10px — kickers, legend, smallest labels */
-  --text-meta: 0.8125rem; /* 13px — panel rows, hint, preset chips, modal copy */
-  --text-base: 1rem; /* 16px — metric numerals, modal body */
-  --text-section: 1.25rem; /* 20px — panel head, modal section heads */
-  --text-display: clamp(1.5rem, 1.25rem + 1vw, 2rem); /* 24–32px H1 */
+  /* Keep chrome on the fixed rem rungs; only the H1 breathes via clamp(). */
+  --text-micro: 0.625rem;
+  --text-meta: 0.8125rem;
+  --text-base: 1rem;
+  --text-section: 1.25rem;
+  --text-display: clamp(1.5rem, 1.25rem + 1vw, 2rem);
   /* International-segment marker for stacked mileage bars. Reads as a
      "distinct material" overlay against any team accent. */
   --intl-marker: #7a6b3d;
@@ -505,7 +500,6 @@ img.topbar__mark {
   font-size: var(--text-meta);
   font-weight: 700;
   color: var(--ink);
-  letter-spacing: 0;
 }
 
 .team-group__miles {
@@ -931,7 +925,6 @@ img.topbar__mark {
     right: 18px;
     height: 38%;
   }
-  /* Display clamp already handles small viewports; no override needed. */
   .topbar__meta {
     flex-direction: column;
     align-items: flex-end;
@@ -1049,9 +1042,6 @@ img.topbar__mark {
   scrollbar-color: var(--ink-mute) transparent;
 }
 
-/* Demoted from uppercase-tracked kicker (was: 12px / 0.12em / uppercase) so
-   the panel head TEAMS carries the kicker grammar alone. Hierarchy now
-   comes from family + size against the body, not caps + tracking. */
 .methodology__body h3 {
   font-family: var(--font-display);
   font-size: var(--text-base);
