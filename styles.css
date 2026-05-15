@@ -42,7 +42,6 @@
   --bg: #efe9dd;
   --bg-deep: #e6dfd0;
   --paper: #f6f1e6;
-  --paper-trans: rgba(246, 241, 230, 0.78);
   --paper-soft: rgba(246, 241, 230, 0.6);
   --ink: #1c1a16;
   --ink-soft: #514a3d;
@@ -60,7 +59,6 @@
   --bg: #0f0d0a;
   --bg-deep: #070604;
   --paper: #1a1612;
-  --paper-trans: rgba(26, 22, 18, 0.82);
   --paper-soft: rgba(26, 22, 18, 0.6);
   --ink: #f3ecd6;
   --ink-soft: #c4b89a;
@@ -182,9 +180,7 @@ img.topbar__mark {
 
 .season-switch {
   display: inline-flex;
-  background: var(--paper-trans);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: var(--paper);
   border: 1px solid var(--line);
   border-radius: 999px;
   padding: 3px;
@@ -225,9 +221,7 @@ img.topbar__mark {
 }
 
 .metric {
-  background: var(--paper-trans);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: var(--paper);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 8px 12px;
@@ -263,9 +257,7 @@ img.topbar__mark {
 
 /* ── Theme toggle ───────────────────────────────────────────── */
 .theme-toggle {
-  background: var(--paper-trans);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: var(--paper);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   width: 38px;
@@ -320,9 +312,7 @@ img.topbar__mark {
   left: 18px;
   bottom: 64px;
   width: 290px;
-  background: var(--paper-trans);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: var(--paper);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   box-shadow: 0 10px 30px -10px var(--shadow);
@@ -629,14 +619,10 @@ img.topbar__mark {
   transform: translateX(-50%);
   font-size: var(--text-micro);
   font-weight: 400;
-  color: var(--ink-mute);
+  color: var(--ink-soft);
+  text-shadow: 0 1px 2px var(--shadow);
   z-index: 3;
   pointer-events: none;
-  background: var(--paper-soft);
-  backdrop-filter: blur(6px);
-  padding: 6px 12px;
-  border-radius: 999px;
-  border: 1px solid var(--line);
 }
 
 .legend {
@@ -648,11 +634,7 @@ img.topbar__mark {
   gap: 8px;
   font-size: var(--text-micro);
   color: var(--ink-soft);
-  background: var(--paper-soft);
-  backdrop-filter: blur(6px);
-  padding: 6px 12px;
-  border-radius: 999px;
-  border: 1px solid var(--line);
+  text-shadow: 0 1px 2px var(--shadow);
   z-index: 3;
 }
 
@@ -731,13 +713,11 @@ img.topbar__mark {
   pointer-events: none;
   z-index: 50;
   width: 240px;
-  background: var(--paper-trans);
+  background: var(--paper);
   color: var(--ink);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   box-shadow: 0 14px 40px -16px var(--shadow);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   overflow: hidden;
   opacity: 0;
   transform: translate(-50%, -100%);
