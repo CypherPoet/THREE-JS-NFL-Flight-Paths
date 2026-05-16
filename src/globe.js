@@ -67,6 +67,10 @@ export async function createGlobe({ topoUrl, theme, keyLightPosition }) {
   const atmosphere = makeAtmosphere(theme, lightDir);
   group.add(atmosphere);
 
+  // ── Limb vignette (framed-studio-shot edge darkening) ────────
+  const vignette = makeLimbVignette(theme);
+  group.add(vignette);
+
   // ── Crisp 3D country outlines (silhouette near the limb) ────
   const lineGroup = countryLines(meshLines, theme);
   lineGroup.name = "country-lines";
@@ -83,6 +87,7 @@ export async function createGlobe({ topoUrl, theme, keyLightPosition }) {
     lineGroup,
     limb,
     atmosphere,
+    vignette,
     shadow,
   };
 }
@@ -90,7 +95,8 @@ export async function createGlobe({ topoUrl, theme, keyLightPosition }) {
 // Repaint everything theme-dependent on the existing globe meshes — used
 // when the user flips the dark-mode toggle. Avoids rebuilding geometry.
 export function applyThemeToGlobe(globe, theme) {
-  const { sphere, relief, lineGroup, limb, atmosphere, shadow } = globe;
+  const { sphere, relief, lineGroup, limb, atmosphere, vignette, shadow } =
+    globe;
 
   sphere.material.color.set(theme.sphereColor);
   sphere.material.needsUpdate = true;
@@ -101,6 +107,10 @@ export function applyThemeToGlobe(globe, theme) {
   atmosphere.material.uniforms.outerColor.value.set(theme.glowOuterColor);
   atmosphere.material.uniforms.intensity.value = theme.glowIntensity;
   atmosphere.visible = theme.glowIntensity > 0;
+
+  vignette.material.uniforms.vignetteColor.value.set(theme.vignetteColor);
+  vignette.material.uniforms.vignetteIntensity.value = theme.vignetteIntensity;
+  vignette.visible = theme.vignetteIntensity > 0;
 
   // Country line colour + opacity.
   lineGroup.material.color.set(theme.countryLineColor);
@@ -184,6 +194,49 @@ function makeAtmosphere(theme, lightDir) {
   const mesh = new THREE.Mesh(geometry, material);
   mesh.name = "globe-atmosphere";
   mesh.visible = theme.glowIntensity > 0;
+  return mesh;
+}
+
+// renderOrder 3 sits above the country lines so the limb darkening reads on
+// top of the silhouette engraving; the exponent 3 in the fragment stays out
+// of the centre and concentrates the alpha at the limb.
+function makeLimbVignette(theme) {
+  const geometry = new THREE.SphereGeometry(GLOBE_RADIUS * 1.026, 48, 48);
+  const material = new THREE.ShaderMaterial({
+    uniforms: {
+      vignetteColor: { value: new THREE.Color(theme.vignetteColor) },
+      vignetteIntensity: { value: theme.vignetteIntensity },
+    },
+    vertexShader: /* glsl */ `
+      varying vec3 vNormal;
+      varying vec3 vViewDir;
+      void main() {
+        vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
+        vNormal = normalize(normalMatrix * normal);
+        vViewDir = normalize(-mvPos.xyz);
+        gl_Position = projectionMatrix * mvPos;
+      }
+    `,
+    fragmentShader: /* glsl */ `
+      uniform vec3 vignetteColor;
+      uniform float vignetteIntensity;
+      varying vec3 vNormal;
+      varying vec3 vViewDir;
+      void main() {
+        float facing = clamp(dot(vNormal, vViewDir), 0.0, 1.0);
+        float vignette = pow(1.0 - facing, 3.0);
+        float alpha = vignette * vignetteIntensity;
+        gl_FragColor = vec4(vignetteColor, alpha);
+      }
+    `,
+    side: THREE.FrontSide,
+    transparent: true,
+    depthWrite: false,
+  });
+  const mesh = new THREE.Mesh(geometry, material);
+  mesh.name = "globe-vignette";
+  mesh.renderOrder = 3;
+  mesh.visible = theme.vignetteIntensity > 0;
   return mesh;
 }
 

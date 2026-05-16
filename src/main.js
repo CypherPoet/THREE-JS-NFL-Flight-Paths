@@ -66,7 +66,7 @@ const urlSeason = parseSeasonParam(urlParams.get("season"));
 const urlView = parseViewParam(urlParams.get("view"));
 
 const DEFAULT_HINT =
-  "Drag to rotate · scroll to zoom · hover a stadium · click a team to isolate";
+  "Drag to rotate · scroll to zoom · hover a stadium · click a team to toggle · shift-click to isolate";
 const EMPTY_HINT = "No teams selected. Pick All, AFC, or a division to bring arcs back.";
 
 // Empty selection produces a blank globe; swap copy so the user knows why.
