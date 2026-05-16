@@ -1,4 +1,4 @@
-import { TEAMS, TEAM_KEYS } from "./data/teams.js";
+import { TEAMS } from "./data/teams.js";
 import {
   formatMiles,
   numberFormatter,
@@ -66,13 +66,9 @@ function renderRows(listEl, summary, mode) {
   }
 }
 
-function buildSubtitle(mode, scope, summary) {
+function buildSubtitle(mode, scope, intl) {
   if (mode === "international") {
-    const overseasCount = TEAM_KEYS.reduce(
-      (n, k) => n + (summary[k].internationalCount > 0 ? 1 : 0),
-      0,
-    );
-    return `${scope} · overseas travel · ${overseasCount} teams`;
+    return `${scope} · overseas travel · ${intl.teamCount} teams`;
   }
   return `${scope} · regular-season totals`;
 }
@@ -88,6 +84,7 @@ export function wireMileageModal() {
   if (!modal || !toggle || !listEl) return { setSummary: () => {} };
 
   let currentSummary = null;
+  let currentIntl = null;
   let currentScope = null;
   let currentMode = "regular";
   let lastRendered = null;
@@ -102,11 +99,11 @@ export function wireMileageModal() {
   }
 
   function syncSubtitle() {
-    if (subtitleEl && currentScope) {
+    if (subtitleEl && currentScope && currentIntl) {
       subtitleEl.textContent = buildSubtitle(
         currentMode,
         currentScope,
-        currentSummary,
+        currentIntl,
       );
     }
   }
@@ -121,13 +118,13 @@ export function wireMileageModal() {
 
   function syncRows({ animate = false } = {}) {
     if (!currentSummary) return;
-    const key = `${currentMode}:${currentSummary === lastRendered?.summary ? "same" : "new"}`;
-    if (lastRendered?.mode === currentMode && lastRendered?.summary === currentSummary) {
-      if (animate) replayContrails();
-      return;
+    const changed =
+      lastRendered?.mode !== currentMode ||
+      lastRendered?.summary !== currentSummary;
+    if (changed) {
+      renderRows(listEl, currentSummary, currentMode);
+      lastRendered = { summary: currentSummary, mode: currentMode };
     }
-    renderRows(listEl, currentSummary, currentMode);
-    lastRendered = { summary: currentSummary, mode: currentMode, key };
     if (animate) replayContrails();
   }
 
@@ -158,9 +155,10 @@ export function wireMileageModal() {
   });
 
   return {
-    setSummary(summary, scope) {
+    setSummary(summary, scope, intl) {
       currentSummary = summary;
       currentScope = scope;
+      currentIntl = intl;
       if (!modal.hidden) {
         syncRows();
         syncSubtitle();
