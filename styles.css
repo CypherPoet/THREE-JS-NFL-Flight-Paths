@@ -41,11 +41,9 @@
 /* ── Theme palettes ─────────────────────────────────────────── */
 :root,
 [data-theme="light"] {
-  /* Warm-grey chrome: desk paper, faintly warm, against the cool sectional
-     sphere. Chrome and globe sit on different temperature axes (warm paper,
-     cool sea) so chrome frames the sphere rather than tone-matching it.
-     Landed from the second-round `?chrome=` A/B after comparing the prior
-     slate baseline, a luminance lift in the same hue, and this warm-grey. */
+  /* Warm-grey chrome: warm desk paper against the cool sectional sphere.
+     The temperature contrast lets chrome frame the sphere rather than
+     tone-match it. */
   --bg: #e8e7e3;
   --bg-deep: #dedcd7;
   --paper: #efeeea;
@@ -302,13 +300,9 @@ img.topbar__mark {
   transform: translateY(-1px);
 }
 
-/* The three topbar icons (mileage / methodology / theme) share a single
-   pill frame so they read as one tool rail rather than three separate
-   buttons in identical chrome. Each button keeps its own background, top
-   and bottom borders, and shadow; adjacent buttons drop the inner border
-   so the right edge of one button becomes the divider to the next. Only
-   the outer corners round. The per-button hover lift is dropped inside
-   the cluster because adjacent buttons would visibly de-align by 1px. */
+/* Three icons in one pill: adjacent buttons drop their inner borders so
+   each right edge becomes a divider, and the per-button hover lift is
+   dropped to keep neighbors aligned. */
 .topbar__icons {
   display: inline-flex;
   align-items: stretch;
@@ -1093,12 +1087,8 @@ img.topbar__mark {
     align-items: stretch;
     gap: 10px;
   }
-  /* Mobile only: a localized paper scrim under the title cluster.
-     Desktop has the panel anchoring the lower-left mass, so the H1 sits
-     against chrome; mobile drops the title cluster directly over the globe
-     where bright country relief and team-coloured arcs can degrade
-     contrast. Uses the same `--paper-soft` + backdrop-filter pattern the
-     methodology/mileage modal scrims already use. */
+  /* Mobile only: title cluster sits over the globe (no panel anchoring
+     the lower-left mass), so add a paper scrim for contrast. */
   .topbar__brand {
     gap: 10px;
     padding: 8px 12px;

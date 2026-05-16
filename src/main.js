@@ -82,9 +82,8 @@ function updateHintForSelection(active) {
 function writeUrlState({ active, season, controls, isDefault }) {
   const params = new URLSearchParams(window.location.search);
 
-  // Default (Longest 5) gets a bare URL so the shareable canonical link
-  // is the cleanest one. `teams=all` is explicit because reverting to
-  // every team is a deliberate departure from the default.
+  // Default state gets a bare URL; `teams=all` is explicit because
+  // every-team is a deliberate departure from the default.
   if (isDefault) params.delete("teams");
   else if (active.size === TEAM_KEYS.length) params.set("teams", "all");
   else if (active.size === 0) params.set("teams", "none");
@@ -106,6 +105,16 @@ function writeUrlState({ active, season, controls, isDefault }) {
   const query = params.toString();
   const next = `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`;
   window.history.replaceState(null, "", next);
+}
+
+function persistUrlState() {
+  if (!currentPanel) return;
+  writeUrlState({
+    active: currentPanel.active,
+    season: currentSeason,
+    controls,
+    isDefault: currentPanel.isDefault(),
+  });
 }
 
 // Theme is resolved before paint by the inline script in index.html; we just
@@ -313,12 +322,7 @@ async function start() {
       onChange: (active) => {
         applyTeamFilter(currentFlightPaths, active);
         updateHover();
-        writeUrlState({
-          active,
-          season: currentSeason,
-          controls,
-          isDefault: currentPanel?.isDefault() ?? false,
-        });
+        persistUrlState();
         updateHintForSelection(active);
       },
     });
@@ -332,10 +336,7 @@ async function start() {
       currentPanel.refresh();
       initialUrlTeamsApplied = true;
     } else {
-      // No URL teams override: sync the globe to the panel's default active
-      // set (Longest 5). No URL write because the default state IS the bare
-      // URL. Without this, the panel shows 5 active rows but the globe
-      // renders all 32 teams' arcs because applyTeamFilter never fired.
+      // Default panel state never fires onChange, so push it to the globe.
       applyTeamFilter(currentFlightPaths, currentPanel.active);
     }
 
@@ -362,12 +363,7 @@ async function start() {
         other.dataset.active = other === btn ? "true" : "false";
       }
       loadSeason(target);
-      writeUrlState({
-        active: currentPanel.active,
-        season: target,
-        controls,
-        isDefault: currentPanel.isDefault(),
-      });
+      persistUrlState();
     });
   }
 
@@ -378,15 +374,7 @@ async function start() {
   let cameraWriteTimer = 0;
   controls.addEventListener("change", () => {
     window.clearTimeout(cameraWriteTimer);
-    cameraWriteTimer = window.setTimeout(() => {
-      if (!currentPanel) return;
-      writeUrlState({
-        active: currentPanel.active,
-        season: currentSeason,
-        controls,
-        isDefault: currentPanel.isDefault(),
-      });
-    }, 220);
+    cameraWriteTimer = window.setTimeout(persistUrlState, 220);
   });
 
   // ── Theme toggle wiring ────────────────────────────────────
