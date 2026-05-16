@@ -297,28 +297,6 @@ img.topbar__mark {
   transform: translateY(-1px);
 }
 
-/* Demote the coffee donation link so it stops competing with the data-explainer
-   controls for the same visual rail. Same chrome, dimmer ink, no shadow,
-   transparent border so it reads as ambient. */
-.theme-toggle--quiet {
-  color: var(--ink-mute);
-  box-shadow: none;
-  border-color: transparent;
-  opacity: 0.5;
-}
-
-.theme-toggle--quiet:hover {
-  opacity: 1;
-  border-color: var(--line);
-}
-
-/* Perceptual cluster break between data-explainer icons (mileage, methodology)
-   and meta controls (theme, coffee). A small extra margin separates "what the
-   data means" from "how the page presents itself" without adding chrome. */
-#theme-toggle {
-  margin-left: 4px;
-}
-
 /* CSS-driven tooltips for icon-only buttons and chips. Native title="..."
    has a ~1s delay that hides the affordance; this surfaces the label fast
    enough to teach on first hover, and on keyboard focus for screen-reader-
@@ -769,6 +747,35 @@ img.topbar__mark {
 
 .legend__text {
   font-weight: 500;
+}
+
+/* Coffee link lives here so the topbar icon rail can stay data-only.
+   Inherits the legend's micro typography and ink-soft color; hover lifts
+   to full ink so it reads as enabled at all times (no opacity dimming). */
+.legend__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 4px;
+  padding: 2px 0;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 3px;
+  transition: color 140ms ease;
+}
+
+.legend__link:hover,
+.legend__link:focus-visible {
+  color: var(--ink);
+}
+
+.legend__link:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.legend__link-icon {
+  flex-shrink: 0;
 }
 
 /* ── Loading ────────────────────────────────────────────────── */
