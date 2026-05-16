@@ -43,7 +43,7 @@ Output specs:
 | Frame rate | 60fps |
 | Codec | H.264 / AVC1 High Profile, yuv420p |
 | Bitrate | ~15 Mbps |
-| Audio | none (until a soundtrack is wired up — see [MUSIC_PROMPTS.md](./MUSIC_PROMPTS.md)) |
+| Audio | none (until a soundtrack is wired up — see [music-prompts/](./music-prompts/)) |
 | Duration | 19.0s |
 | File size | ~35 MB |
 

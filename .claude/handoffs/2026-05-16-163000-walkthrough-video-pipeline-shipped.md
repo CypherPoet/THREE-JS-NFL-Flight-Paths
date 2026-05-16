@@ -30,9 +30,9 @@ The walkthrough video pipeline ships in two stages:
 
 2. **Render** (`npx hyperframes render --fps 60 --quality high --resolution 4k`) — A HyperFrames composition at `hyperframes/walkthrough/index.html` wraps the captured footage with an intro card and an outro card. Sub-comps under `compositions/` own each scene's markup, scoped CSS, and entrance timeline. The runtime auto-nests sub-comp timelines into the root, so the root composer only orchestrates clip-level crossfades. Output: `media/walkthrough.mp4` (3840×2160 @ 60fps, ~34 MB, 19.0s).
 
-The composition is brand-tokenized via CSS custom properties (`--bg`, `--fg`, `--accent`, etc.) defined on `#walkthrough` in `index.html`. Sub-comp scoped styles reference them via `var(--*)` so the four reference docs (design.md, beat-sheet.md, MUSIC_PROMPTS.md, RENDER_SETTINGS.md) describe a single source of truth that actually drives the rendered output.
+The composition is brand-tokenized via CSS custom properties (`--bg`, `--fg`, `--accent`, etc.) defined on `#walkthrough` in `index.html`. Sub-comp scoped styles reference them via `var(--*)` so the four reference docs (design.md, beat-sheet.md, music-prompts/, RENDER_SETTINGS.md) describe a single source of truth that actually drives the rendered output.
 
-The in-footage light → dark theme switch lands at composition t≈9.5s — that's the structural beat the soundtrack prompts in MUSIC_PROMPTS.md are written to hit.
+The in-footage light → dark theme switch lands at composition t≈9.5s — that's the structural beat the soundtrack prompts in `music-prompts/` are written to hit.
 
 ## 🧠 Codebase Understanding
 
@@ -73,7 +73,7 @@ The in-footage light → dark theme switch lands at composition t≈9.5s — tha
 | `hyperframes/walkthrough/compositions/outro.html` | Outro sub-comp. Same pattern as intro, plus the one allowed exit animation (final fade at sub-comp t=1.5). |
 | `hyperframes/walkthrough/design.md` | Brand source of truth: palette tokens (sourced from `src/themes.js` THEMES.dark), typography, motion rules, avoidance rules, the sub-comp-split runbook. |
 | `hyperframes/walkthrough/beat-sheet.md` | The 15.5s capture beats with timecodes + selectors. Single source of truth for what the footage shows. |
-| `hyperframes/walkthrough/MUSIC_PROMPTS.md` | Five paste-ready prompts (~19s instrumental) in different sonic territories. Each notes the climactic beat at composition t≈9.5s. |
+| `hyperframes/walkthrough/music-prompts/` | One folder, one file per soundtrack style (5 styles). Each prompt file is paste-ready (length + no-vocals constraint + timing map all embedded). README.md owns the shared visual context and audio-wiring snippet. |
 | `hyperframes/walkthrough/RENDER_SETTINGS.md` | Pipeline specs + commands. Authoritative source for which flags to pass. |
 | `hyperframes/walkthrough/footage.mp4` | Captured app footage (gitignored — regenerate via `npm run record:walkthrough`). |
 | `hyperframes/walkthrough/fonts/` | Symlink to `../../fonts/` so the HyperFrames compiler can embed them at render time. |
@@ -103,7 +103,7 @@ These are non-obvious behaviors of the HyperFrames runtime (`hyperframe-runtime.
 
 3. **Encoding at effective fps preserves wallclock timing.** The encoder receives `-framerate <captured_avg_fps>` so the resulting mp4's duration matches the captured wallclock. Caveat: if Chromium delivers frames unevenly within the capture, sub-segment timing may drift slightly (the average is correct, but bursts compress / GPU stalls stretch). Acceptable for the 15.5s clip; would matter more for longer captures.
 
-4. **Pre-roll is zero by design.** The screencast starts AFTER `page.waitForSelector("#loading", state: "detached")`, so source t=0 is the start of the beat sheet's 2s hero hold. The composition uses `data-media-start="0"`. If you re-introduce a different pre-roll skip, update both this attribute and the in-footage theme-switch timing reference in beat-sheet.md and MUSIC_PROMPTS.md.
+4. **Pre-roll is zero by design.** The screencast starts AFTER `page.waitForSelector("#loading", state: "detached")`, so source t=0 is the start of the beat sheet's 2s hero hold. The composition uses `data-media-start="0"`. If you re-introduce a different pre-roll skip, update both this attribute and the in-footage theme-switch timing reference in beat-sheet.md and the music-prompts/ docs.
 
 ### Reference docs as single source of truth
 
@@ -113,7 +113,7 @@ Each reference doc owns its slice:
 | --- | ---- |
 | design.md | Brand palette + typography + motion rules + avoidance list + the sub-comp-split runbook |
 | beat-sheet.md | The 15.5s capture beats and how composition timing maps to them |
-| MUSIC_PROMPTS.md | Five 19s instrumental prompts; the climactic-beat target at t≈9.5s; the `<audio>` clip snippet to wire one up |
+| music-prompts/ | Folder of five 19s instrumental prompts (one file each), README with the climactic-beat target at t≈9.5s and the `<audio>` clip wiring snippet |
 | RENDER_SETTINGS.md | Pipeline specs + commands + the resolution-preset constraint (integer multiples only) |
 
 When making changes, update the doc that owns the slice. Cross-doc references should be by link, not by duplication.
@@ -142,7 +142,7 @@ When making changes, update the doc that owns the slice. Cross-doc references sh
 | `hyperframes/walkthrough/compositions/outro.html` | new | Outro sub-comp |
 | `hyperframes/walkthrough/design.md` | new | Brand source of truth |
 | `hyperframes/walkthrough/beat-sheet.md` | new | Capture beats |
-| `hyperframes/walkthrough/MUSIC_PROMPTS.md` | new | Soundtrack prompts |
+| `hyperframes/walkthrough/music-prompts/` | new folder (1 README + 5 prompt files) | Soundtrack prompts |
 | `hyperframes/walkthrough/RENDER_SETTINGS.md` | new | Pipeline specs |
 | `hyperframes/walkthrough/.gitignore` | new | Ignore footage.mp4, .tmp-record/ |
 | `hyperframes/walkthrough/fonts` | new symlink | Embed-able fonts |
@@ -160,7 +160,7 @@ When making changes, update the doc that owns the slice. Cross-doc references sh
 
 ### Open follow-ups (hyperframes stream)
 
-1. **Wire up an audio soundtrack.** `MUSIC_PROMPTS.md` has five paste-ready prompts for ~19s instrumental tracks in different sonic territories. Once a track is generated and saved to `hyperframes/walkthrough/audio/soundtrack.mp3`:
+1. **Wire up an audio soundtrack.** `music-prompts/` holds five paste-ready prompts (one file each) for ~19s instrumental tracks in different sonic territories. Once a track is generated and saved to `hyperframes/walkthrough/audio/soundtrack.mp3`:
    - Normalize to roughly **-1 dB peak**, dialog-track loudness (~-14 LUFS).
    - Add a sibling `<audio>` clip to `index.html`:
      ```html
@@ -242,7 +242,7 @@ If you're picking up hyperframes work, read in this order:
 2. `hyperframes/walkthrough/design.md` — brand source of truth, motion rules, the sub-comp-split runbook.
 3. `hyperframes/walkthrough/RENDER_SETTINGS.md` — pipeline specs + commands.
 4. `hyperframes/walkthrough/beat-sheet.md` — what's actually in the captured footage.
-5. `hyperframes/walkthrough/MUSIC_PROMPTS.md` — if wiring audio.
+5. `hyperframes/walkthrough/music-prompts/` (start with README.md) — if wiring audio.
 6. The HyperFrames skill docs (in the npx cache or `/Users/ethan/.claude/plugins/cache/cypherpoet-personal/hyperframes/.../skills/hyperframes/SKILL.md`) — for sub-comp variables, scene transition rules, motion principles.
 
 Don't re-derive the runtime quirks. They're documented above; the discovery cost was real and shouldn't repeat.

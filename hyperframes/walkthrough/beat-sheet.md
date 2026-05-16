@@ -18,7 +18,7 @@ Recapture at any time: `npm run record:walkthrough` (writes to `hyperframes/walk
 
 ## Why these beats
 
-- **Light → dark theme switch** is the single most striking demo moment in the app. It lands at the midpoint of the 15s footage and reads as the structural beat the soundtrack should hit (see `MUSIC_PROMPTS.md`).
+- **Light → dark theme switch** is the single most striking demo moment in the app. It lands at the midpoint of the 15s footage and reads as the structural beat the soundtrack should hit (see [music-prompts/](./music-prompts/)).
 - **Two drag-rotates** (one per theme) demonstrate interactivity without monopolizing the runtime. The second drag also shifts focus from the US to the Atlantic, motivating the "International" preset change that happened just before.
 - **The "International" preset** is chosen over "All" because it produces the most visually distinct arc set — overseas crossings — and it's the cleanest cut from the default "Longest 5" view.
 - **Sidebar hover instead of stadium hover** because a stadium hover requires knowing the screen coordinates of a specific 3D marker at runtime; a sidebar row is at a deterministic CSS position. Easier to script, more reliable across re-records.
@@ -35,7 +35,7 @@ The captured footage is 15.5s end to end — the CDP screencast starts right aft
 
 Total composition runtime: **19.0s**.
 
-The in-footage theme switch (capture beat 7.5s) lands at composition t≈9.5s — that's the structural beat the soundtrack should hit (see `MUSIC_PROMPTS.md`).
+The in-footage theme switch (capture beat 7.5s) lands at composition t≈9.5s — that's the structural beat the soundtrack should hit (see [music-prompts/](./music-prompts/)).
 
 ## Adjusting the beats
 
