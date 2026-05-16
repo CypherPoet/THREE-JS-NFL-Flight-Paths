@@ -117,6 +117,37 @@ function persistUrlState() {
   });
 }
 
+// Camera writes are debounced 220ms so a rotate gesture flushes once when it
+// settles, not 60×/s mid-drag. The share button needs to bypass the debounce
+// so the clipboard URL reflects the user's actual current view.
+let cameraWriteTimer = 0;
+function flushUrlStateImmediate() {
+  window.clearTimeout(cameraWriteTimer);
+  persistUrlState();
+}
+
+// Share-link feedback: swap the button's data-tooltip + icon + aria-live text
+// for 1.2s after a click, then revert. The timer is module-scoped so rapid
+// re-clicks reset the window rather than stranding the button mid-feedback.
+let shareFeedbackTimer = 0;
+function showShareFeedback(button, ok) {
+  window.clearTimeout(shareFeedbackTimer);
+  const liveRegion = document.getElementById("share-status");
+  if (ok) {
+    button.dataset.tooltip = "Copied · captures filter + camera";
+    if (liveRegion) liveRegion.textContent = "Share link copied";
+  } else {
+    button.dataset.tooltip = "Couldn't copy";
+    if (liveRegion) liveRegion.textContent = "Couldn't copy link";
+  }
+  button.classList.add("is-feedback");
+  shareFeedbackTimer = window.setTimeout(() => {
+    button.classList.remove("is-feedback");
+    button.dataset.tooltip = "Copy link to this view";
+    if (liveRegion) liveRegion.textContent = "";
+  }, 1200);
+}
+
 // Theme is resolved before paint by the inline script in index.html; we just
 // read it here so the scene's first frame is already in the right palette.
 let currentThemeName = document.documentElement.dataset.theme || getInitialTheme();
@@ -370,8 +401,8 @@ async function start() {
   // ── Camera → URL (debounced) ───────────────────────────────
   // OrbitControls fires 'change' on every damped frame (~60Hz). Debounce so a
   // single rotate/zoom gesture writes once when motion settles, not 60 times
-  // per second mid-drag.
-  let cameraWriteTimer = 0;
+  // per second mid-drag. cameraWriteTimer is module-scoped so the share button
+  // can flush it synchronously before reading location.href.
   controls.addEventListener("change", () => {
     window.clearTimeout(cameraWriteTimer);
     cameraWriteTimer = window.setTimeout(persistUrlState, 220);
@@ -382,6 +413,24 @@ async function start() {
     const next = currentThemeName === "light" ? "dark" : "light";
     setTheme(next);
   });
+
+  // ── Share-link wiring ──────────────────────────────────────
+  // Flush the pending camera write so the clipboard URL matches what the user
+  // sees, then copy and surface a 1.2s tooltip-as-toast via showShareFeedback.
+  document
+    .getElementById("share-link-toggle")
+    .addEventListener("click", async (event) => {
+      const button = event.currentTarget;
+      flushUrlStateImmediate();
+      let succeeded = false;
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        succeeded = true;
+      } catch {
+        succeeded = false;
+      }
+      showShareFeedback(button, succeeded);
+    });
 
   wireMethodologyModal();
 
