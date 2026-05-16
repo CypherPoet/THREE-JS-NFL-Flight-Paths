@@ -3,8 +3,9 @@
 ## 🧾 Session Metadata
 - Created: 2026-05-16T07:17:23Z
 - Project: /Users/ethan/Projects/Motion-Graphics/Data-Visualization/THREE-JS-NFL-Flight-Paths
-- Branch: `claude/elastic-kapitsa-90ebb3` (worktree at `.claude/worktrees/elastic-kapitsa-90ebb3`)
-- Open PR: [PR #14](https://github.com/CypherPoet/THREE-JS-NFL-Flight-Paths/pull/14) ("Critique re-run follow-up: accessibility, mobile, copy, sectional palette + Big Shoulders display"), 9 commits, not merged at time of writing.
+- Branch at handoff write time: `claude/elastic-kapitsa-90ebb3` (worktree at `.claude/worktrees/elastic-kapitsa-90ebb3`)
+- **Resuming branch: `main`** (PR #14 will be merged before the next session begins; the resuming agent should pull `main` and work from there, not from the worktree branch).
+- PR shipped: [PR #14](https://github.com/CypherPoet/THREE-JS-NFL-Flight-Paths/pull/14) ("Critique re-run follow-up: accessibility, mobile, copy, sectional palette + Big Shoulders display"), 10 commits including this handoff.
 
 ### Recent Commits (for context)
   - `8a48787` Simplify pass: consolidate tooltip CSS, add focus rings, prune dead tokens
@@ -29,16 +30,16 @@
 
 The previous session was a measurement pass: re-run `/impeccable critique` against the post-PR-12-and-13 state and diff against the 30/40 baseline. It scored 28/40 and surfaced four priority items (P0 keyboard reach, P1 mobile, P1 Clear copy, P2 icons) plus a P2 second-order AI-slop wobble on the light-mode palette.
 
-This session shipped all of them, plus two follow-on visual moves the user picked through interactive exploration. PR #14 currently contains:
+This session shipped all of them, plus two follow-on visual moves the user picked through interactive exploration. PR #14 (now merged) contained:
 1. **Accessibility + mobile + copy fixes** (P0/P1/P2 from the critique)
 2. **Light-mode palette swap** to the FAA sectional chart (chosen from a 5-candidate `?palette=` switcher)
 3. **Big Shoulders Display** as the new production display family (chosen from a 4-candidate `?display=` switcher)
 4. **Typeset polish** demoting Big Shoulders on small-size surfaces where its condensed letterforms fought legibility
 5. **Simplify cleanup** consolidating the duplicate `[data-tooltip]::after` CSS rules, adding `:focus-visible` outlines for chip controls, pruning unused `--tooltip-bg` / `--tooltip-ink` tokens, and one em-dash fix
 
-A `/code-review:code-review` skill is running in the background against PR #14 at session-handoff time. Its findings will land as a GitHub PR comment; the next session should read it before deciding what (if anything) to address in PR #14 before merging.
+A `/code-review:code-review` ran against PR #14 in the background at session end. **Verdict: no high-confidence (≥80) issues.** The "no issues found" comment is at https://github.com/CypherPoet/THREE-JS-NFL-Flight-Paths/pull/14#issuecomment-4466166439. One sub-80 nuance was logged but not posted: `.team-row:focus-visible { opacity: 1 }` and `.team-row[data-active="false"] { opacity: 0.36 }` have equal specificity, and the inactive rule comes later in source, so it wins. The focus ring still appears on inactive rows but at 36% opacity. Worth a future polish if an accessibility audit flags it; not severe enough to gate merge.
 
-The next session's primary job is not more shipping; it's measurement again. Merge PR #14, then re-run `/impeccable critique` and write a fresh comparison report to see where the score moves and what's still load-bearing.
+The next session's primary job is not more shipping; it's measurement again. Re-run `/impeccable critique` against the new merged state and write a fresh comparison report to see where the score moves and what's still load-bearing.
 
 ## 🧠 Codebase Understanding
 
@@ -125,15 +126,13 @@ No structural changes this session. The architecture handoffs from earlier in th
 
 ### Immediate Next Steps
 
-1. **Read the `/code-review:code-review` output.** The skill was kicked off in the background just before this handoff was written. The result either lands as a GitHub PR comment on #14 or surfaces as part of the resuming agent's notifications. If the review surfaces real issues, address them in PR #14 before merging. If it scores clean (as PR #12's retroactive review did), proceed to step 2.
-2. **Merge PR #14.** Once any code-review follow-ups are handled, merge to main. Be aware of the worktree-merge gotcha (user memory `feedback_gh_pr_merge_worktree_remote_cleanup.md`): `gh pr merge --delete-branch` from this worktree may leave the remote branch alive; always verify with `git ls-remote --heads origin` after merging and run `git push origin --delete <branch>` if needed.
-3. **Re-run `/impeccable critique`.** Same shape as this session's measurement step: twin isolated sub-agents, persist snapshot, write a fresh comparison report at `/Users/ethan/.claude/plans/critique-<date-and-slug>.md` against THIS session's 28/40 baseline. The brand-thesis verdicts should now read cleanly on both themes; the new accessibility + mobile + copy fixes should have moved the affected Nielsen heuristics; the sectional palette + Big Shoulders typography may surface new findings that this session couldn't anticipate.
-4. **Decide based on the new critique** which of the deferred items to tackle next.
+1. **Pull `main` and start clean.** PR #14 has merged. The work continues from `main` in either a fresh worktree (preferred per the user's workflow) or directly. The `claude/elastic-kapitsa-90ebb3` worktree branch should have been cleaned up at merge but verify per the worktree-merge gotcha (see "Potential Gotchas" below).
+2. **Re-run `/impeccable critique`.** Same shape as this session's measurement step: twin isolated sub-agents, persist snapshot, write a fresh comparison report at `/Users/ethan/.claude/plans/critique-<date-and-slug>.md` against THIS session's 28/40 baseline. The brand-thesis verdicts should now read cleanly on both themes; the new accessibility + mobile + copy fixes should have moved the affected Nielsen heuristics; the sectional palette + Big Shoulders typography may surface new findings that this session couldn't anticipate.
+3. **Decide based on the new critique** which of the deferred items to tackle next. The focus-ring-opacity nuance from the code-review (see "Current State Summary" above) is a candidate but only if the new critique surfaces it.
 
 ### Blockers/Open Questions
 
-- **Code-review output is the gate for step 2.** Don't merge before reading what the background review surfaced.
-- **No other blockers.** Dev server is running, all tests/visual checks pass, both themes render correctly, mobile + keyboard verified live.
+- **None blocking.** PR #14 is merged. Dev server may have been left running on the worktree; restart from `main` (or a fresh worktree off `main`) for the next session.
 
 ### Deferred Items
 
@@ -143,14 +142,15 @@ In rough priority order. These were surfaced this session but explicitly deferre
 2. **Atmosphere shader work.** Two candidate moves: (a) a thin terminator line at the day/night boundary that reads as a broadcast graticule overlay, (b) a faint limb vignette for a "framed studio shot" feel. User answered "defer, wants its own session" since it's shader-level work that deserves dedicated focus.
 3. **Team accent saturation pass.** On the cool sectional water, the warm team accents (Chiefs red, Bengals orange) pop more than they did against the warm production palette. User answered "leave as-is (broadcast graphics SHOULD pop)" so this is deliberately closed unless the next critique re-opens it.
 4. **Typography family for body / mono.** Geist and Departure Mono were not re-evaluated this session. The previous critique work didn't flag them. If the next critique surfaces typography again (unlikely given the Big Shoulders move), the explorer pattern is well-documented.
-5. **Geist font subsetting.** Still parked from earlier handoffs. ~30KB first-paint savings via `pyftsubset` to split latin + latin-ext. No critique has flagged first-paint payload as load-bearing; only ship if the next critique surfaces it.
-6. **`.impeccable/critique/` gitignore policy decision.** Currently tracked; this is the first run committed. If trend snapshots multiply over many sessions and start cluttering diffs, may want to add a more targeted `.gitignore` rule (e.g. only track the latest snapshot per slug). Not urgent.
+5. **`.team-row:focus-visible` opacity is overridden on inactive rows.** Flagged sub-80 by the code-review on PR #14 (not posted). The `:focus-visible { opacity: 1 }` rule has equal specificity with `[data-active="false"] { opacity: 0.36 }` and the inactive rule comes later in source, so it wins. The focus ring still appears on inactive rows but at 36% opacity. Fix: either reorder so the focus rule wins, or bump its specificity (e.g. `.team-row[data-active="false"]:focus-visible`). Trivial change. Defer until an accessibility audit or critique re-run flags it.
+6. **Geist font subsetting.** Still parked from earlier handoffs. ~30KB first-paint savings via `pyftsubset` to split latin + latin-ext. No critique has flagged first-paint payload as load-bearing; only ship if the next critique surfaces it.
+7. **`.impeccable/critique/` gitignore policy decision.** Currently tracked; this is the first run committed. If trend snapshots multiply over many sessions and start cluttering diffs, may want to add a more targeted `.gitignore` rule (e.g. only track the latest snapshot per slug). Not urgent.
 
 ## 💡 Context for Resuming Agent
 
 ### Important Context
 
-- **PR #14 is the merge gate for this session's work.** Until it merges, the resuming agent works on the same branch (worktree `claude/elastic-kapitsa-90ebb3`). Don't open new branches until merge.
+- **PR #14 is merged.** The resuming agent works from `main`. Open new branches off `main` for any follow-up work; don't try to push more commits to the merged worktree branch.
 - **The brand thesis is committed on both themes.** Do NOT re-run `/impeccable teach`. Light = sectional chart × broadcast graphic. Dark = Sunday Night Football primetime broadcast. These are locked. Re-running the critique is for measurement, not for re-deciding direction.
 - **NO em dashes in prose anywhere** (user memory; was a regression flagged in the simplify pass and fixed in `themes.js:5`). Use commas, colons, semicolons, periods, or parentheses. Also no `--`. This applies to commit messages, code comments, plan files, PR descriptions, AND user-facing copy.
 - **NO architectural metaphors in prose** (user memory `feedback_avoid_writerly_metaphor.md`). Plain concrete sentences.
@@ -195,7 +195,7 @@ In rough priority order. These were surfaced this session but explicitly deferre
 ### Active Processes
 
 - **Vite dev server on `http://localhost:5173/THREE-JS-NFL-Flight-Paths/`** running, serverId `ea86726c-5196-41a6-bb86-fba0d85d54f2`. Cwd is the worktree path. Safe to leave; restart from worktree if the next session uses a fresh checkout.
-- **Background `/code-review:code-review` agent** running against PR #14. Will notify on completion. Resuming agent should check for completion before doing other PR work.
+- **`/code-review:code-review` against PR #14 completed cleanly** before this handoff was finalized. Comment posted at https://github.com/CypherPoet/THREE-JS-NFL-Flight-Paths/pull/14#issuecomment-4466166439. One sub-80 nuance captured in Deferred Items.
 - No playwright-cli session active (closed at end of media capture).
 
 ### Environment Variables
