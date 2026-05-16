@@ -65,6 +65,48 @@ const urlTeams = parseTeamsParam(urlParams.get("teams"));
 const urlSeason = parseSeasonParam(urlParams.get("season"));
 const urlView = parseViewParam(urlParams.get("view"));
 
+// Light-mode chrome-tint exploration: `?chrome=<variant>` retints the
+// panel/topbar/hint/legend tokens against the sectional sphere. Scaffolding
+// lands here so variants can be compared in-browser; stripped once landed.
+const CHROME_VARIANTS = ["warm", "neutral", "slate", "deep-slate"];
+const urlChrome = (() => {
+  const raw = urlParams.get("chrome");
+  return CHROME_VARIANTS.includes(raw) ? raw : null;
+})();
+if (urlChrome && urlChrome !== "warm") {
+  document.documentElement.dataset.chrome = urlChrome;
+}
+if (urlChrome) {
+  buildChromeSwitcherBanner(urlChrome);
+}
+
+function buildChromeSwitcherBanner(active) {
+  const banner = document.createElement("div");
+  banner.id = "chrome-switcher";
+  banner.style.cssText =
+    "position:fixed;bottom:48px;left:50%;transform:translateX(-50%);z-index:80;display:flex;gap:6px;align-items:center;padding:6px 10px;background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:0 6px 24px -10px var(--shadow);font-family:var(--font-ui);font-size:11px;color:var(--ink-soft);letter-spacing:0.02em;";
+  const label = document.createElement("span");
+  label.textContent = "chrome:";
+  label.style.cssText = "opacity:0.6;text-transform:uppercase;margin-right:4px;";
+  banner.appendChild(label);
+  for (const variant of CHROME_VARIANTS) {
+    const link = document.createElement("a");
+    const params = new URLSearchParams(window.location.search);
+    params.set("chrome", variant);
+    link.href = `?${params.toString()}`;
+    link.textContent = variant;
+    link.style.cssText =
+      "color:inherit;text-decoration:none;padding:3px 8px;border-radius:6px;transition:background 140ms ease,color 140ms ease;";
+    if (variant === active) {
+      link.style.background = "var(--ink)";
+      link.style.color = "var(--paper)";
+      link.style.fontWeight = "600";
+    }
+    banner.appendChild(link);
+  }
+  document.body.appendChild(banner);
+}
+
 const DEFAULT_HINT =
   "Drag to rotate · scroll to zoom · hover a stadium · click a team to toggle · shift-click to isolate";
 const EMPTY_HINT = "No teams selected. Pick All, AFC, or a division to bring arcs back.";
