@@ -184,15 +184,7 @@ When making changes, update the doc that owns the slice. Cross-doc references sh
 
 3. **Beat-sheet revisions.** If the visual flow needs adjusting (different drag arcs, different preset switch, different theme-switch timing): edit `scripts/record-walkthrough.mjs` directly. The sleep durations + mouse coordinates are inline. Keep the total close to 15500ms (the composition's footage clip is `data-duration="15.4"`, so there's ~100ms buffer at the end). After editing, re-record + re-render + update `beat-sheet.md` to match.
 
-### Won't-fix / explicit non-goals
-
-- **Higher than 4K render.** 6K (`--resolution` 3×) is theoretically possible but the source footage stays 1920×1080; gains would be cosmetic on the cards only and file size would balloon.
-- **Native-resolution capture at >1080p.** The Vite dev server's UI layout is sized for 1920×1080. Bumping the capture viewport to 2560×1440 or 3840×2160 would shift mouse coordinates in the beat sheet (drag positions, hover targets). Not worth the complexity for the modest sharpness gain on the WebGL globe.
-
-### Known limitations (won't get fixed without changing approach)
-
-- **`effectiveFps` is a wallclock average.** If Chromium delivers frames unevenly during capture (GPU stalls, compositor jitter), per-segment timing within the resulting mp4 may shift. Net duration is correct.
-- **`chromium-headless-shell` would cap CDP screencast below native rate.** The recorder must stay headful to get the GPU-accelerated frame rate. A headless render farm would need a different strategy.
+   Don't bump the capture viewport above 1920×1080 — the dev server UI is laid out for that width, and the inline mouse coordinates (`page.mouse.move(700, 540)`, etc.) target specific UI elements at specific pixel positions. Changing the viewport would shift those targets and break the beat sheet.
 
 ## 🛠️ Common Commands
 
