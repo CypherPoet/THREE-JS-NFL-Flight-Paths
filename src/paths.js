@@ -181,6 +181,7 @@ export function createFlightPaths(legs, theme) {
   }
 
   // ── Away venue markers ────────────────────────────────────────
+  const awayMarkerRecords = [];
   const seen = new Map();
   for (const leg of legs) {
     const key = `${leg.toLat.toFixed(3)},${leg.toLon.toFixed(3)}`;
@@ -207,6 +208,7 @@ export function createFlightPaths(legs, theme) {
     };
     seen.set(key, ring.userData);
     markersGroup.add(ring);
+    awayMarkerRecords.push({ ring });
   }
 
   // ── Hit-test proxies ──────────────────────────────────────────
@@ -262,6 +264,7 @@ export function createFlightPaths(legs, theme) {
     hitTestGroup,
     arcRecords,
     homeMarkerRecords,
+    awayMarkerRecords,
     hitTestRecords,
   };
 }
@@ -368,9 +371,7 @@ export function applyThemeToPaths(flightPaths, theme) {
   for (const { ring } of flightPaths.homeMarkerRecords) {
     ring.material.color.set(theme.homeRingColor);
   }
-  for (const child of flightPaths.markersGroup.children) {
-    if (child.userData?.kind === "away") {
-      child.material.color.set(theme.awayRingColor);
-    }
+  for (const { ring } of flightPaths.awayMarkerRecords) {
+    ring.material.color.set(theme.awayRingColor);
   }
 }

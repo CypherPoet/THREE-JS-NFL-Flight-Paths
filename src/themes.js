@@ -90,11 +90,9 @@ export const THEMES = {
     keyIntensity: 1.25,
     rimColor: 0xc89060,
     rimIntensity: 0.6,
-    // Fill light: saturated cool at near-key intensity. This is the unlit
-    // side of the SNF tunnel — without it the cool tokens above have
-    // nothing actually lighting the sphere shadow side and the change
-    // reads as invisible. Bumped intensity 0.3 → 0.7 is the load-bearing
-    // change, not the hex value.
+    // Saturated cool fill — the unlit side of the SNF tunnel. Intensity,
+    // not hue, is what makes the cool tokens above register on the
+    // sphere's shadow side.
     fillColor: 0x305a85,
     fillIntensity: 0.7,
     groundShadow: [
