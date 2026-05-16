@@ -114,7 +114,7 @@ No structural changes this session. The architecture is unchanged from the post-
 
 1. **Pull `main` and start clean.** PR #15 is merged. Cut a fresh worktree off main or work from the main checkout directly. Verify the worktree-merge remote-cleanup gotcha doesn't leave the merged branch alive on origin (`git ls-remote --heads origin`; delete if needed).
 2. **Re-run `/impeccable critique`.** Same shape as the May 16 measurement: twin isolated sub-agents, persist a fresh snapshot, write a comparison report at `/Users/ethan/.claude/plans/critique-<date-and-slug>.md` against the May 16 baseline. The slate chrome + dark vignette + coffee relocation + hint contract fix are major surface changes; the new critique should both confirm the closes and surface what's now load-bearing underneath.
-3. **Decide based on the new critique** which of the remaining deferred items (or new findings) to tackle next. The atmosphere terminator move stays on the deferred list with the data-binding gate; if the next critique flags a missing "time/season" beat, the terminator becomes the cheap path forward.
+3. **Decide based on the new critique** which findings to tackle next. No carried-over deferred items shape this decision; the critique drives the agenda.
 
 ### Blockers/Open Questions
 
@@ -122,13 +122,7 @@ No structural changes this session. The architecture is unchanged from the post-
 
 ### Deferred Items
 
-In rough priority order. These remain parked unless a future critique re-opens them:
-
-1. **Atmosphere terminator line (with data binding)** — Implemented and reverted this session. Re-deferred with a new framing: pick this up if the next critique surfaces a missing "time/season" beat. The cheap moves are (a) tie sun position to a selected game's local kickoff (terminator becomes "where day/night was at this game") or (b) "play the season" scrubber that drives the sun across 18 weeks. Either earns the visual; pure aesthetic does not.
-2. **Atmosphere limb vignette — light mode** — Currently `vignetteIntensity: 0` in light; the mesh sits in the scene graph but is invisible. If the next critique flags the light sphere as feeling flat against the slate chrome, bring it back; budget intensity ~0.1 max to stay subtle.
-3. **Team accent saturation pass** — User said "leave as-is (broadcast graphics SHOULD pop)" in the May 16 cycle. Unchanged.
-4. **Typography family for body/mono.** Geist + Departure Mono still not re-evaluated. Critique has not surfaced them as load-bearing. Park.
-5. **Geist font subsetting** (~30KB first-paint savings via `pyftsubset`). Park until a critique flags first-paint payload.
+None carried into the next session. The user explicitly cleared the deferred list after PR #15 merged: "focus on whatever impeccable critique generates from here." Treat the next `/impeccable critique` as the sole source of what comes next; don't seed the agenda with leftover items from this chain. Earlier handoffs in the chain still record what was deferred historically, but those items are no longer pre-loaded as candidates.
 
 ## 💡 Context for Resuming Agent
 
