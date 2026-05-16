@@ -451,13 +451,10 @@ img.topbar__mark {
 }
 
 /* ── Panel ──────────────────────────────────────────────────── */
-/* Top inset is deliberately wider than the page's ambient 18px rhythm so
-   the joint between identity chrome (topbar) and tool chrome (panel) reads
-   as a real break, not another flush band. 132px gives ~44px of breath
-   below the brand cluster's stacked H1 + sublabel.
-   `overflow: visible` lets the chip + sort-button tooltips escape the panel
-   bounds; `.team-list` carries its own bottom corner radius below so the
-   card's rounded bottom is preserved without clipping the tooltips. */
+/* `top` sits clear of the topbar's stacked H1 + sublabel so the joint
+   between identity and tool chrome reads as a break, not another flush
+   band. `overflow: visible` lets chip + sort tooltips escape; `.team-list`
+   re-clips the rounded bottom. */
 .panel {
   position: absolute;
   top: 132px;
@@ -474,9 +471,7 @@ img.topbar__mark {
   z-index: 4;
 }
 
-/* Vertical stack: H2 + sort row at the top (tight cluster), kicker meta line
-   beneath it, then a generous bottom padding so the head reads as one
-   grouping above the chip row instead of two same-frequency bands. */
+/* Extra bottom padding separates the head from the chip row below. */
 .panel__head {
   padding: 12px 14px 22px;
   display: flex;
@@ -546,10 +541,7 @@ img.topbar__mark {
   background: var(--line);
 }
 
-/* Kicker meta line under the panel H2: numeric, low-key, sits inside the head
-   block to keep the H2 + sort + kicker as one tight cluster. Mono numerals
-   pick up the existing `.metric__value` voice; ink-mute keeps it from
-   competing with the H2 above. */
+/* Mirrors .metric__value typography — same numeric voice as the topbar tiles. */
 .panel__head-meta {
   margin: 0;
   font-family: var(--font-mono);
@@ -564,16 +556,13 @@ img.topbar__mark {
   display: none;
 }
 
-/* Desktop hides the league total inside the kicker — the topbar metric tile
-   already carries that figure. Mobile reveals it (the metric tiles are
-   hidden there, so the kicker is the only place the league total reads). */
+/* Hidden on desktop where the topbar metric tile carries this; revealed on
+   mobile where the tile is hidden. */
 .panel__head-meta__league {
   display: none;
 }
 
-/* A 4×36 stub at the top of the panel card. Visual peek-up affordance only;
-   no JS drag in this pass. Desktop hides it (panel is anchored, no sheet
-   posture). */
+/* Peek-up affordance for the mobile sheet — visual only, no JS drag yet. */
 .panel__handle {
   display: none;
 }
@@ -1169,10 +1158,7 @@ img.topbar__mark {
 
 /* ── Responsive ─────────────────────────────────────────────── */
 @media (max-width: 760px) {
-  /* Panel becomes a peek-up sheet: a 30% bottom band with a drag-handle
-     stub at the top edge. The shorter height (down from 38%) returns
-     ~64px of vertical room to the globe, which was previously sandwiched
-     between a two-row topbar and an over-tall panel. */
+  /* Peek-up sheet posture — short band so the globe gets the room. */
   .panel {
     width: calc(100% - 36px);
     top: auto;
@@ -1181,8 +1167,6 @@ img.topbar__mark {
     right: 18px;
     height: 30%;
   }
-  /* Drag-handle stub: visual peek-up affordance only. No JS drag interaction
-     in this pass — the handle signals "this could lift," wiring is future work. */
   .panel__handle {
     display: block;
     width: 36px;
@@ -1192,15 +1176,10 @@ img.topbar__mark {
     border-radius: 2px;
     flex-shrink: 0;
   }
-  /* Tighter head padding on the sheet — every vertical pixel is contested
-     now that the panel is a 30% band. Bottom breath stays generous to keep
-     the head-to-chips joint readable. */
   .panel__head {
     padding: 6px 14px 14px;
   }
-  /* Mobile reveals the league total inside the kicker — desktop's metric
-     tiles are hidden below, so the kicker becomes the only place the
-     league figure reads. */
+  /* League total only surfaces here on mobile (topbar tile hides). */
   .panel__head-meta__league {
     display: inline;
   }
