@@ -886,17 +886,29 @@ img.topbar__mark {
   pointer-events: none;
 }
 
-.legend {
+/* Bottom corner clusters: the legend teaches the globe's home/away dot
+   grammar (bottom-right); the attribution pairs the byline with the
+   support link (bottom-left). They share posture and micro typography,
+   then diverge on corner + gap. */
+:where(.legend, .attribution) {
   position: absolute;
   bottom: 18px;
-  right: 18px;
   display: flex;
   align-items: center;
-  gap: 8px;
   font-size: var(--text-micro);
   color: var(--ink-soft);
   text-shadow: 0 1px 2px var(--shadow);
   z-index: 3;
+}
+
+.legend {
+  right: 18px;
+  gap: 8px;
+}
+
+.attribution {
+  left: 18px;
+  gap: 6px;
 }
 
 .legend__dot {
@@ -914,18 +926,19 @@ img.topbar__mark {
   border: 1.5px solid var(--ink-soft);
 }
 
-.legend__text {
+:where(.legend__text, .attribution__text) {
   font-weight: 500;
 }
 
-/* Coffee link lives here so the topbar icon rail can stay data-only.
-   Inherits the legend's micro typography and ink-soft color; hover lifts
-   to full ink so it reads as enabled at all times (no opacity dimming). */
-.legend__link {
+.attribution__sep {
+  opacity: 0.6;
+}
+
+.attribution__byline,
+.attribution__link {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  margin-left: 4px;
   padding: 2px 0;
   color: inherit;
   text-decoration: none;
@@ -933,17 +946,20 @@ img.topbar__mark {
   transition: color 140ms ease;
 }
 
-.legend__link:hover,
-.legend__link:focus-visible {
+.attribution__byline:hover,
+.attribution__byline:focus-visible,
+.attribution__link:hover,
+.attribution__link:focus-visible {
   color: var(--ink);
 }
 
-.legend__link:focus-visible {
+.attribution__byline:focus-visible,
+.attribution__link:focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 3px;
 }
 
-.legend__link-icon {
+.attribution__link-icon {
   flex-shrink: 0;
 }
 
@@ -1280,7 +1296,8 @@ img.topbar__mark {
     display: none;
   }
   .hint,
-  .legend {
+  .legend,
+  .attribution {
     display: none;
   }
   /* Re-anchor topbar icon tooltips centered on the button (rather than the
