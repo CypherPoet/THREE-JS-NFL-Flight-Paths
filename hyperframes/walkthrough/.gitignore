@@ -1,0 +1,5 @@
+# Captured app footage — regenerable via `npm run record:walkthrough`.
+footage.mp4
+
+# Playwright's intermediate webm + any half-finished captures.
+.tmp-record/

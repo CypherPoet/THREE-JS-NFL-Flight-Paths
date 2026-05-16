@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>NFL Flight Paths — Walkthrough</title>
+    <style>
+      @font-face {
+        font-family: "Big Shoulders Display";
+        font-style: normal;
+        font-weight: 600 800;
+        font-display: swap;
+        src: url("./fonts/big-shoulders-display/big-shoulders-display-latin.woff2")
+          format("woff2");
+      }
+      @font-face {
+        font-family: "Geist";
+        font-style: normal;
+        font-weight: 100 900;
+        font-display: swap;
+        src: url("./fonts/geist/geist-variable.woff2") format("woff2-variations");
+      }
+      @font-face {
+        font-family: "Departure Mono";
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url("./fonts/departure-mono/departure-mono.woff2") format("woff2");
+      }
+
+      html, body {
+        margin: 0;
+        padding: 0;
+        background: #0f0d0a;
+        overflow: hidden;
+      }
+
+      /* ── Composition root ──────────────────────────────────── */
+      #walkthrough {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #0f0d0a;
+        font-family: "Geist", system-ui, sans-serif;
+        color: #e8e2d0;
+      }
+
+      .scene {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+      #intro { z-index: 3; }
+      #footage-video {
+        z-index: 1;
+        background: #0f0d0a;
+        object-fit: cover;
+        display: block;
+      }
+      #outro { z-index: 4; }
+
+      /* ── Shared card background — radial vignette, no linear gradient ── */
+      .card {
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(ellipse 80% 60% at 50% 50%, #1a1612 0%, #0f0d0a 70%, #050402 100%);
+      }
+
+      /* ── INTRO ────────────────────────────────────────────── */
+      .intro-arc-svg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+      }
+      .intro-arc-path {
+        fill: none;
+        stroke: #c89060;
+        stroke-width: 3;
+        stroke-linecap: round;
+        stroke-dasharray: 2400;
+        filter: drop-shadow(0 0 12px rgba(200, 144, 96, 0.45));
+      }
+      .intro-arc-dot {
+        fill: #fff2c4;
+        filter: drop-shadow(0 0 18px rgba(255, 242, 196, 0.85));
+      }
+
+      .intro-content {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 28px;
+        text-align: center;
+      }
+
+      .intro-eyebrow {
+        font-family: "Departure Mono", ui-monospace, monospace;
+        font-size: 22px;
+        letter-spacing: 0.42em;
+        color: #c89060;
+        text-transform: uppercase;
+      }
+
+      .intro-title {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        font-family: "Big Shoulders Display", system-ui, sans-serif;
+        font-weight: 800;
+        font-size: 188px;
+        line-height: 0.92;
+        letter-spacing: 0.01em;
+        color: #fff2c4;
+        text-shadow:
+          0 0 28px rgba(255, 242, 196, 0.25),
+          0 0 64px rgba(200, 144, 96, 0.22);
+      }
+
+      .intro-word {
+        display: block;
+        will-change: transform, opacity, filter;
+      }
+
+      .intro-rule {
+        width: 320px;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          rgba(200, 144, 96, 0) 0%,
+          rgba(200, 144, 96, 0.9) 50%,
+          rgba(200, 144, 96, 0) 100%
+        );
+        transform-origin: center;
+      }
+
+      .intro-sub {
+        font-family: "Geist", system-ui, sans-serif;
+        font-weight: 500;
+        font-size: 28px;
+        letter-spacing: 0.36em;
+        color: #e8e2d0;
+        text-transform: uppercase;
+      }
+      .intro-sub-dot {
+        color: #c89060;
+        margin: 0 14px;
+      }
+
+      /* ── OUTRO ────────────────────────────────────────────── */
+      .outro-content {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 40px;
+        text-align: center;
+      }
+
+      .outro-glyph {
+        width: 96px;
+        height: 96px;
+        will-change: transform, opacity;
+      }
+      .outro-glyph circle.outer {
+        fill: none;
+        stroke: #c89060;
+        stroke-width: 2;
+        opacity: 0.7;
+      }
+      .outro-glyph circle.inner {
+        fill: #1a1612;
+        stroke: #fff2c4;
+        stroke-width: 2;
+      }
+      .outro-glyph path.arc {
+        fill: none;
+        stroke: #fff2c4;
+        stroke-width: 2.5;
+        stroke-linecap: round;
+      }
+      .outro-glyph circle.dot {
+        fill: #fff2c4;
+      }
+
+      .outro-accent {
+        width: 220px;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          rgba(200, 144, 96, 0) 0%,
+          rgba(200, 144, 96, 0.95) 50%,
+          rgba(200, 144, 96, 0) 100%
+        );
+        transform-origin: center;
+      }
+
+      .outro-url {
+        font-family: "Geist", system-ui, sans-serif;
+        font-weight: 600;
+        font-size: 52px;
+        letter-spacing: 0.04em;
+        color: #fff2c4;
+        text-shadow: 0 0 22px rgba(255, 242, 196, 0.22);
+      }
+      .outro-url .slash {
+        color: #c89060;
+        margin: 0 4px;
+      }
+
+      .outro-sub {
+        font-family: "Departure Mono", ui-monospace, monospace;
+        font-size: 22px;
+        letter-spacing: 0.34em;
+        color: #c89060;
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="walkthrough"
+      data-composition-id="walkthrough"
+      data-width="1920"
+      data-height="1080"
+      data-start="0"
+      data-duration="19"
+    >
+      <!-- ── INTRO ── 0.0 – 2.4s ───────────────────────────── -->
+      <div
+        id="intro"
+        class="clip scene"
+        data-start="0"
+        data-duration="2.4"
+        data-track-index="1"
+      >
+        <div class="card"></div>
+        <svg
+          class="intro-arc-svg"
+          viewBox="0 0 1920 1080"
+          preserveAspectRatio="none"
+        >
+          <path
+            id="intro-arc-path"
+            class="intro-arc-path"
+            d="M 220 820 Q 960 320 1700 820"
+          />
+          <circle
+            id="intro-arc-dot"
+            class="intro-arc-dot"
+            cx="1700"
+            cy="820"
+            r="7"
+          />
+        </svg>
+        <div class="intro-content">
+          <div id="intro-eyebrow" class="intro-eyebrow">
+            32 Teams · 272 Games · 1 Globe
+          </div>
+          <div class="intro-title">
+            <span id="intro-word-1" class="intro-word">NFL</span>
+            <span id="intro-word-2" class="intro-word">FLIGHT</span>
+            <span id="intro-word-3" class="intro-word">PATHS</span>
+          </div>
+          <div id="intro-rule" class="intro-rule"></div>
+          <div id="intro-sub" class="intro-sub">
+            2026 Season<span class="intro-sub-dot">·</span>Great-Circle Routes
+          </div>
+        </div>
+      </div>
+
+      <!-- ── FOOTAGE — captured app video, 2.0–17.4s ───────── -->
+      <!-- data-media-start="1.8" skips the loading pre-roll captured at the
+           start of footage.mp4 (Playwright begins recordVideo on context
+           creation, before the dev-server page has finished booting). -->
+      <video
+        id="footage-video"
+        class="clip scene"
+        data-start="2"
+        data-duration="15.4"
+        data-media-start="1.8"
+        data-track-index="2"
+        src="footage.mp4"
+        muted
+        playsinline
+      ></video>
+
+      <!-- ── OUTRO ── 17.0 – 19.0s ─────────────────────────── -->
+      <div
+        id="outro"
+        class="clip scene"
+        data-start="17"
+        data-duration="2"
+        data-track-index="3"
+      >
+        <div class="card"></div>
+        <div class="outro-content">
+          <svg id="outro-glyph" class="outro-glyph" viewBox="0 0 100 100">
+            <circle class="outer" cx="50" cy="50" r="46" />
+            <circle class="inner" cx="50" cy="50" r="34" />
+            <path
+              class="arc"
+              d="M 18 50 Q 50 18 82 50"
+              pathLength="100"
+              stroke-dasharray="100"
+              stroke-dashoffset="0"
+            />
+            <circle class="dot" cx="82" cy="50" r="3.5" />
+          </svg>
+          <div id="outro-accent" class="outro-accent"></div>
+          <div id="outro-url" class="outro-url">
+            github.com<span class="slash">/</span>CypherPoet<span class="slash">/</span>THREE-JS-NFL-Flight-Paths
+          </div>
+          <div id="outro-sub" class="outro-sub">Built with Three.js</div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script>
+      // ── Walkthrough timeline ─────────────────────────────────
+      // Total runtime: 19.0s (intro 2.4s + footage 15.4s + outro 2.0s with
+      // 0.4s crossfade overlaps on each side of the footage). The clip-level
+      // opacity tween IS the transition between scenes — content inside each
+      // scene only has entrance animations, never exits.
+      //
+      // Authoring split into sub-compositions was attempted and deferred —
+      // see design.md "Sub-composition split (deferred)" for context. The
+      // visible structure improvement is in the four reference docs:
+      // design.md, beat-sheet.md, MUSIC_PROMPTS.md, RENDER_SETTINGS.md.
+
+      const tl = gsap.timeline({ paused: true });
+
+      // Initial visibility — set inside the timeline (clip elements may not
+      // exist in DOM until their data-start window).
+      tl.set("#intro", { opacity: 1 }, 0);
+      tl.set("#footage-video", { opacity: 0 }, 0);
+      tl.set("#outro", { opacity: 0 }, 0);
+
+      // ── INTRO ENTRANCES (0.0 – 1.8s) ────────────────────
+      tl.from(
+        "#intro-arc-path",
+        { strokeDashoffset: 2400, duration: 1.4, ease: "power3.out" },
+        0.1,
+      );
+      tl.from(
+        "#intro-arc-dot",
+        { opacity: 0, scale: 0, transformOrigin: "center", duration: 0.4, ease: "back.out(2.2)" },
+        1.2,
+      );
+      tl.from(
+        "#intro-eyebrow",
+        { opacity: 0, y: 20, duration: 0.5, ease: "power2.out" },
+        0.25,
+      );
+      tl.from(
+        ".intro-word",
+        {
+          y: 110,
+          opacity: 0,
+          duration: 0.75,
+          ease: "expo.out",
+          stagger: 0.11,
+        },
+        0.4,
+      );
+      tl.from(
+        "#intro-rule",
+        { scaleX: 0, opacity: 0, duration: 0.6, ease: "power2.inOut" },
+        1.05,
+      );
+      tl.from(
+        "#intro-sub",
+        { opacity: 0, y: 14, duration: 0.55, ease: "power2.out" },
+        1.15,
+      );
+
+      // ── CROSSFADE: intro → footage (1.8 – 2.2s) ─────────
+      tl.to("#intro", { opacity: 0, duration: 0.4, ease: "power2.inOut" }, 1.8);
+      tl.to("#footage-video", { opacity: 1, duration: 0.4, ease: "power2.inOut" }, 1.8);
+
+      // ── CROSSFADE: footage → outro (16.8 – 17.2s) ───────
+      tl.to("#footage-video", { opacity: 0, duration: 0.4, ease: "power2.inOut" }, 16.8);
+      tl.to("#outro", { opacity: 1, duration: 0.4, ease: "power2.inOut" }, 16.8);
+
+      // ── OUTRO ENTRANCES (17.0 – 18.2s) ──────────────────
+      tl.from(
+        "#outro-glyph",
+        {
+          opacity: 0,
+          scale: 0.55,
+          rotation: -90,
+          transformOrigin: "center",
+          duration: 0.85,
+          ease: "back.out(1.6)",
+        },
+        17.15,
+      );
+      tl.from(
+        "#outro-accent",
+        { scaleX: 0, opacity: 0, duration: 0.55, ease: "power3.out" },
+        17.35,
+      );
+      tl.from(
+        "#outro-url",
+        { y: 28, opacity: 0, duration: 0.7, ease: "expo.out" },
+        17.45,
+      );
+      tl.from(
+        "#outro-sub",
+        { y: 14, opacity: 0, duration: 0.55, ease: "power2.out" },
+        17.65,
+      );
+
+      // ── FINAL FADE-OUT (18.5 – 19.0s) — allowed on last scene only
+      tl.to("#outro", { opacity: 0, duration: 0.5, ease: "power2.in" }, 18.5);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["walkthrough"] = tl;
+    </script>
+  </body>
+</html>
