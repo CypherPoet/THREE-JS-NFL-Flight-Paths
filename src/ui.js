@@ -270,12 +270,15 @@ export function buildTeamPanel({ summary, intl, listEl, onChange }) {
   rebind(".panel__preset", "preset", applyPreset);
   rebind(".panel__sort-button", "sort", setSort);
 
-  // Empty-state banner nodes are static markup; cache the lookups and wire
-  // the restore button once. The panel object outlives season switches,
-  // which mutate `active` rather than rebuilding the panel.
+  // The panel is rebuilt on every season switch (see loadSeason in main.js),
+  // so the restore button needs the same clone-replace treatment the preset
+  // and sort chips get via rebind() — otherwise each switch stacks another
+  // listener (and another stale `previousActive` closure) on the static node.
   const emptyBannerEl = document.getElementById("panel-empty");
-  const emptyRestoreBtnEl = document.getElementById("panel-empty-restore");
-  if (emptyRestoreBtnEl) emptyRestoreBtnEl.addEventListener("click", restorePrevious);
+  const staleRestoreBtn = document.getElementById("panel-empty-restore");
+  const emptyRestoreBtnEl = staleRestoreBtn.cloneNode(true);
+  staleRestoreBtn.parentNode.replaceChild(emptyRestoreBtnEl, staleRestoreBtn);
+  emptyRestoreBtnEl.addEventListener("click", restorePrevious);
 
   renderRows();
   updatePresetState();
