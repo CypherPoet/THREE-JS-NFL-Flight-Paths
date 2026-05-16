@@ -1,69 +1,77 @@
 # Walkthrough Soundtrack Prompts
 
-Paste-ready prompts for generating a ~19-second instrumental soundtrack for `media/walkthrough.mp4`. Five distinct sonic territories — pick one (or A/B several), drop the result into `hyperframes/walkthrough/audio/soundtrack.mp3`, then wire a sibling `<audio>` clip into `index.html` (snippet at the bottom of this doc).
+Paste-ready prompts for generating a soundtrack for `media/walkthrough.mp4`. Five sonic territories — pick one (or A/B several), drop the result into `hyperframes/walkthrough/audio/soundtrack.mp3`, then wire a sibling `<audio>` clip into `index.html` (snippet at the bottom).
 
-## Structural anchors every prompt should honor
+## The visual you're scoring
 
-- **Total length ~19 seconds.** Most tools generate 30-second minimums; trim the tail to fit.
-- **The visual hits its climactic beat at 9–10 seconds in** — the in-footage light → dark theme switch. The music should hit hard there: a drop, a swell, a stinger — whatever the style allows.
-- **Arc**: sparse first 2 seconds (intro card) → builds through the footage (2–17s) → calms or resolves on the outro (17–19s).
-- **Instrumental only.** No vocals.
+**Total length: exactly 19 seconds.** Three sections, with one structural climax:
+
+| Time           | What's on screen                                                                                                          |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| **0.0 – 2.0s** | Intro card. "NFL FLIGHT PATHS" title staggers in over a soft globe-arc graphic. Eyebrow → title words → subtitle.         |
+| **2.0 – 6.5s** | Live app footage (light theme). Globe drag-rotates across the US; a team row gets highlighted on hover.                   |
+| **6.5 – 9.5s** | "International" preset clicks at ~8.5s and a new arc set draws in. Light theme still — tension building.                  |
+| **~9.5s**      | **THE HIT.** Theme toggles light → dark on screen. UI flashes to black; international arcs glow against the dark sphere. |
+| **9.5 – 17.0s** | Dark theme. Camera pans east, Atlantic crossings, arcs running, travelers animating along the great circles.            |
+| **17.0 – 19.0s** | Outro card. Glyph rotates in, "github.com/CypherPoet/THREE-JS-NFL-Flight-Paths" URL slides up, "Built with Three.js" tagline. Final 0.5s fades to black. |
+
+## Universal constraints — apply to every prompt
+
+- **Total length: 19 seconds.** Most tools generate 30s minimums; trim the tail.
+- **Instrumental only. No vocals, no lyrics, no spoken word, no choir, no vocal samples.**
+- **The big musical event lands at 9.5 seconds** — drop, stinger, swell, full-ensemble entry. Whatever the genre allows. This is non-negotiable; it's the visual's structural climax.
+- **Energy arc**: sparse 0–2s (under the title), gradual build 2–9s, peak hit at 9.5s, sustain 9.5–17s, resolve to silence 17–19s.
 
 ---
 
 ## 1. Sport-broadcast cinematic
 
-> Make a 19-second cinematic NFL-broadcast intro sting. Big orchestral hits, soaring brass swells, taut staccato strings, deep cinematic drums, hybrid percussion. BPM 110. Start sparse with a sustained brass note and a building string roll; full ensemble enters at 4 seconds; punctuate the change at 9–10 seconds with a powerful drum hit and a brass stab; ride the energy through 15 seconds; resolve with a final brass chord at 17–19s. Confident, heroic, broadcast-ready. Reference vibe: Sunday Night Football intro, Monday Night Football theme, John Williams "Olympic Fanfare."
+> Make a 19-second instrumental cinematic NFL-broadcast intro sting. **No vocals, no lyrics, no choir.** Big orchestral hits, soaring brass swells, taut staccato strings, deep cinematic drums, hybrid percussion. BPM around 110. Timing map: **0–2s** opens sparse with a sustained brass note and a quietly building string roll; **2–6s** introduces taut staccato strings and a low timpani pulse; **6–9s** builds anticipation with a rising string ostinato; **at 9.5s, hit hard** — full brass stab + powerful drum strike, full ensemble enters — this is the climactic moment; **9.5–15s** rides at full ensemble; **15–17s** eases off slightly; **17–19s** resolves with a final sustained brass chord that fades to silence. Confident, heroic, broadcast-ready. Reference vibe: Sunday Night Football intro, Monday Night Football theme, John Williams "Olympic Fanfare."
 
 - **Tools**: Suno, Udio, AIVA
-- **BPM**: 110
-- **Trim target**: 19s from a 30s render
+- **BPM**: ~110
 
 ---
 
 ## 2. Hybrid orchestral-electronic
 
-> Generate a 19-second hybrid trailer cue. Hans Zimmer meets ESPN data visualization. Layers: sub-bass synth pulse on every beat, ostinato 16th-note strings, modern percussion (taiko hits + processed claps + reversed reverb cymbals), a synthetic brass-like pad. BPM 128. Start with just sub-bass and ostinato; bring in percussion at 4 seconds; sharp drop at 9–10 seconds where everything cuts to just the sub-bass for one beat before slamming back in; full layered cue 10–16 seconds; outro returns to the opening ostinato fading out. Modern, forward-leaning, sportsbook-energy.
+> Generate a 19-second instrumental hybrid trailer cue. **No vocals, no lyrics.** Hans Zimmer meets ESPN data visualization. Layers: sub-bass synth pulse on every beat, ostinato 16th-note strings, modern percussion (taiko hits + processed claps + reversed reverb cymbals), a synthetic brass-like pad. BPM 128. Timing map: **0–2s** opens with just the sub-bass pulse and a faint ostinato; **2–6s** adds the ostinato strings at full volume; **6–9s** layers percussion in, building toward a peak; **at 9.5s, sharp 1-beat drop to just the sub-bass — then everything slams back in** with a heavy taiko hit + brass stab; **9.5–15s** the full layered cue rides at peak intensity; **15–17s** the ostinato thins out; **17–19s** returns to just the opening sub-bass and a sustained pad, fading to silence. Modern, forward-leaning, sportsbook-energy.
 
 - **Tools**: Suno, Udio
 - **BPM**: 128
-- **Trim target**: 19s
 
 ---
 
 ## 3. Modern minimal data-viz
 
-> Compose a 19-second atmospheric electronic piece. Apple-keynote aesthetic; Linear product-launch energy. Sparse and clean. Layers: sine sub-bass pulsing every 2 beats, glassy synth pad sustaining warm chords, occasional bell-tone arpeggio, very subtle glitch percussion that enters at the climax. BPM 90. Start with just the pad and a single sine pulse; layer in a soft bell motif at 4 seconds; introduce a delicate clicking percussion pattern at 9–10 seconds as the focal moment; let the texture breathe through 15 seconds; resolve with a held pad chord 17–19s. Tasteful, premium, restrained.
+> Compose a 19-second instrumental atmospheric electronic piece. **No vocals, no lyrics, no choir.** Apple-keynote aesthetic; Linear product-launch energy. Sparse and clean — no big drops. Layers: sine sub-bass pulsing every 2 beats, glassy synth pad sustaining warm chords, occasional bell-tone arpeggio, very subtle glitch percussion. BPM around 90. Timing map: **0–2s** just the pad and a single sine pulse, very quiet; **2–4s** a soft bell motif enters; **4–9s** the bell pattern develops as the pad warms; **at 9.5s, a delicate clicking percussion pattern enters and the bell motif resolves into a held major chord** — restrained but distinct, this is the focal moment; **9.5–15s** the texture breathes with the percussion riding underneath; **15–17s** percussion drops out; **17–19s** a single held pad chord resolves and fades to silence. Tasteful, premium, restrained.
 
 - **Tools**: Udio, AIVA, Suno
-- **BPM**: 90
-- **Trim target**: 19s
+- **BPM**: ~90
 
 ---
 
 ## 4. Synthwave / retro NFL Films
 
-> Make a 19-second instrumental in the spirit of 80s NFL Films production music. Analog poly-synth lead playing a triumphant minor-key melody, gated reverb on snare drums, brass stabs from a synthesizer, warm tape saturation throughout. BPM 100. Start with synth-pad chords and a slow drum machine fill; the lead melody enters at 4 seconds; arrive at the title-card moment at 9–10 seconds with a brass-stab punctuation and a snare crash; ride the lead through 15 seconds; outro fades the snare and lets the pad chord ring out 17–19s. Nostalgic, triumphant, warm. Reference: Sam Spence NFL Films catalog ("Round-Up," "Pony Soldiers"), 80s arena-rock production aesthetics.
+> Make a 19-second instrumental piece in the spirit of 80s NFL Films production music. **No vocals, no lyrics.** Analog poly-synth lead playing a triumphant minor-key melody, gated reverb on snare drums, brass stabs from a synthesizer, warm tape saturation throughout. BPM 100. Timing map: **0–2s** opens with synth-pad chords and a slow drum machine fill; **2–4s** the lead melody begins; **4–9s** the melody develops with gated snare building energy; **at 9.5s, hit with a powerful brass-stab + crashing gated snare** — the lead reaches its high point; **9.5–15s** the lead rides through with the full kit at peak; **15–17s** the snare drops out and the lead simplifies; **17–19s** let the pad chord ring out into silence. Nostalgic, triumphant, warm. Reference: Sam Spence NFL Films catalog ("Round-Up," "Pony Soldiers"), 80s arena-rock production aesthetics.
 
 - **Tools**: Suno, Udio
 - **BPM**: 100
-- **Trim target**: 19s
 
 ---
 
 ## 5. Slow-build cinematic
 
-> Compose a 19-second slow-build cinematic instrumental in the Max Richter / Ólafur Arnalds / Reznor-Ross tradition. Start with a single sustained solo piano note and an ambient pad at 60 BPM. Add a tremolo cello line at 2 seconds. Add a layered string section at 4 seconds. Bring in restrained percussion (felt mallets on toms) at 9–10 seconds — this is the focal moment, the music should feel like it just resolved a long held tension. Full ensemble plays through 14 seconds. Strings drop out at 16 seconds, leaving piano + pad. End on a single sustained note 17–19s. Emotional, reflective, cinematic, modern-classical.
+> Compose a 19-second instrumental slow-build cinematic piece in the Max Richter / Ólafur Arnalds / Reznor-Ross tradition. **No vocals, no lyrics, no choir.** BPM 60. Timing map: **0–2s** starts with a single sustained solo piano note and a quiet ambient pad; **2–4s** a tremolo cello line enters; **4–9s** layered strings build with restrained intensity; **at 9.5s, bring in restrained percussion — felt mallets on toms — and the strings swell to their peak** — this should feel like a long-held tension just resolved; **9.5–14s** the full ensemble plays through; **14–16s** strings begin to thin; **16–17s** only piano + pad remain; **17–19s** ends on a single sustained piano note that fades to silence. Emotional, reflective, cinematic, modern-classical.
 
 - **Tools**: AIVA (best for orchestral), Udio, Suno
 - **BPM**: 60
-- **Trim target**: 19s
 
 ---
 
-## Integration (when you have a track)
+## Integration — wiring up the audio
 
-1. Save the generated track as `hyperframes/walkthrough/audio/soundtrack.mp3`. Normalize to roughly **-1 dB peak**, dialog-track loudness (~-14 LUFS) is a safe target.
+1. Save the generated track as `hyperframes/walkthrough/audio/soundtrack.mp3`. Normalize to roughly **-1 dB peak**, around **-14 LUFS** integrated loudness.
 2. Add an `<audio>` clip to `hyperframes/walkthrough/index.html` as a sibling to the existing clips:
    ```html
    <audio
@@ -76,5 +84,5 @@ Paste-ready prompts for generating a ~19-second instrumental soundtrack for `med
      src="audio/soundtrack.mp3"
    ></audio>
    ```
-3. Re-run `npx hyperframes render --output ../../media/walkthrough.mp4` from `hyperframes/walkthrough/`.
-4. The render now includes audio; spot-check that the climactic music beat lands at ~9.5s alongside the in-footage theme switch.
+3. Re-run `npx hyperframes render --fps 60 --quality high --resolution 4k --output ../../media/walkthrough.mp4` from `hyperframes/walkthrough/`.
+4. Spot-check the rendered mp4: the climactic music beat should land at ~9.5s alongside the in-footage theme switch.
