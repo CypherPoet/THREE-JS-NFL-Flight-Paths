@@ -394,9 +394,16 @@ img.topbar__mark {
 }
 
 /* ── Panel ──────────────────────────────────────────────────── */
+/* Top inset is deliberately wider than the page's ambient 18px rhythm so
+   the joint between identity chrome (topbar) and tool chrome (panel) reads
+   as a real break, not another flush band. 132px gives ~44px of breath
+   below the brand cluster's stacked H1 + sublabel.
+   `overflow: visible` lets the chip + sort-button tooltips escape the panel
+   bounds; `.team-list` carries its own bottom corner radius below so the
+   card's rounded bottom is preserved without clipping the tooltips. */
 .panel {
   position: absolute;
-  top: 92px;
+  top: 132px;
   left: 18px;
   bottom: 64px;
   width: 290px;
@@ -406,12 +413,21 @@ img.topbar__mark {
   box-shadow: 0 10px 30px -10px var(--shadow);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
   z-index: 4;
 }
 
+/* Vertical stack: H2 + sort row at the top (tight cluster), kicker meta line
+   beneath it, then a generous bottom padding so the head reads as one
+   grouping above the chip row instead of two same-frequency bands. */
 .panel__head {
-  padding: 12px 14px 10px;
+  padding: 12px 14px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.panel__head-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -473,19 +489,35 @@ img.topbar__mark {
   background: var(--line);
 }
 
-/* Panel-head international call-out — telegraphs the season story
-   (e.g. "8 teams travel internationally · 32,140 mi total") in body
-   sentence case, deliberately NOT another uppercase-tracked kicker. */
-.panel__intl {
+/* Kicker meta line under the panel H2: numeric, low-key, sits inside the head
+   block to keep the H2 + sort + kicker as one tight cluster. Mono numerals
+   pick up the existing `.metric__value` voice; ink-mute keeps it from
+   competing with the H2 above. */
+.panel__head-meta {
   margin: 0;
-  padding: 6px 14px 10px;
-  font-family: var(--font-ui);
-  font-size: var(--text-meta);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-variant-numeric: tabular-nums;
   line-height: 1.4;
-  color: var(--ink-soft);
+  color: var(--ink-mute);
+  letter-spacing: 0.02em;
 }
 
-.panel__intl[hidden] {
+.panel__head-meta[hidden] {
+  display: none;
+}
+
+/* Desktop hides the league total inside the kicker — the topbar metric tile
+   already carries that figure. Mobile reveals it (the metric tiles are
+   hidden there, so the kicker is the only place the league total reads). */
+.panel__head-meta__league {
+  display: none;
+}
+
+/* A 4×36 stub at the top of the panel card. Visual peek-up affordance only;
+   no JS drag in this pass. Desktop hides it (panel is anchored, no sheet
+   posture). */
+.panel__handle {
   display: none;
 }
 
@@ -496,7 +528,7 @@ img.topbar__mark {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
-  padding: 0 14px 10px;
+  padding: 2px 14px 12px;
   border-bottom: 1px solid var(--line);
 }
 
@@ -563,6 +595,10 @@ img.topbar__mark {
   flex: 1;
   scrollbar-width: thin;
   scrollbar-color: var(--ink-mute) transparent;
+  /* Panel dropped its overflow:hidden so chip tooltips can escape; team-list
+     keeps the card's rounded bottom corners by clipping itself instead. */
+  border-bottom-left-radius: var(--radius);
+  border-bottom-right-radius: var(--radius);
 }
 
 .team-list::-webkit-scrollbar {
@@ -576,18 +612,23 @@ img.topbar__mark {
 
 /* Division group header (e.g. "AFC East · 41,402 mi"). A different
    grammar from the panel's uppercase-tracked H2 so the panel doesn't
-   stack two kicker labels. Display font, normal case, generous tracking. */
+   stack two kicker labels. Display font, normal case, generous tracking.
+   The top margin (instead of padding) puts the divider line inside the
+   breath between divisions, not flush at the line of the prior row — the
+   eye reads 8 distinct clusters with rest between them. */
 .team-group__head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 10px;
-  padding: 14px 14px 4px;
+  padding: 8px 14px 4px;
+  margin-top: 22px;
   border-top: 1px solid var(--line);
 }
 
 .team-group__head:first-child {
   border-top: 0;
+  margin-top: 0;
   padding-top: 8px;
 }
 
@@ -1071,17 +1112,46 @@ img.topbar__mark {
 
 /* ── Responsive ─────────────────────────────────────────────── */
 @media (max-width: 760px) {
+  /* Panel becomes a peek-up sheet: a 30% bottom band with a drag-handle
+     stub at the top edge. The shorter height (down from 38%) returns
+     ~64px of vertical room to the globe, which was previously sandwiched
+     between a two-row topbar and an over-tall panel. */
   .panel {
     width: calc(100% - 36px);
     top: auto;
     bottom: 64px;
     left: 18px;
     right: 18px;
-    height: 38%;
+    height: 30%;
   }
-  /* Stack topbar to two rows on phones: brand on top, meta below.
-     Without this, .topbar__meta overflows past the viewport (~430px wide
-     against a 375px screen) and the icon cluster runs off-screen. */
+  /* Drag-handle stub: visual peek-up affordance only. No JS drag interaction
+     in this pass — the handle signals "this could lift," wiring is future work. */
+  .panel__handle {
+    display: block;
+    width: 36px;
+    height: 4px;
+    margin: 6px auto 2px;
+    background: var(--line-strong);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  /* Tighter head padding on the sheet — every vertical pixel is contested
+     now that the panel is a 30% band. Bottom breath stays generous to keep
+     the head-to-chips joint readable. */
+  .panel__head {
+    padding: 6px 14px 14px;
+  }
+  /* Mobile reveals the league total inside the kicker — desktop's metric
+     tiles are hidden below, so the kicker becomes the only place the
+     league figure reads. */
+  .panel__head-meta__league {
+    display: inline;
+  }
+  /* Topbar stacks into two rows on mobile so the brand cluster gets the
+     full viewport width — otherwise the H1 and sublabel wrap into 3–4
+     lines inside a ~114px-wide titles block when they share the row with
+     the icon rail. Metric tiles are hidden below, so row 2 is just the
+     icon rail (short and quiet). */
   .topbar {
     flex-direction: column;
     align-items: stretch;
@@ -1105,51 +1175,23 @@ img.topbar__mark {
   .topbar__brand .season-switch {
     display: none;
   }
+  /* Row 2 with metric tiles hidden — just the icon rail, pushed to the
+     right edge to mirror desktop's top-right posture. */
   .topbar__meta {
-    flex-direction: row;
     align-items: center;
-    flex-wrap: wrap;
-    justify-content: flex-start;
+    justify-content: flex-end;
     gap: 8px;
   }
-  /* Compress the metric cards: row layout (label : value), smaller padding,
-     hide the supplementary game-count sub line so the pair fits on one row
-     alongside the icon cluster. */
-  .metric {
-    flex-direction: row;
-    align-items: baseline;
-    gap: 6px;
-    min-width: 0;
-    padding: 6px 10px;
-  }
-  .metric__label {
-    font-size: 10px;
-  }
-  .metric__value {
-    margin-top: 0;
-  }
-  .metric__sub {
+  /* Metric tiles drop out of the topbar on mobile — the league total moves
+     into the panel kicker, the intl figure was already there. */
+  .topbar__meta .metric {
     display: none;
   }
+  /* Icon rail tooltip anchoring stays right-edge on mobile (rail sits at
+     viewport's right edge), so no override needed. */
   .hint,
   .legend {
     display: none;
-  }
-  /* Topbar icons wrap onto a second row at phone widths, so the desktop
-     `right: 0` tooltip anchoring (which extends the bubble leftward from the
-     button) overflows the viewport when the button sits at the left edge of
-     that row. Re-anchor centered on the button and cap width to the viewport. */
-  .topbar__meta .theme-toggle[data-tooltip]::after {
-    left: 50%;
-    right: auto;
-    transform: translate(-50%, -2px);
-    max-width: calc(100vw - 24px);
-    white-space: normal;
-    text-align: center;
-  }
-  .topbar__meta .theme-toggle[data-tooltip]:hover::after,
-  .topbar__meta .theme-toggle[data-tooltip]:focus-visible::after {
-    transform: translate(-50%, 0);
   }
 }
 

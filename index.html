@@ -176,32 +176,35 @@
       </header>
 
       <aside class="panel" id="team-panel">
+        <div class="panel__handle" aria-hidden="true"></div>
         <div class="panel__head">
-          <h2>Teams</h2>
-          <div class="panel__sort" role="group" aria-label="Sort teams">
-            <button
-              type="button"
-              class="panel__sort-button"
-              data-sort="division"
-              data-active="true"
-              data-tooltip="Group by AFC / NFC division"
-            >
-              By division
-            </button>
-            <button
-              type="button"
-              class="panel__sort-button"
-              data-sort="mileage"
-              data-active="false"
-              data-tooltip="Longest travel first"
-            >
-              By miles
-            </button>
+          <div class="panel__head-row">
+            <h2>Teams</h2>
+            <div class="panel__sort" role="group" aria-label="Sort teams">
+              <button
+                type="button"
+                class="panel__sort-button"
+                data-sort="division"
+                data-active="true"
+                data-tooltip="Group by AFC / NFC division"
+              >
+                By division
+              </button>
+              <button
+                type="button"
+                class="panel__sort-button"
+                data-sort="mileage"
+                data-active="false"
+                data-tooltip="Longest travel first"
+              >
+                By miles
+              </button>
+            </div>
           </div>
+          <p class="panel__head-meta" id="panel-intl">
+            <!-- populated by buildTeamPanel: "8 abroad · 32,140 mi" (mobile prepends league total) -->
+          </p>
         </div>
-        <p class="panel__intl" id="panel-intl">
-          <!-- populated by buildTeamPanel: "8 teams travel internationally · 32,140 mi total" -->
-        </p>
         <div class="panel__presets" role="group" aria-label="Filter teams">
           <button
             type="button"

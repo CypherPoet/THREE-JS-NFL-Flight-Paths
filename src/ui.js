@@ -214,13 +214,26 @@ export function buildTeamPanel({ summary, intl, listEl, onChange }) {
     renderRows();
   }
 
-  // Wire the panel-intl call-out, the preset chips, and the sort toggle.
-  // We do this once at build time; subsequent state updates flow through
-  // applyPreset/setSort which target the existing DOM nodes.
+  // Wire the panel-head kicker, the preset chips, and the sort toggle. The
+  // kicker carries two facts split into spans: a league total (mobile-only —
+  // the desktop topbar metric tile carries it) and the abroad summary (every
+  // viewport). CSS visibility handles the desktop/mobile split.
   const intlEl = document.getElementById("panel-intl");
   if (intlEl) {
+    intlEl.replaceChildren();
     if (intl && intl.teamCount > 0) {
-      intlEl.textContent = `${intl.teamCount} teams travel internationally · ${formatMiles(intl.totalMiles)} total`;
+      const leagueTotal = Object.values(summary).reduce(
+        (sum, s) => sum + s.totalMiles,
+        0,
+      );
+      const leagueSpan = document.createElement("span");
+      leagueSpan.className = "panel__head-meta__league";
+      leagueSpan.textContent = `${formatMiles(leagueTotal)} league · `;
+      intlEl.append(leagueSpan);
+      const intlSpan = document.createElement("span");
+      intlSpan.className = "panel__head-meta__intl";
+      intlSpan.textContent = `${intl.teamCount} abroad · ${formatMiles(intl.totalMiles)}`;
+      intlEl.append(intlSpan);
       intlEl.hidden = false;
     } else {
       intlEl.hidden = true;
