@@ -18,13 +18,13 @@ function renderRows(listEl, summary) {
   for (const key of sorted) {
     const team = TEAMS[key];
     const miles = summary[key].totalMiles;
-    const pct = (miles / maxMiles) * 100;
+    const pctRatio = miles / maxMiles;
 
     const row = document.createElement("li");
     row.className = "mileage-row";
     row.style.setProperty("--accent-light", team.accent);
     row.style.setProperty("--accent-dark", team.accentDark ?? team.accent);
-    row.style.setProperty("--pct", `${pct.toFixed(2)}%`);
+    row.style.setProperty("--pct-scale", pctRatio.toFixed(4));
     row.innerHTML = `
       <div class="mileage-row__label">
         <span class="mileage-row__chip"></span>
@@ -32,7 +32,9 @@ function renderRows(listEl, summary) {
         <span class="mileage-row__name">${team.name}</span>
       </div>
       <div class="mileage-row__track" aria-hidden="true">
-        <span class="mileage-row__trail"></span>
+        <span class="mileage-row__trail">
+          <span class="mileage-row__trail-fill"></span>
+        </span>
         ${PLANE_SVG}
       </div>
       <div class="mileage-row__value" aria-label="${numberFormatter.format(Math.round(miles))} miles">
