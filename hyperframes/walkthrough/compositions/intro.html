@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Walkthrough — Intro</title>
+  </head>
+  <body>
+    <template id="intro-template">
+      <div
+        data-composition-id="intro"
+        data-width="1920"
+        data-height="1080"
+      >
+        <style>
+          .intro-root {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: "Geist", system-ui, sans-serif;
+            color: #e8e2d0;
+          }
+
+          .intro-card {
+            position: absolute;
+            inset: 0;
+            background:
+              radial-gradient(ellipse 80% 60% at 50% 50%, #1a1612 0%, #0f0d0a 70%, #050402 100%);
+          }
+
+          .intro-arc-svg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+          }
+          .intro-arc-path {
+            fill: none;
+            stroke: #c89060;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-dasharray: 2400;
+            filter: drop-shadow(0 0 12px rgba(200, 144, 96, 0.45));
+          }
+          .intro-arc-dot {
+            fill: #fff2c4;
+            filter: drop-shadow(0 0 18px rgba(255, 242, 196, 0.85));
+          }
+
+          .intro-content {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 28px;
+            text-align: center;
+          }
+
+          .intro-eyebrow {
+            font-family: "Departure Mono", ui-monospace, monospace;
+            font-size: 22px;
+            letter-spacing: 0.42em;
+            color: #c89060;
+            text-transform: uppercase;
+          }
+
+          .intro-title {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            font-family: "Big Shoulders Display", system-ui, sans-serif;
+            font-weight: 800;
+            font-size: 188px;
+            line-height: 0.92;
+            letter-spacing: 0.01em;
+            color: #fff2c4;
+            text-shadow:
+              0 0 28px rgba(255, 242, 196, 0.25),
+              0 0 64px rgba(200, 144, 96, 0.22);
+          }
+
+          .intro-word {
+            display: block;
+            will-change: transform, opacity, filter;
+          }
+
+          .intro-rule {
+            width: 320px;
+            height: 1px;
+            background: linear-gradient(
+              90deg,
+              rgba(200, 144, 96, 0) 0%,
+              rgba(200, 144, 96, 0.9) 50%,
+              rgba(200, 144, 96, 0) 100%
+            );
+            transform-origin: center;
+          }
+
+          .intro-sub {
+            font-family: "Geist", system-ui, sans-serif;
+            font-weight: 500;
+            font-size: 28px;
+            letter-spacing: 0.36em;
+            color: #e8e2d0;
+            text-transform: uppercase;
+          }
+          .intro-sub-dot {
+            color: #c89060;
+            margin: 0 14px;
+          }
+        </style>
+
+        <div class="intro-root">
+          <div class="intro-card"></div>
+          <svg
+            class="intro-arc-svg"
+            viewBox="0 0 1920 1080"
+            preserveAspectRatio="none"
+          >
+            <path
+              class="intro-arc-path"
+              d="M 220 820 Q 960 320 1700 820"
+            />
+            <circle
+              class="intro-arc-dot"
+              cx="1700"
+              cy="820"
+              r="7"
+            />
+          </svg>
+          <div class="intro-content">
+            <div class="intro-eyebrow">
+              32 Teams · 272 Games · 1 Globe
+            </div>
+            <div class="intro-title">
+              <span class="intro-word">NFL</span>
+              <span class="intro-word">FLIGHT</span>
+              <span class="intro-word">PATHS</span>
+            </div>
+            <div class="intro-rule"></div>
+            <div class="intro-sub">
+              2026 Season<span class="intro-sub-dot">·</span>Great-Circle Routes
+            </div>
+          </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+        <script>
+          // Intro sub-composition timeline. Plays from t=0 (start of the
+          // sub-comp clip) for 2.4s. Entrances only — the root composition's
+          // crossfade tween handles the exit at root t=1.8s.
+          (function () {
+            const tl = gsap.timeline({ paused: true });
+
+            tl.fromTo(
+              ".intro-arc-path",
+              { strokeDashoffset: 2400 },
+              { strokeDashoffset: 0, duration: 1.4, ease: "power3.out" },
+              0.1,
+            );
+            tl.fromTo(
+              ".intro-arc-dot",
+              { opacity: 0, scale: 0, transformOrigin: "center" },
+              { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2.2)" },
+              1.2,
+            );
+            tl.fromTo(
+              ".intro-eyebrow",
+              { opacity: 0, y: 20 },
+              { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
+              0.25,
+            );
+            tl.fromTo(
+              ".intro-word",
+              { y: 110, opacity: 0 },
+              {
+                y: 0,
+                opacity: 1,
+                duration: 0.75,
+                ease: "expo.out",
+                stagger: 0.11,
+              },
+              0.4,
+            );
+            tl.fromTo(
+              ".intro-rule",
+              { scaleX: 0, opacity: 0 },
+              { scaleX: 1, opacity: 1, duration: 0.6, ease: "power2.inOut" },
+              1.05,
+            );
+            tl.fromTo(
+              ".intro-sub",
+              { opacity: 0, y: 14 },
+              { opacity: 1, y: 0, duration: 0.55, ease: "power2.out" },
+              1.15,
+            );
+
+            window.__timelines = window.__timelines || {};
+            window.__timelines["intro"] = tl;
+          })();
+        </script>
+      </div>
+    </template>
+  </body>
+</html>

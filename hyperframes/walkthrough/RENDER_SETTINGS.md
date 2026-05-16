@@ -1,128 +1,63 @@
 # Render Settings — Walkthrough Composition
 
-How the walkthrough video gets rendered today, and how to crank up quality when you're ready. Phase 1 shipped at HyperFrames' `standard` defaults; this doc captures both the easy bumps (just render flags) and the bigger lift required for genuinely smooth 60fps footage (a capture-side rewrite).
+The optimized pipeline for `media/walkthrough.mp4`: native-framerate CDP screencast capture, then a 4K 60fps HyperFrames render.
 
-## (a) Current render
+## Capture — `npm run record:walkthrough`
 
-Today's command, run from `hyperframes/walkthrough/`:
+`scripts/record-walkthrough.mjs` drives the live Vite dev server through the [beat sheet](./beat-sheet.md) and captures frames directly off Chromium's compositor via the Chrome DevTools Protocol (`Page.startScreencast`). Playwright's `recordVideo` is not used — it throttles to ~25fps regardless of GPU acceleration.
 
-```bash
-npx hyperframes render --output ../../media/walkthrough.mp4
-```
+Capture specs:
 
-Output specs:
+| Dimension | Value |
+| --------- | ----- |
+| Resolution | 1920×1080 |
+| Frame rate | ~75fps effective (native compositor rate; GPU-accelerated WebGL via `--use-angle=metal`) |
+| Format | JPEG quality 95 frame sequence → H.264 mp4 (libx264, CRF 18, dense GOP) |
+| Output | `hyperframes/walkthrough/footage.mp4` |
 
-| Dimension     | Value                                  |
-| ------------- | -------------------------------------- |
-| Resolution    | 1920×1080                              |
-| Frame rate    | 30fps                                  |
-| Bitrate       | ~4 Mbps (9.4 MB / 19s)                 |
-| Codec         | H.264 / AVC1 High Profile, yuv420p     |
-| Audio         | none                                   |
-| Duration      | 19.0s                                  |
+The screencast starts right after the loader is dismissed and stops at the end of the 15.5s beat sheet, so the source has no pre-roll (`data-media-start="0"` in `index.html`). The encoder uses the captured effective fps, not a fixed value — each beat lands at its captured wallclock time in the resulting mp4.
 
-This is what's currently at `media/walkthrough.mp4`.
+Caveats worth knowing:
 
-## (b) Quick wins — render flags only (no recorder changes)
+- `Page.screencastFrameAck(sessionId)` is mandatory. Without it, Chromium back-pressures and silently drops frames. The recorder fires acks fire-and-forget so the disk write doesn't gate the next frame.
+- `chromium-headless-shell` may cap the screencast below 60fps. The recorder launches headful with `--use-angle=metal` for GPU acceleration, which is what gets us the 70-80fps effective rate. Running headless would be slower.
+- JPEG quality 95 is near-visually-lossless. If on-disk frame size becomes a problem during longer captures, drop to 85 or switch to PNG (slower, larger, lossless).
 
-These flags compose freely and don't touch the capture pipeline. Worth trying first.
+## Render — `npx hyperframes render`
 
-| Flag                             | What it does                                                    | Cost                          |
-| -------------------------------- | --------------------------------------------------------------- | ----------------------------- |
-| `--fps 60`                       | Render the timeline at 60fps. Cards become twice as smooth.     | File size ≈2×                 |
-| `--quality high`                 | Higher bitrate target; less compression noise on vignettes.     | File size up; render time up  |
-| `--width 2560 --height 1440`     | 1440p output. Cards render natively; footage upscales lanczos.  | File size up; modest gain     |
-
-**Combined recommended call when bumping quality:**
+Run from `hyperframes/walkthrough/`:
 
 ```bash
 npx hyperframes render \
   --fps 60 \
   --quality high \
+  --resolution 4k \
   --output ../../media/walkthrough.mp4
 ```
 
-**Important nuance**: with `--fps 60` the intro and outro cards become genuinely smoother (real GSAP frames at twice the rate), but the **middle 15 seconds of footage stays effectively 25fps** because the source mp4 was captured at that rate (Playwright's `recordVideo` cap). The render fps just controls how the timeline samples — it can't manufacture motion the source didn't have. To genuinely improve the footage smoothness, see §(c).
+Output specs:
 
-## (c) Capture-side improvement — CDP screencast (chosen path)
+| Dimension | Value |
+| --------- | ----- |
+| Resolution | 3840×2160 (4K UHD) |
+| Frame rate | 60fps |
+| Codec | H.264 / AVC1 High Profile, yuv420p |
+| Bitrate | ~15 Mbps |
+| Audio | none (until a soundtrack is wired up — see [MUSIC_PROMPTS.md](./MUSIC_PROMPTS.md)) |
+| Duration | 19.0s |
+| File size | ~35 MB |
 
-When `--fps 60` alone isn't enough — when the 25fps stutter in the middle of the video becomes visible — rewrite the capture layer of `scripts/record-walkthrough.mjs` to drive the Chrome DevTools Protocol directly instead of using Playwright's `recordVideo`.
+What each flag does:
 
-The dev-server logic, mouse drags, beat sheet, and theme toggle stay identical. Only the *how-frames-get-saved* layer changes.
+- `--fps 60` — render the timeline at 60fps. Both the intro/outro cards and the captured footage have real frames at every step (cards from GSAP, footage from the 75fps source).
+- `--quality high` — bumps the encoder bitrate target. The dark vignettes and bronze gradients pick up less compression noise.
+- `--resolution 4k` — composition is authored at 1920×1080; HyperFrames supersamples via `deviceScaleFactor: 2` and captures at 3840×2160 natively. The cards render at 4K (no upscaling), and the 1080p footage upscales lanczos.
 
-### Concrete diff
+### Resolution-flag specifics
 
-**Remove (~15 lines):**
-- The `recordVideo: { dir, size }` option on `context = await browser.newContext({...})`.
-- The post-capture `spawnSync("ffmpeg", [..., "-i", webmPath, ...])` webm→mp4 transcode.
+`--resolution` only accepts integer-multiple presets that match the composition's aspect ratio. For 16:9 (1920×1080):
 
-**Add (~40–80 lines):**
-- A CDP session: `const cdp = await context.newCDPSession(page);`
-- Start screencast right after the loader is dismissed and just before the beat sheet:
-  ```js
-  await cdp.send("Page.startScreencast", {
-    format: "jpeg",
-    quality: 95,
-    everyNthFrame: 1,
-  });
-  let frameIndex = 0;
-  cdp.on("Page.screencastFrame", async ({ data, sessionId }) => {
-    const framePath = resolve(
-      framesDir,
-      `frame_${String(frameIndex++).padStart(6, "0")}.jpg`,
-    );
-    await writeFile(framePath, Buffer.from(data, "base64"));
-    await cdp.send("Page.screencastFrameAck", { sessionId });
-  });
-  ```
-- After the beat sheet, just before `context.close()`:
-  ```js
-  await cdp.send("Page.stopScreencast");
-  ```
+- `landscape` / `1080p` — 1920×1080
+- `landscape-4k` / `4k` / `uhd` — 3840×2160
 
-**Change the encode step:**
-
-```diff
-- ffmpeg -y -i in.webm -vf "scale=1920:1080:flags=lanczos" -r 30 \
--   -c:v libx264 -crf 18 -preset slow -pix_fmt yuv420p \
--   -g 30 -keyint_min 30 -movflags +faststart -an out.mp4
-+ ffmpeg -y -framerate 60 -i frames/frame_%06d.jpg \
-+   -c:v libx264 -crf 18 -preset slow -pix_fmt yuv420p \
-+   -g 60 -keyint_min 60 -movflags +faststart -an out.mp4
-```
-
-Output filename and codec settings unchanged.
-
-### Net code change
-
-Roughly +60 / –15 lines. The Playwright API surface area we use grows by 3–4 CDP calls. **No new dependencies** (CDP support is built into Playwright).
-
-### What gets better
-
-- Real 60fps capture — no frame duplication.
-- Deterministic frame snapshots, not subject to Chromium's internal screencast frame-rate throttling.
-- Aligns the *source* fps with whatever the HyperFrames `--fps` target is, so the middle 15s is genuinely smoother end-to-end.
-
-### What stays the same
-
-- Every beat in the existing beat sheet (`beat-sheet.md`).
-- The dev-server reuse logic (auto-start if port 5173 is free, otherwise reuse).
-- The file the composition reads (`hyperframes/walkthrough/footage.mp4`).
-
-### Caveats
-
-- `chromium-headless-shell` may still cap CDP screencast below 60fps. The recorder already launches headful with `--use-angle=metal` flags for GPU acceleration, which should give native frame rates. Worth measuring once executed (count files in `frames/` after a 15s capture — expect ≈900 at 60fps).
-- JPEG quality 95 is near-visually-lossless. If on-disk frame size becomes an issue during longer captures, drop to JPEG quality 85 or use PNG (slower, larger, lossless).
-- `Page.screencastFrameAck(sessionId)` is required — without it, Chromium back-pressures and silently drops frames.
-
-## Order of operations when you execute
-
-1. **First**, just add the (b) flags (`--fps 60 --quality high`) to the existing render command. Re-render. If the result looks good, ship.
-2. **Only if** the 25fps stutter in the middle is visibly bothering you, do the (c) CDP screencast rewrite. Re-record, re-render, ship.
-
-## Alternatives considered and rejected
-
-For traceability — these were not chosen, but documented so future-you doesn't re-evaluate from scratch:
-
-- **macOS native window capture** via `ffmpeg -f avfoundation` capturing the browser window at 60fps. Smaller code change but fragile to anything else happening on screen — notifications, accidental window focus changes, mouse cursor overlay. Best when CI/automation doesn't matter; not the right tradeoff here.
-- **Three.js-side frame export** — instrument `src/main.js`'s render loop with a `?record=1` mode that writes `canvas.toBlob()` snapshots to disk. Cleanest possible output (no compositor jitter, frame-perfect determinism) but invasive on production app code for a presentational gain.
+1440p (2560×1440) is not available — it would require a fractional scale, which HyperFrames doesn't support. The next step from 1080p is 4K.

@@ -25,7 +25,7 @@ Recapture at any time: `npm run record:walkthrough` (writes to `hyperframes/walk
 
 ## Composition timing
 
-The captured footage runs ~17.2s end to end — roughly 2s of dev-server boot + page-load preroll, then the 15s of beats. The composition reads it with `data-media-start="1.8"` to skip the preroll, then plays 15.4s. Final composition timing:
+The captured footage is 15.5s end to end — the CDP screencast starts right after the loader is dismissed, so there's no pre-roll. The composition reads it with `data-media-start="0"`. Final composition timing:
 
 | Range          | Clip                            |
 | -------------- | ------------------------------- |
@@ -35,12 +35,14 @@ The captured footage runs ~17.2s end to end — roughly 2s of dev-server boot + 
 
 Total composition runtime: **19.0s**.
 
+The in-footage theme switch (capture beat 7.5s) lands at composition t≈9.5s — that's the structural beat the soundtrack should hit (see `MUSIC_PROMPTS.md`).
+
 ## Adjusting the beats
 
 To change a beat without rewriting the script:
 
 1. Open `scripts/record-walkthrough.mjs`.
 2. Find the comment block titled `Beat sheet — 15 seconds` (~midway through `main()`).
-3. Each beat is a `sleep(ms)` + the action(s) preceding it. Adjust the sleep durations and the mouse coordinates as needed; keep the total close to 15 000 ms.
+3. Each beat is a `sleep(ms)` + the action(s) preceding it. Adjust the sleep durations and the mouse coordinates as needed; keep the total close to `BEAT_SHEET_MS` (15 500 ms) — the composition's footage clip is `data-duration="15.4"`, so the script gives ~100ms of buffer.
 4. Re-run `npm run record:walkthrough`.
 5. Update this doc to reflect the new timings.

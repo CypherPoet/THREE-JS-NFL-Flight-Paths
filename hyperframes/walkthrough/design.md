@@ -74,13 +74,15 @@ Eases in active use:
 - No `<br>` in card content — let text wrap via `max-width` and natural line breaks.
 - No `Math.random()`, `Date.now()`, or time-based logic in timelines (capture engine requires determinism).
 
-## Sub-composition split (deferred)
+## Sub-composition split
 
-The Phase 2 plan called for extracting the intro and outro scenes into `compositions/intro.html` and `compositions/outro.html` sub-comps loaded via `data-composition-src`. That refactor was attempted and reverted in the same session: the sub-comps mounted into the DOM (lint passed, `hyperframes inspect` saw the elements with their text) but their scoped `<style>` rules weren't applying to the mounted content in the renderer, leaving cards as black-on-black. Root cause traced to the runtime's CSS scoping function (`Un` in `hyperframe-runtime.js`) interacting with `#intro` / `[data-composition-id="intro"]` selectors in a way I couldn't pin down inside the time budget.
+The intro and outro scenes live in `compositions/intro.html` and `compositions/outro.html`, loaded by `index.html` via `data-composition-src`. The root composer holds only the three clip hosts (intro, footage video, outro) and the clip-level crossfade tweens. Each sub-comp owns its own markup, scoped `<style>`, and its own paused GSAP timeline registered to `window.__timelines["intro"]` / `["outro"]`. The runtime auto-nests those into the root timeline so seeking the root progresses the sub-comps in sync.
 
-`index.html` remains monolithic — both intro and outro scenes live inline. When picking the split back up, things worth knowing:
+What made the split work after the first attempt failed:
 
-- The runtime auto-nests sub-comp GSAP timelines via `window.__timelines["<comp-id>"]` registration, so each sub-comp's animations *do* progress alongside the root.
-- Sub-comp `<style>` and `<script>` blocks are extracted from the template, scoped, and re-injected. The scoping is where the bug lives.
-- Sub-comps loaded via `data-composition-src` must use `gsap.fromTo()` rather than `gsap.from()` (per the skill docs; `immediateRender: true` in `from()` doesn't compose cleanly with auto-nesting).
-- The four reference docs (`design.md`, `beat-sheet.md`, `MUSIC_PROMPTS.md`, `RENDER_SETTINGS.md`) deliver the structural value the split was meant to provide — they document what each scene is, how it's parameterized, and how to reach for higher quality.
+- **Plain class selectors only in scoped CSS.** No `#id` selectors. The runtime's CSS scoper (`zn` in `hyperframe-runtime.js`) rewrites `#authored-id` into `[data-hf-authored-id="..."]`, and that attribute is only ever set when the template's inner root carried a literal `id=` attribute — easy to get wrong. Class selectors get the simpler treatment: each rule is prepended with the host's `[data-composition-id="..."]` and matches reliably.
+- **`<template id="<comp-id>-template">` wrapper** around the inner composition `<div data-composition-id="<comp-id>" data-width="1920" data-height="1080">`. Standalone `index.html` does NOT use a template wrapper — only sub-comps loaded via `data-composition-src` do.
+- **`gsap.fromTo()` instead of `gsap.from()`** in every entrance tween. `from()`'s `immediateRender: true` resets state at construction time, which doesn't compose cleanly with seek-based rendering. `fromTo` defines state at both ends and makes every seek position deterministic.
+- **Don't trust `npx hyperframes snapshot` to validate sub-comp timeline progression.** The snapshot tool restructures the DOM aggressively (it removes elements outside the active clip window) and that interferes with how nested sub-comp timelines appear at scrub points. The actual `render` pipeline scrubs cleanly. Validate by sampling frames from `ffmpeg -ss <t> -i media/walkthrough.mp4` instead.
+
+Each sub-comp's timeline uses its own local time (sub-comp t=0 corresponds to the host's `data-start`). The outro's final 0.5s fade is the one allowed exception to the no-exit-animations rule (final scene only).

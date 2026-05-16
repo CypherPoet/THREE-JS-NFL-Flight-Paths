@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Walkthrough — Outro</title>
+  </head>
+  <body>
+    <template id="outro-template">
+      <div
+        data-composition-id="outro"
+        data-width="1920"
+        data-height="1080"
+      >
+        <style>
+          .outro-root {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: "Geist", system-ui, sans-serif;
+            color: #e8e2d0;
+          }
+
+          .outro-card {
+            position: absolute;
+            inset: 0;
+            background:
+              radial-gradient(ellipse 80% 60% at 50% 50%, #1a1612 0%, #0f0d0a 70%, #050402 100%);
+          }
+
+          .outro-content {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+            text-align: center;
+          }
+
+          .outro-glyph {
+            width: 96px;
+            height: 96px;
+            will-change: transform, opacity;
+          }
+          .outro-glyph circle.outer {
+            fill: none;
+            stroke: #c89060;
+            stroke-width: 2;
+            opacity: 0.7;
+          }
+          .outro-glyph circle.inner {
+            fill: #1a1612;
+            stroke: #fff2c4;
+            stroke-width: 2;
+          }
+          .outro-glyph path.arc {
+            fill: none;
+            stroke: #fff2c4;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+          }
+          .outro-glyph circle.dot {
+            fill: #fff2c4;
+          }
+
+          .outro-accent {
+            width: 220px;
+            height: 1px;
+            background: linear-gradient(
+              90deg,
+              rgba(200, 144, 96, 0) 0%,
+              rgba(200, 144, 96, 0.95) 50%,
+              rgba(200, 144, 96, 0) 100%
+            );
+            transform-origin: center;
+          }
+
+          .outro-url {
+            font-family: "Geist", system-ui, sans-serif;
+            font-weight: 600;
+            font-size: 52px;
+            letter-spacing: 0.04em;
+            color: #fff2c4;
+            text-shadow: 0 0 22px rgba(255, 242, 196, 0.22);
+          }
+          .outro-url .slash {
+            color: #c89060;
+            margin: 0 4px;
+          }
+
+          .outro-sub {
+            font-family: "Departure Mono", ui-monospace, monospace;
+            font-size: 22px;
+            letter-spacing: 0.34em;
+            color: #c89060;
+            text-transform: uppercase;
+          }
+        </style>
+
+        <div class="outro-root">
+          <div class="outro-card"></div>
+          <div class="outro-content">
+            <svg class="outro-glyph" viewBox="0 0 100 100">
+              <circle class="outer" cx="50" cy="50" r="46" />
+              <circle class="inner" cx="50" cy="50" r="34" />
+              <path
+                class="arc"
+                d="M 18 50 Q 50 18 82 50"
+                pathLength="100"
+                stroke-dasharray="100"
+                stroke-dashoffset="0"
+              />
+              <circle class="dot" cx="82" cy="50" r="3.5" />
+            </svg>
+            <div class="outro-accent"></div>
+            <div class="outro-url">
+              github.com<span class="slash">/</span>CypherPoet<span class="slash">/</span>THREE-JS-NFL-Flight-Paths
+            </div>
+            <div class="outro-sub">Built with Three.js</div>
+          </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+        <script>
+          // Outro sub-composition timeline. The clip runs root t=17 → 19 (2s);
+          // sub-comp t=0 corresponds to root t=17. Entrances begin at sub-comp
+          // t≈0.15 so they land just after the crossfade-in completes. The
+          // final 0.5s fade at the end is the one exception to the no-exit
+          // rule (final scene only — see design.md).
+          (function () {
+            const tl = gsap.timeline({ paused: true });
+
+            tl.fromTo(
+              ".outro-glyph",
+              { opacity: 0, scale: 0.55, rotation: -90, transformOrigin: "center" },
+              {
+                opacity: 1,
+                scale: 1,
+                rotation: 0,
+                duration: 0.85,
+                ease: "back.out(1.6)",
+              },
+              0.15,
+            );
+            tl.fromTo(
+              ".outro-accent",
+              { scaleX: 0, opacity: 0 },
+              { scaleX: 1, opacity: 1, duration: 0.55, ease: "power3.out" },
+              0.35,
+            );
+            tl.fromTo(
+              ".outro-url",
+              { y: 28, opacity: 0 },
+              { y: 0, opacity: 1, duration: 0.7, ease: "expo.out" },
+              0.45,
+            );
+            tl.fromTo(
+              ".outro-sub",
+              { y: 14, opacity: 0 },
+              { y: 0, opacity: 1, duration: 0.55, ease: "power2.out" },
+              0.65,
+            );
+
+            // Final fade-out (sub-comp t=1.5 → 2.0 = root t=18.5 → 19.0).
+            // Allowed because outro is the last scene.
+            tl.to(".outro-root", { opacity: 0, duration: 0.5, ease: "power2.in" }, 1.5);
+
+            window.__timelines = window.__timelines || {};
+            window.__timelines["outro"] = tl;
+          })();
+        </script>
+      </div>
+    </template>
+  </body>
+</html>
