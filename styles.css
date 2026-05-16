@@ -191,6 +191,14 @@ img.topbar__mark {
   margin-left: 6px;
 }
 
+/* The mobile-only duplicate lives inside .topbar__meta. Hidden on desktop —
+   the brand-side instance carries the toggle there. Shown on mobile by the
+   media query below, where the brand-side instance is hidden in turn. */
+.season-switch--mobile {
+  display: none;
+  margin-left: 0;
+}
+
 .season-switch__button {
   border: 0;
   background: transparent;
@@ -1219,17 +1227,24 @@ img.topbar__mark {
   .topbar__titles h1 {
     font-size: 22px;
   }
-  /* Season switch is a power-user toggle, not load-bearing for first read.
-     Hide on phones so the title cluster fits cleanly. */
+  /* Hide the brand-side switch on phones (the brand cluster needs every
+     pixel of width for the H1 + sublabel without wrapping). The
+     .season-switch--mobile duplicate below carries the toggle on phones. */
   .topbar__brand .season-switch {
     display: none;
   }
-  /* Row 2 with metric tiles hidden — just the icon rail, pushed to the
-     right edge to mirror desktop's top-right posture. */
+  /* Row 2 carries the mobile season switch on the left and the icon rail
+     on the right. `space-between` balances them across the row instead of
+     bunching everything at one edge. */
   .topbar__meta {
     align-items: center;
-    justify-content: flex-end;
+    justify-content: space-between;
     gap: 8px;
+  }
+  /* Reveal the mobile-only season switch — sits at the left end of row 2,
+     paired across the row with the icon rail. */
+  .season-switch--mobile {
+    display: inline-flex;
   }
   /* Metric tiles drop out of the topbar on mobile — the league total moves
      into the panel kicker, the intl figure was already there. */

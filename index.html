@@ -76,6 +76,35 @@
           </div>
         </div>
         <div class="topbar__meta">
+          <!-- Mobile-only duplicate of the season switch. The desktop instance
+               lives in the brand cluster paired with the "2026 Season · …"
+               sublabel; this instance surfaces the toggle on phones where
+               that brand-side switch is hidden by media query. Both share the
+               same JS wiring (querySelectorAll on .season-switch__button). -->
+          <div
+            class="season-switch season-switch--mobile"
+            role="tablist"
+            aria-label="Season"
+          >
+            <button
+              type="button"
+              class="season-switch__button"
+              data-season="2026"
+              data-active="true"
+              role="tab"
+            >
+              2026
+            </button>
+            <button
+              type="button"
+              class="season-switch__button"
+              data-season="2025"
+              data-active="false"
+              role="tab"
+            >
+              2025
+            </button>
+          </div>
           <span class="metric">
             <span class="metric__label">League total miles</span>
             <span class="metric__value" id="league-miles">—</span>

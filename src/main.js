@@ -392,12 +392,16 @@ async function start() {
   loadSeason(currentSeason);
 
   // ── Season switch wiring ───────────────────────────────────
+  // Sync data-active by data-season (not element identity) so multiple
+  // .season-switch instances stay in lock-step — the mobile layout renders
+  // a second instance in the topbar meta row alongside the icon rail.
   for (const btn of document.querySelectorAll(".season-switch__button")) {
     btn.addEventListener("click", () => {
       const target = btn.dataset.season;
       if (target === currentSeason) return;
       for (const other of document.querySelectorAll(".season-switch__button")) {
-        other.dataset.active = other === btn ? "true" : "false";
+        other.dataset.active =
+          other.dataset.season === target ? "true" : "false";
       }
       loadSeason(target);
       persistUrlState();
