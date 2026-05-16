@@ -1,20 +1,22 @@
 /* ── Self-hosted variable fonts (OFL — see each family's OFL.txt) ──── */
 @font-face {
-  font-family: "Unbounded";
+  font-family: "Big Shoulders Display";
   font-style: normal;
-  font-weight: 600 700;
+  font-weight: 600 800;
   font-display: swap;
-  src: url("./fonts/unbounded/unbounded-latin.woff2") format("woff2");
+  src: url("./fonts/big-shoulders-display/big-shoulders-display-latin.woff2")
+    format("woff2");
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
     U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
     U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
-  font-family: "Unbounded";
+  font-family: "Big Shoulders Display";
   font-style: normal;
-  font-weight: 600 700;
+  font-weight: 600 800;
   font-display: swap;
-  src: url("./fonts/unbounded/unbounded-latin-ext.woff2") format("woff2");
+  src: url("./fonts/big-shoulders-display/big-shoulders-display-latin-ext.woff2")
+    format("woff2");
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7,
     U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F,
     U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
@@ -73,7 +75,7 @@
 :root {
   --radius: 10px;
   --pad: 14px;
-  --font-display: "Unbounded", system-ui, sans-serif;
+  --font-display: "Big Shoulders Display", system-ui, sans-serif;
   --font-ui: "Geist", system-ui, sans-serif;
   --font-mono: "Departure Mono", ui-monospace, monospace;
   /* Keep chrome on the fixed rem rungs; only the H1 breathes via clamp(). */
@@ -167,8 +169,8 @@ img.topbar__mark {
   margin: 0;
   font-family: var(--font-display);
   font-size: var(--text-display);
-  font-weight: 650;
-  letter-spacing: -0.024em;
+  font-weight: 700;
+  letter-spacing: -0.012em;
   color: var(--ink);
   line-height: 1.02;
 }
@@ -1064,104 +1066,6 @@ img.topbar__mark {
   }
 }
 
-/* ── Display-font thesis exploration ─────────────────────── */
-/* Each candidate overrides --font-display plus the h1 weight and letter-
-   spacing tuned to that family. Activated by `?display=<key>` which sets
-   data-display on <html>. Inactive in production. */
-[data-display="geist"] {
-  --font-display: "Geist", system-ui, sans-serif;
-}
-[data-display="geist"] .topbar__titles h1 {
-  font-weight: 800;
-  letter-spacing: -0.026em;
-}
-
-[data-display="big-shoulders"] {
-  --font-display: "Big Shoulders Display", "Unbounded", system-ui, sans-serif;
-}
-[data-display="big-shoulders"] .topbar__titles h1 {
-  font-weight: 700;
-  letter-spacing: -0.012em;
-}
-
-[data-display="bricolage"] {
-  --font-display: "Bricolage Grotesque", "Unbounded", system-ui, sans-serif;
-}
-[data-display="bricolage"] .topbar__titles h1 {
-  font-weight: 700;
-  letter-spacing: -0.022em;
-}
-
-[data-display="funnel-display"] {
-  --font-display: "Funnel Display", "Unbounded", system-ui, sans-serif;
-}
-[data-display="funnel-display"] .topbar__titles h1 {
-  font-weight: 700;
-  letter-spacing: -0.018em;
-}
-
-/* Banner at bottom-center, same chrome as the (removed) palette banner. */
-#display-banner {
-  position: fixed;
-  bottom: 50px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--paper);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 8px 14px;
-  font-family: var(--font-ui);
-  font-size: var(--text-micro);
-  color: var(--ink-soft);
-  box-shadow: 0 6px 24px -10px var(--shadow);
-  display: inline-flex;
-  align-items: center;
-  gap: 14px;
-  z-index: 80;
-  max-width: calc(100% - 36px);
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.display-banner__label {
-  font-weight: 500;
-  color: var(--ink);
-  white-space: nowrap;
-}
-
-.display-banner__switcher {
-  display: inline-flex;
-  gap: 4px;
-  flex-wrap: wrap;
-}
-
-.display-banner__link {
-  padding: 4px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  color: var(--ink-soft);
-  text-decoration: none;
-  transition:
-    color 120ms ease,
-    border-color 120ms ease,
-    background 120ms ease;
-  white-space: nowrap;
-}
-
-.display-banner__link:hover {
-  color: var(--ink);
-  border-color: var(--line-strong);
-}
-
-.display-banner__link--default {
-  color: var(--ink-mute);
-  border-style: dashed;
-}
-
-body:has(#display-banner) .hint {
-  display: none;
-}
-
 /* ── Methodology modal ─────────────────────────────────────── */
 .methodology[hidden] {
   display: none;
@@ -1378,10 +1282,7 @@ body:has(#display-banner) .hint {
 .mileage__head h2 {
   margin: 0;
   font-family: var(--font-display);
-  font-variation-settings:
-    "opsz" 28,
-    "wdth" 92,
-    "wght" 650;
+  font-weight: 700;
   font-size: var(--text-section);
   letter-spacing: -0.01em;
   color: var(--ink);
