@@ -393,6 +393,55 @@ img.topbar__mark {
   transform: rotate(0) scale(1);
 }
 
+/* Share-link icon swap: link glyph idle, check glyph during the 1.2s
+   post-click feedback window. Mirrors the theme-toggle__icon absolute-
+   stack pattern so the SVGs cross-fade in place. */
+.share-toggle__icon {
+  position: absolute;
+  transition: opacity 200ms ease;
+}
+.share-toggle__icon--check {
+  opacity: 0;
+}
+.theme-toggle.is-feedback .share-toggle__icon--link {
+  opacity: 0;
+}
+.theme-toggle.is-feedback .share-toggle__icon--check {
+  opacity: 1;
+}
+
+/* Force the CSS-driven tooltip open during the click-feedback window so the
+   same ::after surface doubles as a transient toast without a hover. */
+.theme-toggle.is-feedback[data-tooltip]::after {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0ms;
+}
+
+/* Scale pulse on copy. Curve matches the mileage-modal trail ease so the eye
+   recognises the project's signature motion in a second surface. Scoped to
+   the check glyph (not the whole button) so the cluster pill stays static —
+   the same reason .topbar__icons suppresses the hover-lift transform. */
+@keyframes share-pulse {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.12);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.theme-toggle.is-feedback .share-toggle__icon--check {
+  animation: share-pulse 320ms cubic-bezier(0.18, 0.7, 0.22, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle.is-feedback .share-toggle__icon--check {
+    animation: none;
+  }
+}
+
 /* ── Panel ──────────────────────────────────────────────────── */
 .panel {
   position: absolute;
@@ -1148,7 +1197,8 @@ img.topbar__mark {
     text-align: center;
   }
   .topbar__meta .theme-toggle[data-tooltip]:hover::after,
-  .topbar__meta .theme-toggle[data-tooltip]:focus-visible::after {
+  .topbar__meta .theme-toggle[data-tooltip]:focus-visible::after,
+  .topbar__meta .theme-toggle.is-feedback[data-tooltip]::after {
     transform: translate(-50%, 0);
   }
 }
@@ -1583,4 +1633,19 @@ img.topbar__mark {
   .mileage-row__plane {
     transition: none;
   }
+}
+
+/* SR-only utility for the share-link aria-live region (and any future
+   off-screen status text). Standard recipe — pulls the node out of the
+   visual layout while keeping it discoverable by assistive tech. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
 }
