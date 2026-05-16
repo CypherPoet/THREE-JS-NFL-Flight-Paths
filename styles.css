@@ -393,6 +393,55 @@ img.topbar__mark {
   transform: rotate(0) scale(1);
 }
 
+/* Share-link icon swap: link glyph idle, check glyph during the 1.2s
+   post-click feedback window. Mirrors the theme-toggle__icon absolute-
+   stack pattern so the SVGs cross-fade in place. */
+.share-toggle__icon {
+  position: absolute;
+  transition: opacity 200ms ease;
+}
+.share-toggle__icon--check {
+  opacity: 0;
+}
+.theme-toggle.is-feedback .share-toggle__icon--link {
+  opacity: 0;
+}
+.theme-toggle.is-feedback .share-toggle__icon--check {
+  opacity: 1;
+}
+
+/* Force the CSS-driven tooltip open during the click-feedback window so the
+   same ::after surface doubles as a transient toast without a hover. */
+.theme-toggle.is-feedback[data-tooltip]::after {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0ms;
+}
+
+/* Scale pulse on copy. Curve matches the mileage-modal trail ease so the eye
+   recognises the project's signature motion in a second surface. Scoped to
+   the check glyph (not the whole button) so the cluster pill stays static —
+   the same reason .topbar__icons suppresses the hover-lift transform. */
+@keyframes share-pulse {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.12);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.theme-toggle.is-feedback .share-toggle__icon--check {
+  animation: share-pulse 320ms cubic-bezier(0.18, 0.7, 0.22, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle.is-feedback .share-toggle__icon--check {
+    animation: none;
+  }
+}
+
 /* ── Panel ──────────────────────────────────────────────────── */
 /* Top inset is deliberately wider than the page's ambient 18px rhythm so
    the joint between identity chrome (topbar) and tool chrome (panel) reads
@@ -1187,11 +1236,27 @@ img.topbar__mark {
   .topbar__meta .metric {
     display: none;
   }
-  /* Icon rail tooltip anchoring stays right-edge on mobile (rail sits at
-     viewport's right edge), so no override needed. */
   .hint,
   .legend {
     display: none;
+  }
+  /* Re-anchor topbar icon tooltips centered on the button (rather than the
+     desktop `right: 0` posture) and cap the width to the viewport. With four
+     icons in the rail and the share button's `is-feedback` state that has to
+     stay visible without hover, centering keeps every tooltip inside 375px
+     and lets the longer feedback copy ("Link copied!") wrap cleanly. */
+  .topbar__meta .theme-toggle[data-tooltip]::after {
+    left: 50%;
+    right: auto;
+    transform: translate(-50%, -2px);
+    max-width: calc(100vw - 24px);
+    white-space: normal;
+    text-align: center;
+  }
+  .topbar__meta .theme-toggle[data-tooltip]:hover::after,
+  .topbar__meta .theme-toggle[data-tooltip]:focus-visible::after,
+  .topbar__meta .theme-toggle.is-feedback[data-tooltip]::after {
+    transform: translate(-50%, 0);
   }
 }
 
@@ -1532,15 +1597,23 @@ img.topbar__mark {
   position: relative;
   height: 18px;
   padding-right: 22px;
+  container-type: inline-size;
 }
 
 .mileage-row__trail {
   position: absolute;
   left: 0;
   top: 50%;
+  width: 100cqi;
   height: 2px;
-  width: 0;
   transform: translateY(-50%);
+  filter: drop-shadow(0 0 2px color-mix(in srgb, var(--accent) 35%, transparent));
+}
+
+.mileage-row__trail-fill {
+  display: block;
+  width: 100%;
+  height: 100%;
   background: linear-gradient(
     to right,
     transparent 0%,
@@ -1549,12 +1622,14 @@ img.topbar__mark {
     var(--accent) 100%
   );
   border-radius: 999px;
-  filter: drop-shadow(0 0 2px color-mix(in srgb, var(--accent) 35%, transparent));
-  transition: width 780ms cubic-bezier(0.18, 0.7, 0.22, 1);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 780ms cubic-bezier(0.18, 0.7, 0.22, 1);
+  will-change: transform;
 }
 
-.mileage-row--drawn .mileage-row__trail {
-  width: calc(var(--pct) - 6px);
+.mileage-row--drawn .mileage-row__trail-fill {
+  transform: scaleX(var(--pct-scale, 0));
 }
 
 .mileage-row__plane {
@@ -1567,15 +1642,16 @@ img.topbar__mark {
   transform: translate(0, -50%) scale(0.6);
   opacity: 0;
   transition:
-    left 780ms cubic-bezier(0.18, 0.7, 0.22, 1),
     transform 780ms cubic-bezier(0.18, 0.7, 0.22, 1),
     opacity 240ms ease 120ms;
   filter: drop-shadow(0 1px 1px var(--shadow));
+  will-change: transform, opacity;
 }
 
 .mileage-row--drawn .mileage-row__plane {
-  left: calc(var(--pct) - 6px);
-  transform: translate(0, -50%) scale(1);
+  transform:
+    translate(calc(var(--pct-scale, 0) * 100cqi - 6px), -50%)
+    scale(1);
   opacity: 1;
 }
 
@@ -1610,8 +1686,23 @@ img.topbar__mark {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mileage-row__trail,
+  .mileage-row__trail-fill,
   .mileage-row__plane {
     transition: none;
   }
+}
+
+/* SR-only utility for the share-link aria-live region (and any future
+   off-screen status text). Standard recipe — pulls the node out of the
+   visual layout while keeping it discoverable by assistive tech. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
 }
