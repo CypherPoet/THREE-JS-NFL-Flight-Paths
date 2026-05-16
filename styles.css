@@ -51,8 +51,6 @@
   --line: rgba(28, 26, 22, 0.14);
   --line-strong: rgba(28, 26, 22, 0.32);
   --shadow: rgba(28, 26, 22, 0.18);
-  --tooltip-bg: rgba(28, 26, 22, 0.92);
-  --tooltip-ink: #f6f1e6;
 }
 
 /* Dark theme: Sunday Night Football primetime broadcast. Warm-graphite tunnel
@@ -68,8 +66,6 @@
   --line: rgba(243, 236, 214, 0.12);
   --line-strong: rgba(243, 236, 214, 0.3);
   --shadow: rgba(0, 0, 0, 0.65);
-  --tooltip-bg: rgba(243, 236, 214, 0.95);
-  --tooltip-ink: #0f0d0a;
 }
 
 :root {
@@ -218,6 +214,21 @@ img.topbar__mark {
   color: var(--ink);
 }
 
+/* Shared keyboard-focus ring for the chip-like controls in the chrome
+   (season switch, panel sort, panel preset, topbar icons). The team-row
+   rule above uses the per-team accent; these don't carry a per-element
+   color, so they pick up --ink and a small offset to stand off from the
+   pill border. */
+:where(
+  .season-switch__button,
+  .panel__sort-button,
+  .panel__preset,
+  .theme-toggle
+):focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
 .topbar__meta {
   display: flex;
   gap: 12px;
@@ -298,15 +309,14 @@ img.topbar__mark {
   opacity: 1;
 }
 
-/* CSS-driven tooltip for the icon-only topbar buttons. Native title="..."
-   tooltips have a ~1s delay that makes the affordance discoverable only by
-   accident; this surfaces the label fast enough to teach what the icons do
-   on first hover, and on keyboard focus for screen-reader-adjacent users. */
-.theme-toggle[data-tooltip]::after {
+/* CSS-driven tooltips for icon-only buttons and chips. Native title="..."
+   has a ~1s delay that hides the affordance; this surfaces the label fast
+   enough to teach on first hover, and on keyboard focus for screen-reader-
+   adjacent users. Shared base; per-surface overrides set anchor + reveal
+   translate below. */
+:where(.theme-toggle, .panel__preset, .panel__sort-button)[data-tooltip]::after {
   content: attr(data-tooltip);
   position: absolute;
-  top: calc(100% + 6px);
-  right: 0;
   white-space: nowrap;
   font-family: var(--font-ui);
   font-size: var(--text-micro);
@@ -318,11 +328,18 @@ img.topbar__mark {
   box-shadow: 0 4px 18px -8px var(--shadow);
   pointer-events: none;
   opacity: 0;
-  transform: translateY(-2px);
   transition:
     opacity 140ms ease 80ms,
     transform 140ms ease 80ms;
   z-index: 60;
+}
+
+/* Topbar buttons surface their tooltip below; chips and sort buttons
+   surface above so they don't cover the team rows beneath them. */
+.theme-toggle[data-tooltip]::after {
+  top: calc(100% + 6px);
+  right: 0;
+  transform: translateY(-2px);
 }
 
 .theme-toggle[data-tooltip]:hover::after,
@@ -497,34 +514,16 @@ img.topbar__mark {
   margin-left: auto;
 }
 
-/* Fast CSS tooltips on preset chips. The chips live at the top of the panel,
-   so the bubble surfaces above so it doesn't cover the team rows. */
-.panel__preset {
+.panel__preset,
+.panel__sort-button {
   position: relative;
 }
 
 .panel__preset[data-tooltip]::after,
 .panel__sort-button[data-tooltip]::after {
-  content: attr(data-tooltip);
-  position: absolute;
   bottom: calc(100% + 6px);
   left: 50%;
   transform: translate(-50%, 2px);
-  white-space: nowrap;
-  font-family: var(--font-ui);
-  font-size: var(--text-micro);
-  color: var(--ink-soft);
-  background: var(--paper);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 6px 10px;
-  box-shadow: 0 4px 18px -8px var(--shadow);
-  pointer-events: none;
-  opacity: 0;
-  transition:
-    opacity 140ms ease 80ms,
-    transform 140ms ease 80ms;
-  z-index: 60;
 }
 
 .panel__preset[data-tooltip]:hover::after,
@@ -533,10 +532,6 @@ img.topbar__mark {
 .panel__sort-button[data-tooltip]:focus-visible::after {
   opacity: 1;
   transform: translate(-50%, 0);
-}
-
-.panel__sort-button {
-  position: relative;
 }
 
 .team-list {
@@ -892,10 +887,10 @@ img.topbar__mark {
 
 .stadium-tooltip__title {
   margin: 0;
-  font-family: var(--font-display);
+  font-family: var(--font-ui);
   font-size: var(--text-base);
-  font-weight: 650;
-  letter-spacing: -0.014em;
+  font-weight: 700;
+  letter-spacing: -0.008em;
   line-height: 1.16;
   color: var(--ink);
 }

@@ -2,7 +2,7 @@
 // elements; only the values change so the globe + scene background stay
 // coherent across the toggle.
 export const THEMES = {
-  // Light theme — FAA sectional chart fused with broadcast graphic
+  // Light theme: FAA sectional chart fused with broadcast graphic
   // legibility. Ocean reads as muted sectional blue-grey, continents stay
   // warm sand. Inverts the usual globe palette logic (water cool, land
   // warm-saturated). The fusion of "travel cartography" (sectionals are

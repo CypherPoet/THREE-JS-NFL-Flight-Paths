@@ -65,22 +65,20 @@ const urlTeams = parseTeamsParam(urlParams.get("teams"));
 const urlSeason = parseSeasonParam(urlParams.get("season"));
 const urlView = parseViewParam(urlParams.get("view"));
 
-// Serializers. Each writes its slice into a shared mutable URLSearchParams
-// pulled fresh from window.location at call time, so they compose without
-// stomping each other when filter + season + camera change in the same tick.
-// Swap the bottom hint copy when the user filters down to no teams (the globe
-// goes empty otherwise, with no copy to explain it). All other selection
-// states keep the default canvas-gesture hint.
 const DEFAULT_HINT =
   "Drag to rotate · scroll to zoom · hover a stadium · click a team to isolate";
 const EMPTY_HINT = "No teams selected. Pick All, AFC, or a division to bring arcs back.";
 
+// Empty selection produces a blank globe; swap copy so the user knows why.
 function updateHintForSelection(active) {
   const hint = document.getElementById("hint");
   if (!hint) return;
   hint.textContent = active.size === 0 ? EMPTY_HINT : DEFAULT_HINT;
 }
 
+// Serializers. Each writes its slice into a shared mutable URLSearchParams
+// pulled fresh from window.location at call time, so they compose without
+// stomping each other when filter + season + camera change in the same tick.
 function writeUrlState({ active, season, controls }) {
   const params = new URLSearchParams(window.location.search);
 
