@@ -12,8 +12,11 @@ export const THEMES = {
     sceneBg: 0xefe9dd,
     sphereColor: 0xa5c0c8,
     reliefColor: 0xe6d4b0,
-    countryLineColor: 0x3d2a14,
-    countryLineOpacity: 0.6,
+    // Country line ink pushed toward proper sectional-chart authority:
+    // slightly darker brown, slightly higher opacity, so borders read as
+    // cartographic ink rather than decorative outline.
+    countryLineColor: 0x2d1f0e,
+    countryLineOpacity: 0.7,
     limbColor: 0x8aa0a8,
     limbOpacity: 0.22,
     // Cool atmospheric halo at very low intensity. The sectional ocean
@@ -22,8 +25,13 @@ export const THEMES = {
     glowInnerColor: 0xf0f5f8,
     glowOuterColor: 0xb8c8d0,
     glowIntensity: 0.2,
-    ambientSky: 0xffffff,
-    ambientGround: 0xb8b09c,
+    // Lighting tuned for the sectional palette: cool overhead ambient lets
+    // the sphere's intrinsic blue-grey carry, neutral-grey ground bounce
+    // stops the warm cream rebound from washing the water. The key light
+    // stays warm-white so it reads as "sun on the chart" against the cool
+    // diffuse fill.
+    ambientSky: 0xf0f6fa,
+    ambientGround: 0xa8a8a4,
     ambientIntensity: 1.05,
     keyColor: 0xffffff,
     keyIntensity: 0.95,
