@@ -57,6 +57,38 @@
   --shadow: rgba(24, 28, 34, 0.2);
 }
 
+/* ── Chrome retune variants (light theme only) ──────────────────
+   Second-round A/B against the slate baseline above. Critique reads the
+   current slate as sitting in the same dominant tone as the globe ocean,
+   so chrome and sphere camouflage rather than chrome framing sphere.
+   Switched in-browser via `?chrome=<variant>`; scaffolding stripped once
+   a direction is picked. Dark theme is untouched (SNF chrome is locked). */
+[data-theme="light"][data-chrome="lift"] {
+  --bg: #edf0f3;
+  --bg-deep: #e2e6eb;
+  --paper: #f4f6f9;
+  --paper-soft: rgba(244, 246, 249, 0.66);
+  --ink: #18191b;
+  --ink-soft: #424a52;
+  --ink-mute: #7e858d;
+  --line: rgba(24, 28, 34, 0.14);
+  --line-strong: rgba(24, 28, 34, 0.32);
+  --shadow: rgba(24, 28, 34, 0.18);
+}
+
+[data-theme="light"][data-chrome="warm-grey"] {
+  --bg: #e8e7e3;
+  --bg-deep: #dedcd7;
+  --paper: #efeeea;
+  --paper-soft: rgba(239, 238, 234, 0.64);
+  --ink: #1c1a17;
+  --ink-soft: #4a463f;
+  --ink-mute: #837d72;
+  --line: rgba(28, 26, 22, 0.14);
+  --line-strong: rgba(28, 26, 22, 0.32);
+  --shadow: rgba(28, 26, 22, 0.2);
+}
+
 /* Dark theme: Sunday Night Football primetime broadcast. Warm-graphite tunnel
    axis (stadium-tunnel shadow + sodium-vapor key light), not cool-navy. */
 [data-theme="dark"] {
