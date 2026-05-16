@@ -25,6 +25,12 @@ export const THEMES = {
     glowInnerColor: 0xf0f5f8,
     glowOuterColor: 0xb8c8d0,
     glowIntensity: 0.2,
+    // No limb vignette in light mode. The cool sectional sphere against the
+    // slate chrome already reads as framed; an edge-darkening pass at this
+    // tonal range only muddies the limb. Held at 0 so the dark-mode pass
+    // can still swap uniforms without a null check.
+    vignetteColor: 0x18191b,
+    vignetteIntensity: 0,
     // Lighting tuned for the sectional palette: cool overhead ambient lets
     // the sphere's intrinsic blue-grey carry, neutral-grey ground bounce
     // stops the warm cream rebound from washing the water. The key light
@@ -63,6 +69,10 @@ export const THEMES = {
     glowInnerColor: 0xfff2c4,
     glowOuterColor: 0x5a3a14,
     glowIntensity: 0.65,
+    // Limb vignette: deeper darkening for the SNF register so the sphere
+    // reads as a stadium-spotlit ball framed against the surrounding tunnel.
+    vignetteColor: 0x000000,
+    vignetteIntensity: 0.35,
     ambientSky: 0xf8e8c0,
     ambientGround: 0x1a1612,
     ambientIntensity: 0.6,
