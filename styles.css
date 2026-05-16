@@ -610,17 +610,22 @@ img.topbar__mark {
 }
 
 /* Focus ring uses the team accent inset so it reads against both themes and
-   over the bar; opacity is forced back to full when focused so a keyboard
-   user can see the row they're on even if it's inactive. */
+   over the bar. */
 .team-row:focus-visible {
   outline: 2px solid var(--accent, var(--ink));
   outline-offset: -2px;
-  opacity: 1;
   background: var(--line);
 }
 
 .team-row[data-active="false"] {
   opacity: 0.36;
+}
+
+/* Inactive rows get full opacity restored when focused so the accent-coloured
+   ring reads at full strength. The double-attribute selector outranks the
+   plain inactive rule above, which would otherwise win on source order. */
+.team-row[data-active="false"]:focus-visible {
+  opacity: 1;
 }
 
 .team-row[data-active="false"] .team-row__chip {

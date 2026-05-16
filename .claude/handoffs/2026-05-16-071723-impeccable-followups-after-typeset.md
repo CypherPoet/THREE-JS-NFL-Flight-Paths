@@ -37,7 +37,7 @@ This session shipped all of them, plus two follow-on visual moves the user picke
 4. **Typeset polish** demoting Big Shoulders on small-size surfaces where its condensed letterforms fought legibility
 5. **Simplify cleanup** consolidating the duplicate `[data-tooltip]::after` CSS rules, adding `:focus-visible` outlines for chip controls, pruning unused `--tooltip-bg` / `--tooltip-ink` tokens, and one em-dash fix
 
-A `/code-review:code-review` ran against PR #14 in the background at session end. **Verdict: no high-confidence (≥80) issues.** The "no issues found" comment is at https://github.com/CypherPoet/THREE-JS-NFL-Flight-Paths/pull/14#issuecomment-4466166439. One sub-80 nuance was logged but not posted: `.team-row:focus-visible { opacity: 1 }` and `.team-row[data-active="false"] { opacity: 0.36 }` have equal specificity, and the inactive rule comes later in source, so it wins. The focus ring still appears on inactive rows but at 36% opacity. Worth a future polish if an accessibility audit flags it; not severe enough to gate merge.
+A `/code-review:code-review` ran against PR #14 in the background at session end. **Verdict: no high-confidence (≥80) issues.** The "no issues found" comment is at https://github.com/CypherPoet/THREE-JS-NFL-Flight-Paths/pull/14#issuecomment-4466166439. One sub-80 nuance the review logged (inactive-row focus rings rendering at 36% opacity due to selector source-order) was addressed inline before merge with a more specific `.team-row[data-active="false"]:focus-visible` override.
 
 The next session's primary job is not more shipping; it's measurement again. Re-run `/impeccable critique` against the new merged state and write a fresh comparison report to see where the score moves and what's still load-bearing.
 
@@ -128,7 +128,7 @@ No structural changes this session. The architecture handoffs from earlier in th
 
 1. **Pull `main` and start clean.** PR #14 has merged. The work continues from `main` in either a fresh worktree (preferred per the user's workflow) or directly. The `claude/elastic-kapitsa-90ebb3` worktree branch should have been cleaned up at merge but verify per the worktree-merge gotcha (see "Potential Gotchas" below).
 2. **Re-run `/impeccable critique`.** Same shape as this session's measurement step: twin isolated sub-agents, persist snapshot, write a fresh comparison report at `/Users/ethan/.claude/plans/critique-<date-and-slug>.md` against THIS session's 28/40 baseline. The brand-thesis verdicts should now read cleanly on both themes; the new accessibility + mobile + copy fixes should have moved the affected Nielsen heuristics; the sectional palette + Big Shoulders typography may surface new findings that this session couldn't anticipate.
-3. **Decide based on the new critique** which of the deferred items to tackle next. The focus-ring-opacity nuance from the code-review (see "Current State Summary" above) is a candidate but only if the new critique surfaces it.
+3. **Decide based on the new critique** which of the deferred items to tackle next.
 
 ### Blockers/Open Questions
 
@@ -142,9 +142,8 @@ In rough priority order. These were surfaced this session but explicitly deferre
 2. **Atmosphere shader work.** Two candidate moves: (a) a thin terminator line at the day/night boundary that reads as a broadcast graticule overlay, (b) a faint limb vignette for a "framed studio shot" feel. User answered "defer, wants its own session" since it's shader-level work that deserves dedicated focus.
 3. **Team accent saturation pass.** On the cool sectional water, the warm team accents (Chiefs red, Bengals orange) pop more than they did against the warm production palette. User answered "leave as-is (broadcast graphics SHOULD pop)" so this is deliberately closed unless the next critique re-opens it.
 4. **Typography family for body / mono.** Geist and Departure Mono were not re-evaluated this session. The previous critique work didn't flag them. If the next critique surfaces typography again (unlikely given the Big Shoulders move), the explorer pattern is well-documented.
-5. **`.team-row:focus-visible` opacity is overridden on inactive rows.** Flagged sub-80 by the code-review on PR #14 (not posted). The `:focus-visible { opacity: 1 }` rule has equal specificity with `[data-active="false"] { opacity: 0.36 }` and the inactive rule comes later in source, so it wins. The focus ring still appears on inactive rows but at 36% opacity. Fix: either reorder so the focus rule wins, or bump its specificity (e.g. `.team-row[data-active="false"]:focus-visible`). Trivial change. Defer until an accessibility audit or critique re-run flags it.
-6. **Geist font subsetting.** Still parked from earlier handoffs. ~30KB first-paint savings via `pyftsubset` to split latin + latin-ext. No critique has flagged first-paint payload as load-bearing; only ship if the next critique surfaces it.
-7. **`.impeccable/critique/` gitignore policy decision.** Currently tracked; this is the first run committed. If trend snapshots multiply over many sessions and start cluttering diffs, may want to add a more targeted `.gitignore` rule (e.g. only track the latest snapshot per slug). Not urgent.
+5. **Geist font subsetting.** Still parked from earlier handoffs. ~30KB first-paint savings via `pyftsubset` to split latin + latin-ext. No critique has flagged first-paint payload as load-bearing; only ship if the next critique surfaces it.
+6. **`.impeccable/critique/` gitignore policy decision.** Currently tracked; this is the first run committed. If trend snapshots multiply over many sessions and start cluttering diffs, may want to add a more targeted `.gitignore` rule (e.g. only track the latest snapshot per slug). Not urgent.
 
 ## 💡 Context for Resuming Agent
 
