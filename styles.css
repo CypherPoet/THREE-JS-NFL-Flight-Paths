@@ -41,20 +41,19 @@
 /* ── Theme palettes ─────────────────────────────────────────── */
 :root,
 [data-theme="light"] {
-  /* Slate chrome: panel + topbar + hint + legend live in the sectional
-     ocean's family rather than reading as cream paper around a blue chart.
-     Landed from the `?chrome=` exploration after comparing warm / neutral /
-     slate / deep-slate. */
-  --bg: #e8ebef;
-  --bg-deep: #dee2e8;
-  --paper: #eff2f6;
-  --paper-soft: rgba(239, 242, 246, 0.62);
-  --ink: #18191b;
-  --ink-soft: #424a52;
-  --ink-mute: #7e858d;
-  --line: rgba(24, 28, 34, 0.14);
-  --line-strong: rgba(24, 28, 34, 0.32);
-  --shadow: rgba(24, 28, 34, 0.2);
+  /* Warm-grey chrome: warm desk paper against the cool sectional sphere.
+     The temperature contrast lets chrome frame the sphere rather than
+     tone-match it. */
+  --bg: #e8e7e3;
+  --bg-deep: #dedcd7;
+  --paper: #efeeea;
+  --paper-soft: rgba(239, 238, 234, 0.64);
+  --ink: #1c1a17;
+  --ink-soft: #4a463f;
+  --ink-mute: #837d72;
+  --line: rgba(28, 26, 22, 0.14);
+  --line-strong: rgba(28, 26, 22, 0.32);
+  --shadow: rgba(28, 26, 22, 0.2);
 }
 
 /* Dark theme: Sunday Night Football primetime broadcast. Warm-graphite tunnel
@@ -299,6 +298,36 @@ img.topbar__mark {
 .theme-toggle:hover {
   color: var(--ink);
   transform: translateY(-1px);
+}
+
+/* Three icons in one pill: adjacent buttons drop their inner borders so
+   each right edge becomes a divider, and the per-button hover lift is
+   dropped to keep neighbors aligned. */
+.topbar__icons {
+  display: inline-flex;
+  align-items: stretch;
+}
+
+.topbar__icons .theme-toggle {
+  border-radius: 0;
+}
+
+.topbar__icons .theme-toggle + .theme-toggle {
+  border-left: 0;
+}
+
+.topbar__icons .theme-toggle:first-child {
+  border-top-left-radius: var(--radius);
+  border-bottom-left-radius: var(--radius);
+}
+
+.topbar__icons .theme-toggle:last-child {
+  border-top-right-radius: var(--radius);
+  border-bottom-right-radius: var(--radius);
+}
+
+.topbar__icons .theme-toggle:hover {
+  transform: none;
 }
 
 /* CSS-driven tooltips for icon-only buttons and chips. Native title="..."
@@ -1058,8 +1087,15 @@ img.topbar__mark {
     align-items: stretch;
     gap: 10px;
   }
+  /* Mobile only: title cluster sits over the globe (no panel anchoring
+     the lower-left mass), so add a paper scrim for contrast. */
   .topbar__brand {
     gap: 10px;
+    padding: 8px 12px;
+    background: var(--paper-soft);
+    border-radius: var(--radius);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
   }
   .topbar__titles h1 {
     font-size: 22px;

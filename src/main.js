@@ -79,10 +79,13 @@ function updateHintForSelection(active) {
 // Serializers. Each writes its slice into a shared mutable URLSearchParams
 // pulled fresh from window.location at call time, so they compose without
 // stomping each other when filter + season + camera change in the same tick.
-function writeUrlState({ active, season, controls }) {
+function writeUrlState({ active, season, controls, isDefault }) {
   const params = new URLSearchParams(window.location.search);
 
-  if (active.size === TEAM_KEYS.length) params.delete("teams");
+  // Default state gets a bare URL; `teams=all` is explicit because
+  // every-team is a deliberate departure from the default.
+  if (isDefault) params.delete("teams");
+  else if (active.size === TEAM_KEYS.length) params.set("teams", "all");
   else if (active.size === 0) params.set("teams", "none");
   else params.set("teams", [...active].join(","));
 
@@ -102,6 +105,16 @@ function writeUrlState({ active, season, controls }) {
   const query = params.toString();
   const next = `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`;
   window.history.replaceState(null, "", next);
+}
+
+function persistUrlState() {
+  if (!currentPanel) return;
+  writeUrlState({
+    active: currentPanel.active,
+    season: currentSeason,
+    controls,
+    isDefault: currentPanel.isDefault(),
+  });
 }
 
 // Theme is resolved before paint by the inline script in index.html; we just
@@ -309,7 +322,7 @@ async function start() {
       onChange: (active) => {
         applyTeamFilter(currentFlightPaths, active);
         updateHover();
-        writeUrlState({ active, season: currentSeason, controls });
+        persistUrlState();
         updateHintForSelection(active);
       },
     });
@@ -322,6 +335,9 @@ async function start() {
       for (const k of urlTeams) currentPanel.active.add(k);
       currentPanel.refresh();
       initialUrlTeamsApplied = true;
+    } else {
+      // Default panel state never fires onChange, so push it to the globe.
+      applyTeamFilter(currentFlightPaths, currentPanel.active);
     }
 
     updateHeaderMetrics({ summary, intl });
@@ -347,7 +363,7 @@ async function start() {
         other.dataset.active = other === btn ? "true" : "false";
       }
       loadSeason(target);
-      writeUrlState({ active: currentPanel.active, season: target, controls });
+      persistUrlState();
     });
   }
 
@@ -358,10 +374,7 @@ async function start() {
   let cameraWriteTimer = 0;
   controls.addEventListener("change", () => {
     window.clearTimeout(cameraWriteTimer);
-    cameraWriteTimer = window.setTimeout(() => {
-      if (!currentPanel) return;
-      writeUrlState({ active: currentPanel.active, season: currentSeason, controls });
-    }, 220);
+    cameraWriteTimer = window.setTimeout(persistUrlState, 220);
   });
 
   // ── Theme toggle wiring ────────────────────────────────────
