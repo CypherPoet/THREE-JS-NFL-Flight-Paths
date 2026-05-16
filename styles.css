@@ -56,11 +56,13 @@
   --shadow: rgba(28, 26, 22, 0.2);
 }
 
-/* Dark theme: Sunday Night Football primetime broadcast. Warm-graphite tunnel
-   axis (stadium-tunnel shadow + sodium-vapor key light), not cool-navy. */
+/* Dark theme: Sunday Night Football primetime broadcast. Warm sodium-vapor
+   chrome (paper + ink + line) floats over a cool teal-graphite tunnel-shadow
+   void (bg + bg-deep) — the warm/cool counterpoint that lets the warm sphere
+   read as warm instead of dissolving into a flat monochromatic warm slab. */
 [data-theme="dark"] {
-  --bg: #0f0d0a;
-  --bg-deep: #070604;
+  --bg: #081420;
+  --bg-deep: #040810;
   --paper: #1a1612;
   --paper-soft: rgba(26, 22, 18, 0.6);
   --ink: #f3ecd6;
@@ -91,7 +93,10 @@
 }
 
 [data-theme="dark"] {
-  --intl-marker: #f3ecd6;
+  /* Cool teal — meaningful third color in the dark HUD palette, distinct
+     from both team accents and --ink so the international segment of the
+     stacked mileage bar reads as its own material. */
+  --intl-marker: #5fb0c8;
 }
 
 * {
