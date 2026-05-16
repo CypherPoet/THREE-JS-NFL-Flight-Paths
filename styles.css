@@ -503,8 +503,11 @@ img.topbar__mark {
 
 /* Sort toggle: a two-state switch (by division / by miles). Plain text
    chips, no glass-blur — chrome distillation is out of scope for this pass
-   but new chrome shouldn't add to the glassmorphism count. */
-.panel__sort {
+   but new chrome shouldn't add to the glassmorphism count.
+   .mileage__view shares this vocabulary so the modal doesn't grow its
+   own control style. */
+.panel__sort,
+.mileage__view {
   display: inline-flex;
   gap: 0;
   border: 1px solid var(--line);
@@ -512,7 +515,8 @@ img.topbar__mark {
   overflow: hidden;
 }
 
-.panel__sort-button {
+.panel__sort-button,
+.mileage__view-button {
   background: transparent;
   border: 0;
   color: var(--ink-mute);
@@ -527,16 +531,19 @@ img.topbar__mark {
     color 120ms ease;
 }
 
-.panel__sort-button + .panel__sort-button {
+.panel__sort-button + .panel__sort-button,
+.mileage__view-button + .mileage__view-button {
   border-left: 1px solid var(--line);
 }
 
-.panel__sort-button[data-active="true"] {
+.panel__sort-button[data-active="true"],
+.mileage__view-button[data-active="true"] {
   background: var(--ink);
   color: var(--bg);
 }
 
-.panel__sort-button:not([data-active="true"]):hover {
+.panel__sort-button:not([data-active="true"]):hover,
+.mileage__view-button:not([data-active="true"]):hover {
   color: var(--ink);
   background: var(--line);
 }
@@ -1559,8 +1566,22 @@ img.topbar__mark {
   color: var(--ink);
 }
 
+.mileage__head-text {
+  min-width: 0;
+  flex: 1;
+}
+
+.mileage__subtitle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
 .mileage__subtitle {
-  margin: 4px 0 0;
+  margin: 0;
   font-size: var(--text-meta);
   font-weight: 400;
   color: var(--ink-mute);
@@ -1713,6 +1734,32 @@ img.topbar__mark {
     translate(calc(var(--pct-scale, 0) * 100cqi - 6px), -50%)
     scale(1);
   opacity: 1;
+}
+
+/* Stateside rows (international view, zero overseas miles): a small house
+   silhouette sits at the bar origin in place of the plane. No bar fill,
+   no along-bar transform — the icon just rests there as a visual aside. */
+.mileage-row--stateside .mileage-row__house {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--ink-mute);
+  transform: translate(0, -50%) scale(0.6);
+  opacity: 0;
+  transition:
+    transform 480ms cubic-bezier(0.18, 0.7, 0.22, 1),
+    opacity 240ms ease 120ms;
+}
+
+.mileage-row--stateside.mileage-row--drawn .mileage-row__house {
+  transform: translate(0, -50%) scale(1);
+  opacity: 1;
+}
+
+.mileage-row--stateside .mileage-row__value {
+  color: var(--ink-mute);
 }
 
 .mileage-row__value {

@@ -403,11 +403,39 @@
         <div class="mileage__scrim" data-mileage-close></div>
         <article class="mileage__card">
           <header class="mileage__head">
-            <div>
+            <div class="mileage__head-text">
               <h2 id="mileage-title">Team travel miles</h2>
-              <p class="mileage__subtitle" id="mileage-subtitle">
-                Full-season distances by team
-              </p>
+              <div class="mileage__subtitle-row">
+                <p class="mileage__subtitle" id="mileage-subtitle">
+                  Full-season distances by team
+                </p>
+                <div
+                  class="mileage__view"
+                  role="tablist"
+                  aria-label="Mileage view"
+                >
+                  <button
+                    type="button"
+                    class="mileage__view-button"
+                    role="tab"
+                    data-mileage-view="regular"
+                    data-active="true"
+                    aria-selected="true"
+                  >
+                    Regular season
+                  </button>
+                  <button
+                    type="button"
+                    class="mileage__view-button"
+                    role="tab"
+                    data-mileage-view="international"
+                    data-active="false"
+                    aria-selected="false"
+                  >
+                    International
+                  </button>
+                </div>
+              </div>
             </div>
             <button
               type="button"
