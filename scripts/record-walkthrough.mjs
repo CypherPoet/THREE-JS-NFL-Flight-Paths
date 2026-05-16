@@ -1,15 +1,10 @@
 #!/usr/bin/env node
-// Records ~15s of the live NFL Flight Paths app and writes
-// hyperframes/walkthrough/footage.mp4.
+// Records ~15s of the live NFL Flight Paths app to
+// hyperframes/walkthrough/footage.mp4 via CDP Page.startScreencast.
 //
-// Frames are pulled directly off Chromium's compositor via the Chrome
-// DevTools Protocol (Page.startScreencast) — true native-framerate capture,
-// not Playwright's recordVideo (which throttles to ~25fps). The recorder
-// launches headful with --use-angle=metal so Three.js renders at full GPU
-// speed; the headless software-WebGL stretches the 15s beat sheet into
+// Headful + --use-angle=metal is load-bearing: headless software-WebGL
+// renders Three.js ~15× slower and stretches the beat sheet into
 // multi-minute footage.
-//
-// Output: hyperframes/walkthrough/footage.mp4 (H.264 yuv420p, dense GOP)
 
 import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, rmSync } from "node:fs";
@@ -31,7 +26,6 @@ const PORT = 5173;
 const DEV_URL = `http://localhost:${PORT}/THREE-JS-NFL-Flight-Paths/`;
 const WIDTH = 1920;
 const HEIGHT = 1080;
-const BEAT_SHEET_MS = 15500;
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -67,7 +61,7 @@ function ensureFfmpeg() {
 async function main() {
   ensureFfmpeg();
 
-  if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true });
+  mkdirSync(outDir, { recursive: true });
   if (existsSync(tmpDir)) rmSync(tmpDir, { recursive: true, force: true });
   mkdirSync(framesDir, { recursive: true });
 
@@ -120,23 +114,18 @@ async function main() {
   // Make sure at least one team row has rendered before we try to hover one.
   await page.waitForSelector("#team-list .team-row", { timeout: 5000 });
 
-  // ── CDP screencast ────────────────────────────────────────
-  // Page.startScreencast streams JPEGs straight off Chromium's compositor.
-  // Frames must be acked via Page.screencastFrameAck or Chromium back-
-  // pressures and silently drops frames; the ack is fire-and-forget so it
-  // doesn't gate the disk write.
+  // Ack is required and fire-and-forget: without it Chromium back-pressures
+  // and silently drops frames; awaiting it would serialize the handler.
   console.log("Starting CDP screencast (jpeg q95)...");
   const cdp = await context.newCDPSession(page);
+  const framePrefix = `${framesDir}/frame_`;
   let frameIndex = 0;
   const writes = [];
   cdp.on("Page.screencastFrame", ({ data, sessionId }) => {
     cdp.send("Page.screencastFrameAck", { sessionId }).catch(() => {});
     const idx = frameIndex++;
-    const framePath = resolve(
-      framesDir,
-      `frame_${String(idx).padStart(6, "0")}.jpg`,
-    );
-    writes.push(writeFile(framePath, Buffer.from(data, "base64")));
+    const framePath = `${framePrefix}${String(idx).padStart(6, "0")}.jpg`;
+    writes.push(writeFile(framePath, data, "base64"));
   });
   await cdp.send("Page.startScreencast", {
     format: "jpeg",
@@ -146,54 +135,41 @@ async function main() {
     maxHeight: HEIGHT,
   });
 
-  console.log(`Recording ${BEAT_SHEET_MS / 1000}s beat sheet...`);
+  // Beats are documented in hyperframes/walkthrough/beat-sheet.md.
+  console.log("Recording 15.5s beat sheet...");
   const captureStartMs = Date.now();
-  const t0 = captureStartMs;
   // Drag-safe area: left half of the viewport (sidebar is on the right).
   const dragY = 540;
 
-  // 0.0 – 2.0s: initial hold — let viewers register what they're looking at.
   await sleep(2000);
 
-  // 2.0 – 4.5s: drag right + slight up tilt (camera pans across the US).
   await page.mouse.move(700, dragY);
   await page.mouse.down();
   await page.mouse.move(960, dragY - 50, { steps: 60 });
   await page.mouse.up();
   await sleep(900);
 
-  // 4.5 – 6.0s: hover first team row → highlights that team's arcs.
   await page.locator("#team-list .team-row").first().hover().catch(() => {});
   await sleep(1500);
 
-  // 6.0 – 7.5s: switch preset to "International" — new arc set draws.
   await page.locator('[data-preset="international"]').click();
   await sleep(1500);
 
-  // 7.5 – 8.0s: theme toggle (light → dark).
   await page.locator("#theme-toggle").click();
   await sleep(500);
 
-  // 8.0 – 11.0s: drag left + down tilt — camera swings to Atlantic / Europe.
   await page.mouse.move(960, dragY);
   await page.mouse.down();
   await page.mouse.move(640, dragY + 80, { steps: 60 });
   await page.mouse.up();
   await sleep(1500);
 
-  // 11.0 – ~15.5s: settle on hero. Hover the first team again to add a touch
-  // of life and let arc travelers run.
   await page.locator("#team-list .team-row").first().hover().catch(() => {});
-  const elapsed = Date.now() - t0;
-  const remaining = Math.max(0, BEAT_SHEET_MS - elapsed);
-  await sleep(remaining);
+  const elapsed = Date.now() - captureStartMs;
+  await sleep(Math.max(0, 15500 - elapsed));
 
   const captureEndMs = Date.now();
-  console.log("Stopping CDP screencast...");
   await cdp.send("Page.stopScreencast");
-
-  await page.close();
-  await context.close();
   await browser.close();
 
   console.log("Flushing frame writes...");
@@ -205,9 +181,8 @@ async function main() {
     `Captured ${frameIndex} frames in ${captureSeconds.toFixed(2)}s → ${effectiveFps}fps effective`,
   );
 
-  // Encode the JPEG sequence at the effective capture fps so each beat
-  // lands at its captured wallclock time in the resulting mp4. Dense GOP
-  // (1s) because HyperFrames seeks every frame at render time.
+  // Encode at the captured effective fps so wallclock timing is preserved.
+  // Dense GOP (1s) because HyperFrames seeks every frame at render time.
   console.log(`Transcoding ${frameIndex} frames → ${finalPath}...`);
   const ff = spawnSync(
     "ffmpeg",

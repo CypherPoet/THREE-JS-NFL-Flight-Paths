@@ -19,14 +19,13 @@
             height: 100%;
             overflow: hidden;
             font-family: "Geist", system-ui, sans-serif;
-            color: #e8e2d0;
+            color: var(--fg-muted);
           }
 
           .outro-card {
             position: absolute;
             inset: 0;
-            background:
-              radial-gradient(ellipse 80% 60% at 50% 50%, #1a1612 0%, #0f0d0a 70%, #050402 100%);
+            background: var(--card-vignette);
           }
 
           .outro-content {
@@ -47,23 +46,23 @@
           }
           .outro-glyph circle.outer {
             fill: none;
-            stroke: #c89060;
+            stroke: var(--accent);
             stroke-width: 2;
             opacity: 0.7;
           }
           .outro-glyph circle.inner {
-            fill: #1a1612;
-            stroke: #fff2c4;
+            fill: var(--bg-card);
+            stroke: var(--fg);
             stroke-width: 2;
           }
           .outro-glyph path.arc {
             fill: none;
-            stroke: #fff2c4;
+            stroke: var(--fg);
             stroke-width: 2.5;
             stroke-linecap: round;
           }
           .outro-glyph circle.dot {
-            fill: #fff2c4;
+            fill: var(--fg);
           }
 
           .outro-accent {
@@ -83,11 +82,11 @@
             font-weight: 600;
             font-size: 52px;
             letter-spacing: 0.04em;
-            color: #fff2c4;
+            color: var(--fg);
             text-shadow: 0 0 22px rgba(255, 242, 196, 0.22);
           }
           .outro-url .slash {
-            color: #c89060;
+            color: var(--accent);
             margin: 0 4px;
           }
 
@@ -95,7 +94,7 @@
             font-family: "Departure Mono", ui-monospace, monospace;
             font-size: 22px;
             letter-spacing: 0.34em;
-            color: #c89060;
+            color: var(--accent);
             text-transform: uppercase;
           }
         </style>
@@ -125,11 +124,6 @@
 
         <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
         <script>
-          // Outro sub-composition timeline. The clip runs root t=17 → 19 (2s);
-          // sub-comp t=0 corresponds to root t=17. Entrances begin at sub-comp
-          // t≈0.15 so they land just after the crossfade-in completes. The
-          // final 0.5s fade at the end is the one exception to the no-exit
-          // rule (final scene only — see design.md).
           (function () {
             const tl = gsap.timeline({ paused: true });
 
@@ -164,8 +158,7 @@
               0.65,
             );
 
-            // Final fade-out (sub-comp t=1.5 → 2.0 = root t=18.5 → 19.0).
-            // Allowed because outro is the last scene.
+            // Final fade is the one allowed exit (last scene only — see design.md).
             tl.to(".outro-root", { opacity: 0, duration: 0.5, ease: "power2.in" }, 1.5);
 
             window.__timelines = window.__timelines || {};
