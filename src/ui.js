@@ -26,7 +26,6 @@ export function sortTeamsByMiles(summary) {
 // Returns { active, refresh, setAll, ... } so main.js can drive header
 // metric updates from the same active Set.
 export function buildTeamPanel({ summary, intl, listEl, onChange }) {
-  const active = new Set(TEAM_KEYS);
   const maxMiles = Math.max(
     1,
     ...TEAM_KEYS.map((k) => summary[k].totalMiles),
@@ -37,6 +36,9 @@ export function buildTeamPanel({ summary, intl, listEl, onChange }) {
   const internationalTeams = new Set(
     TEAM_KEYS.filter((k) => summary[k].internationalCount > 0),
   );
+  // First-paint default. The bare URL boots showing the five longest-travel
+  // teams so the data story leads with the lede; "All" is one chip away.
+  const active = new Set(longest5);
 
   let currentSort = "division";
   const rowsByTeam = {};
@@ -244,7 +246,11 @@ export function buildTeamPanel({ summary, intl, listEl, onChange }) {
     applyPreset(on ? "all" : "none");
   }
 
-  return { active, refresh, setAll };
+  function isDefault() {
+    return setsEqual(active, longest5);
+  }
+
+  return { active, refresh, setAll, isDefault };
 }
 
 // Header metric cards: League total + International miles (with game count).
