@@ -51,36 +51,52 @@ export const THEMES = {
       "rgba(28, 26, 22, 0.0)",
     ],
     travelerEmissiveBoost: 1.0,
+    // Marker ring tints behind the home dots and around the away venues.
+    // Theme-driven so the dark pass can shift to cool-tinted neutrals against
+    // the warm sphere; light values preserve the original sectional tones.
+    homeRingColor: 0x1c1a16,
+    awayRingColor: 0x514a3d,
   },
   // Dark theme — Sunday Night Football primetime broadcast.
   // Scene sentence: stadium lights spilling onto turf, broadcast camera high
-  // in the rafters at kickoff. Warm graphite tunnel, lit-turf relief, sodium-
-  // vapor halo biased toward the key light. Deliberately not navy / not
-  // "Earth from orbit" — those are the SaaS-globe defaults this theme avoids.
+  // in the rafters at kickoff. Warm sodium-vapor key/rim on the lit side,
+  // deep teal-graphite tunnel-shadow on the unlit side — the temperature
+  // counterpoint a real primetime broadcast uses, not the flat warm-graphite
+  // monochrome an "Earth from orbit" SaaS globe would land on.
   dark: {
-    sceneBg: 0x0f0d0a,
+    sceneBg: 0x081420,
     sphereColor: 0x1a1612,
-    reliefColor: 0x3a3025,
+    reliefColor: 0x4a3826,
     countryLineColor: 0xe8e2d0,
     countryLineOpacity: 0.45,
-    limbColor: 0x070504,
+    limbColor: 0x050a14,
     limbOpacity: 0.4,
     glowInnerColor: 0xfff2c4,
-    glowOuterColor: 0x5a3a14,
+    // Saturated amber sunset rim — the warm opponent to the cool tunnel
+    // void, so the halo registers as a chromatic spread rather than a
+    // tone-match wash.
+    glowOuterColor: 0x8a3a14,
     glowIntensity: 0.65,
-    // Limb vignette: deeper darkening for the SNF register so the sphere
-    // reads as a stadium-spotlit ball framed against the surrounding tunnel.
-    vignetteColor: 0x000000,
+    // Limb vignette: cool near-black instead of pure black so the
+    // darkening sits on the same hue axis as sceneBg.
+    vignetteColor: 0x04080c,
     vignetteIntensity: 0.35,
     ambientSky: 0xf8e8c0,
-    ambientGround: 0x1a1612,
-    ambientIntensity: 0.6,
+    // Cool ground bounce — opposes the warm hemisphere sky so the sphere
+    // gets temperature shading across the terminator.
+    ambientGround: 0x143048,
+    ambientIntensity: 0.7,
     keyColor: 0xfff4d4,
     keyIntensity: 1.25,
     rimColor: 0xc89060,
     rimIntensity: 0.6,
-    fillColor: 0x3a2818,
-    fillIntensity: 0.3,
+    // Fill light: saturated cool at near-key intensity. This is the unlit
+    // side of the SNF tunnel — without it the cool tokens above have
+    // nothing actually lighting the sphere shadow side and the change
+    // reads as invisible. Bumped intensity 0.3 → 0.7 is the load-bearing
+    // change, not the hex value.
+    fillColor: 0x305a85,
+    fillIntensity: 0.7,
     groundShadow: [
       "rgba(15, 11, 7, 0.88)",
       "rgba(15, 11, 7, 0.55)",
@@ -88,6 +104,8 @@ export const THEMES = {
       "rgba(15, 11, 7, 0.0)",
     ],
     travelerEmissiveBoost: 2.4,
+    homeRingColor: 0x101828,
+    awayRingColor: 0x6a7a8c,
   },
 };
 

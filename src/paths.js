@@ -162,10 +162,11 @@ export function createFlightPaths(legs, theme) {
     dot.userData = { team: key, kind: "home" };
     markersGroup.add(dot);
 
-    // Soft dark/light ring behind the dot for legibility.
+    // Soft dark/light ring behind the dot for legibility. Themed so the
+    // dark pass can use a cool-tinted near-black against the warm sphere.
     const ringGeom = new THREE.RingGeometry(0.012, 0.018, 18);
     const ringMat = new THREE.MeshBasicMaterial({
-      color: 0x1c1a16,
+      color: theme.homeRingColor,
       transparent: true,
       opacity: 0.5,
       side: THREE.DoubleSide,
@@ -190,7 +191,7 @@ export function createFlightPaths(legs, theme) {
     const pos = latLonToVec3(leg.toLat, leg.toLon, AWAY_RING_RADIUS);
     const geom = new THREE.RingGeometry(0.005, 0.01, 16);
     const mat = new THREE.MeshBasicMaterial({
-      color: 0x514a3d,
+      color: theme.awayRingColor,
       transparent: true,
       opacity: 0.55,
       side: THREE.DoubleSide,
@@ -357,11 +358,19 @@ function pseudoRandomPhase(leg) {
   return (h % 1000) / 1000;
 }
 
-// Refresh every traveler glow's base opacity when the theme changes.
+// Refresh traveler glow opacity + marker ring tints when the theme changes.
 export function applyThemeToPaths(flightPaths, theme) {
   for (const traveler of flightPaths.travelersGroup.children) {
     const base = 0.18 * theme.travelerEmissiveBoost;
     traveler.userData.glowBaseOpacity = base;
     traveler.userData.glow.material.opacity = base;
+  }
+  for (const { ring } of flightPaths.homeMarkerRecords) {
+    ring.material.color.set(theme.homeRingColor);
+  }
+  for (const child of flightPaths.markersGroup.children) {
+    if (child.userData?.kind === "away") {
+      child.material.color.set(theme.awayRingColor);
+    }
   }
 }
