@@ -74,7 +74,7 @@ export function wireMileageModal() {
     onOpen: () => {
       syncRows();
       // Replay the contrail draw-in: strip the `drawn` class, force a
-      // layout flush, then re-add on the next frame so the width transition
+      // layout flush, then re-add on the next frame so the transition
       // runs every time the modal opens.
       const rows = listEl.querySelectorAll(".mileage-row");
       rows.forEach((row) => row.classList.remove("mileage-row--drawn"));
