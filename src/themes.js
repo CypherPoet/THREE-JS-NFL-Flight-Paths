@@ -2,23 +2,36 @@
 // elements; only the values change so the globe + scene background stay
 // coherent across the toggle.
 export const THEMES = {
+  // Light theme: FAA sectional chart fused with broadcast graphic
+  // legibility. Ocean reads as muted sectional blue-grey, continents stay
+  // warm sand. Inverts the usual globe palette logic (water cool, land
+  // warm-saturated). The fusion of "travel cartography" (sectionals are
+  // literal aviation route maps that pilots fly) with "modern sports
+  // broadcast" (typography + chrome carry the broadcast-graphic register).
   light: {
     sceneBg: 0xefe9dd,
-    sphereColor: 0xddd2b4,
-    reliefColor: 0xf3ead4,
-    countryLineColor: 0x6e5b3f,
-    countryLineOpacity: 0.55,
-    limbColor: 0xc4b89f,
-    limbOpacity: 0.18,
-    // Warm vellum halo at low intensity — gives the limb a touch of
-    // parchment-paper depth without going saccharine. Light register stays
-    // quieter than dark (which runs sodium-vapor at 0.65) so the page
-    // backdrop remains the dominant surface.
-    glowInnerColor: 0xfff6e3,
-    glowOuterColor: 0xf3e6c8,
-    glowIntensity: 0.25,
-    ambientSky: 0xffffff,
-    ambientGround: 0xb8b09c,
+    sphereColor: 0xa5c0c8,
+    reliefColor: 0xe6d4b0,
+    // Country line ink pushed toward proper sectional-chart authority:
+    // slightly darker brown, slightly higher opacity, so borders read as
+    // cartographic ink rather than decorative outline.
+    countryLineColor: 0x2d1f0e,
+    countryLineOpacity: 0.7,
+    limbColor: 0x8aa0a8,
+    limbOpacity: 0.22,
+    // Cool atmospheric halo at very low intensity. The sectional ocean
+    // already provides cool framing for the limb; the halo just lifts the
+    // edge a touch so the sphere doesn't read flat against the page.
+    glowInnerColor: 0xf0f5f8,
+    glowOuterColor: 0xb8c8d0,
+    glowIntensity: 0.2,
+    // Lighting tuned for the sectional palette: cool overhead ambient lets
+    // the sphere's intrinsic blue-grey carry, neutral-grey ground bounce
+    // stops the warm cream rebound from washing the water. The key light
+    // stays warm-white so it reads as "sun on the chart" against the cool
+    // diffuse fill.
+    ambientSky: 0xf0f6fa,
+    ambientGround: 0xa8a8a4,
     ambientIntensity: 1.05,
     keyColor: 0xffffff,
     keyIntensity: 0.95,

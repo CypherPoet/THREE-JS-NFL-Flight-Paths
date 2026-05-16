@@ -95,6 +95,13 @@ export function buildTeamPanel({ summary, intl, listEl, onChange }) {
     row.className = "team-row";
     row.dataset.team = teamKey;
     row.dataset.active = "true";
+    row.setAttribute("role", "button");
+    row.setAttribute("tabindex", "0");
+    row.setAttribute("aria-pressed", "true");
+    row.setAttribute(
+      "aria-label",
+      `${team.name} (${team.abbr}), ${formatMiles(miles)}`,
+    );
     row.style.setProperty("--accent", team.accent);
     row.style.setProperty("--accent-dark", team.accentDark ?? team.accent);
     row.style.setProperty("--team-pct", `${teamPct.toFixed(2)}%`);
@@ -109,9 +116,8 @@ export function buildTeamPanel({ summary, intl, listEl, onChange }) {
       </span>
       <span class="team-row__miles">${formatMiles(miles)}</span>
     `;
-    row.addEventListener("click", (e) => {
-      // Shift / cmd / ctrl / alt → solo this team; plain click → toggle.
-      if (e.shiftKey || e.metaKey || e.ctrlKey || e.altKey) {
+    function toggleFromEvent(modifier) {
+      if (modifier) {
         active.clear();
         active.add(teamKey);
       } else if (active.has(teamKey)) {
@@ -120,6 +126,15 @@ export function buildTeamPanel({ summary, intl, listEl, onChange }) {
         active.add(teamKey);
       }
       refresh();
+    }
+    row.addEventListener("click", (e) => {
+      toggleFromEvent(e.shiftKey || e.metaKey || e.ctrlKey || e.altKey);
+    });
+    row.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        toggleFromEvent(e.shiftKey || e.metaKey || e.ctrlKey || e.altKey);
+      }
     });
     rowsByTeam[teamKey] = row;
     return row;
@@ -127,7 +142,9 @@ export function buildTeamPanel({ summary, intl, listEl, onChange }) {
 
   function applyActiveState() {
     for (const [key, row] of Object.entries(rowsByTeam)) {
-      row.dataset.active = active.has(key) ? "true" : "false";
+      const on = active.has(key);
+      row.dataset.active = on ? "true" : "false";
+      row.setAttribute("aria-pressed", on ? "true" : "false");
     }
   }
 

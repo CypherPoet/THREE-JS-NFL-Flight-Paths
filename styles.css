@@ -1,20 +1,22 @@
 /* ── Self-hosted variable fonts (OFL — see each family's OFL.txt) ──── */
 @font-face {
-  font-family: "Unbounded";
+  font-family: "Big Shoulders Display";
   font-style: normal;
-  font-weight: 600 700;
+  font-weight: 600 800;
   font-display: swap;
-  src: url("./fonts/unbounded/unbounded-latin.woff2") format("woff2");
+  src: url("./fonts/big-shoulders-display/big-shoulders-display-latin.woff2")
+    format("woff2");
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
     U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
     U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
-  font-family: "Unbounded";
+  font-family: "Big Shoulders Display";
   font-style: normal;
-  font-weight: 600 700;
+  font-weight: 600 800;
   font-display: swap;
-  src: url("./fonts/unbounded/unbounded-latin-ext.woff2") format("woff2");
+  src: url("./fonts/big-shoulders-display/big-shoulders-display-latin-ext.woff2")
+    format("woff2");
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7,
     U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F,
     U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
@@ -49,8 +51,6 @@
   --line: rgba(28, 26, 22, 0.14);
   --line-strong: rgba(28, 26, 22, 0.32);
   --shadow: rgba(28, 26, 22, 0.18);
-  --tooltip-bg: rgba(28, 26, 22, 0.92);
-  --tooltip-ink: #f6f1e6;
 }
 
 /* Dark theme: Sunday Night Football primetime broadcast. Warm-graphite tunnel
@@ -66,14 +66,12 @@
   --line: rgba(243, 236, 214, 0.12);
   --line-strong: rgba(243, 236, 214, 0.3);
   --shadow: rgba(0, 0, 0, 0.65);
-  --tooltip-bg: rgba(243, 236, 214, 0.95);
-  --tooltip-ink: #0f0d0a;
 }
 
 :root {
   --radius: 10px;
   --pad: 14px;
-  --font-display: "Unbounded", system-ui, sans-serif;
+  --font-display: "Big Shoulders Display", system-ui, sans-serif;
   --font-ui: "Geist", system-ui, sans-serif;
   --font-mono: "Departure Mono", ui-monospace, monospace;
   /* Keep chrome on the fixed rem rungs; only the H1 breathes via clamp(). */
@@ -167,8 +165,8 @@ img.topbar__mark {
   margin: 0;
   font-family: var(--font-display);
   font-size: var(--text-display);
-  font-weight: 650;
-  letter-spacing: -0.024em;
+  font-weight: 700;
+  letter-spacing: -0.012em;
   color: var(--ink);
   line-height: 1.02;
 }
@@ -214,6 +212,21 @@ img.topbar__mark {
 
 .season-switch__button:not([data-active="true"]):hover {
   color: var(--ink);
+}
+
+/* Shared keyboard-focus ring for the chip-like controls in the chrome
+   (season switch, panel sort, panel preset, topbar icons). The team-row
+   rule above uses the per-team accent; these don't carry a per-element
+   color, so they pick up --ink and a small offset to stand off from the
+   pill border. */
+:where(
+  .season-switch__button,
+  .panel__sort-button,
+  .panel__preset,
+  .theme-toggle
+):focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
 }
 
 .topbar__meta {
@@ -284,15 +297,26 @@ img.topbar__mark {
   transform: translateY(-1px);
 }
 
-/* CSS-driven tooltip for the icon-only topbar buttons. Native title="..."
-   tooltips have a ~1s delay that makes the affordance discoverable only by
-   accident; this surfaces the label fast enough to teach what the icons do
-   on first hover, and on keyboard focus for screen-reader-adjacent users. */
-.theme-toggle[data-tooltip]::after {
+/* Demote the coffee donation link so it stops competing with the data-explainer
+   controls for the same visual rail. Same chrome, dimmer ink, no shadow. */
+.theme-toggle--quiet {
+  color: var(--ink-mute);
+  box-shadow: none;
+  opacity: 0.7;
+}
+
+.theme-toggle--quiet:hover {
+  opacity: 1;
+}
+
+/* CSS-driven tooltips for icon-only buttons and chips. Native title="..."
+   has a ~1s delay that hides the affordance; this surfaces the label fast
+   enough to teach on first hover, and on keyboard focus for screen-reader-
+   adjacent users. Shared base; per-surface overrides set anchor + reveal
+   translate below. */
+:where(.theme-toggle, .panel__preset, .panel__sort-button)[data-tooltip]::after {
   content: attr(data-tooltip);
   position: absolute;
-  top: calc(100% + 6px);
-  right: 0;
   white-space: nowrap;
   font-family: var(--font-ui);
   font-size: var(--text-micro);
@@ -304,11 +328,18 @@ img.topbar__mark {
   box-shadow: 0 4px 18px -8px var(--shadow);
   pointer-events: none;
   opacity: 0;
-  transform: translateY(-2px);
   transition:
     opacity 140ms ease 80ms,
     transform 140ms ease 80ms;
   z-index: 60;
+}
+
+/* Topbar buttons surface their tooltip below; chips and sort buttons
+   surface above so they don't cover the team rows beneath them. */
+.theme-toggle[data-tooltip]::after {
+  top: calc(100% + 6px);
+  right: 0;
+  transform: translateY(-2px);
 }
 
 .theme-toggle[data-tooltip]:hover::after,
@@ -367,10 +398,13 @@ img.topbar__mark {
 }
 
 /* The one kept kicker. Every other tracked-uppercase label in the chrome
-   was demoted so this slot can carry the voice on its own. */
+   was demoted so this slot can carry the voice on its own. Body family
+   (Geist) at small tracked uppercase: Big Shoulders condenses too tightly
+   at 13px to carry the kicker grammar; this slot wants legibility, not
+   display authority. */
 .panel__head h2 {
   margin: 0;
-  font-family: var(--font-display);
+  font-family: var(--font-ui);
   font-size: var(--text-meta);
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -473,16 +507,31 @@ img.topbar__mark {
   border-color: var(--ink);
 }
 
-.panel__preset--clear {
+/* "None" sits at the right end of the chip row so it visually pairs with
+   "All" at the left. Same chrome as the other chips so it reads as a real
+   action, not a disabled placeholder. */
+.panel__preset--none {
   margin-left: auto;
-  color: var(--ink-mute);
-  border-color: transparent;
 }
 
-.panel__preset--clear:hover {
-  color: var(--ink);
-  background: transparent;
-  border-color: var(--line);
+.panel__preset,
+.panel__sort-button {
+  position: relative;
+}
+
+.panel__preset[data-tooltip]::after,
+.panel__sort-button[data-tooltip]::after {
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translate(-50%, 2px);
+}
+
+.panel__preset[data-tooltip]:hover::after,
+.panel__preset[data-tooltip]:focus-visible::after,
+.panel__sort-button[data-tooltip]:hover::after,
+.panel__sort-button[data-tooltip]:focus-visible::after {
+  opacity: 1;
+  transform: translate(-50%, 0);
 }
 
 .team-list {
@@ -521,10 +570,14 @@ img.topbar__mark {
   padding-top: 8px;
 }
 
+/* Division header: a real second-tier heading inside the panel, sized up
+   from the kicker grammar so Big Shoulders has room to read. The condensed
+   letterforms become an asset at 16px instead of a liability at 13px. */
 .team-group__name {
   font-family: var(--font-display);
-  font-size: var(--text-meta);
+  font-size: var(--text-base);
   font-weight: 700;
+  letter-spacing: -0.008em;
   color: var(--ink);
 }
 
@@ -556,8 +609,23 @@ img.topbar__mark {
   background: var(--line);
 }
 
+/* Focus ring uses the team accent inset so it reads against both themes and
+   over the bar. */
+.team-row:focus-visible {
+  outline: 2px solid var(--accent, var(--ink));
+  outline-offset: -2px;
+  background: var(--line);
+}
+
 .team-row[data-active="false"] {
   opacity: 0.36;
+}
+
+/* Inactive rows get full opacity restored when focused so the accent-coloured
+   ring reads at full strength. The double-attribute selector outranks the
+   plain inactive rule above, which would otherwise win on source order. */
+.team-row[data-active="false"]:focus-visible {
+  opacity: 1;
 }
 
 .team-row[data-active="false"] .team-row__chip {
@@ -824,10 +892,10 @@ img.topbar__mark {
 
 .stadium-tooltip__title {
   margin: 0;
-  font-family: var(--font-display);
+  font-family: var(--font-ui);
   font-size: var(--text-base);
-  font-weight: 650;
-  letter-spacing: -0.014em;
+  font-weight: 700;
+  letter-spacing: -0.008em;
   line-height: 1.16;
   color: var(--ink);
 }
@@ -941,13 +1009,50 @@ img.topbar__mark {
     right: 18px;
     height: 38%;
   }
-  .topbar__meta {
+  /* Stack topbar to two rows on phones: brand on top, meta below.
+     Without this, .topbar__meta overflows past the viewport (~430px wide
+     against a 375px screen) and the icon cluster runs off-screen. */
+  .topbar {
     flex-direction: column;
-    align-items: flex-end;
-    gap: 6px;
+    align-items: stretch;
+    gap: 10px;
   }
+  .topbar__brand {
+    gap: 10px;
+  }
+  .topbar__titles h1 {
+    font-size: 22px;
+  }
+  /* Season switch is a power-user toggle, not load-bearing for first read.
+     Hide on phones so the title cluster fits cleanly. */
+  .topbar__brand .season-switch {
+    display: none;
+  }
+  .topbar__meta {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 8px;
+  }
+  /* Compress the metric cards: row layout (label : value), smaller padding,
+     hide the supplementary game-count sub line so the pair fits on one row
+     alongside the icon cluster. */
   .metric {
-    min-width: 110px;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 6px;
+    min-width: 0;
+    padding: 6px 10px;
+  }
+  .metric__label {
+    font-size: 10px;
+  }
+  .metric__value {
+    margin-top: 0;
+  }
+  .metric__sub {
+    display: none;
   }
   .hint,
   .legend {
@@ -959,6 +1064,12 @@ img.topbar__mark {
   * {
     transition-duration: 0ms !important;
     animation-duration: 0ms !important;
+  }
+  /* The loading bar is the only signal that the globe is still booting on a
+     slow connection. Keep its slide animation alive so a reduced-motion user
+     still gets feedback; the bar is 64px wide and the motion is small. */
+  .loading__bar::before {
+    animation-duration: 1.1s !important;
   }
 }
 
@@ -1058,10 +1169,14 @@ img.topbar__mark {
   scrollbar-color: var(--ink-mute) transparent;
 }
 
+/* Body-content subheads in the methodology modal. Body family (Geist)
+   keeps subhead authority via weight contrast against the surrounding
+   paragraph text; Big Shoulders at 16px was reading dense inside a body
+   block where the display voice doesn't belong. */
 .methodology__body h3 {
-  font-family: var(--font-display);
+  font-family: var(--font-ui);
   font-size: var(--text-base);
-  font-weight: 650;
+  font-weight: 700;
   color: var(--ink);
   margin: 20px 0 6px;
 }
@@ -1178,10 +1293,7 @@ img.topbar__mark {
 .mileage__head h2 {
   margin: 0;
   font-family: var(--font-display);
-  font-variation-settings:
-    "opsz" 28,
-    "wdth" 92,
-    "wght" 650;
+  font-weight: 700;
   font-size: var(--text-section);
   letter-spacing: -0.01em;
   color: var(--ink);
