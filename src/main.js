@@ -65,6 +65,59 @@ const urlTeams = parseTeamsParam(urlParams.get("teams"));
 const urlSeason = parseSeasonParam(urlParams.get("season"));
 const urlView = parseViewParam(urlParams.get("view"));
 
+// ── Display-font thesis exploration ────────────────────────────
+// `?display=<key>` swaps the H1 / display family to a candidate that
+// might fuse aviation-chart authority with broadcast-graphic register.
+// Fonts load lazily from Google Fonts only when the param is present, so
+// the default page stays on the existing self-hosted Unbounded.
+const DISPLAY_VARIANTS = {
+  geist: {
+    label: "Geist (single family)",
+    cssStack: '"Geist", system-ui, sans-serif',
+    googleQuery: null,
+    h1Weight: 800,
+    h1Letterspacing: "-0.026em",
+  },
+  "big-shoulders": {
+    label: "Big Shoulders Display",
+    cssStack: '"Big Shoulders Display", "Unbounded", system-ui, sans-serif',
+    googleQuery: "Big+Shoulders+Display:wght@700",
+    h1Weight: 700,
+    h1Letterspacing: "-0.012em",
+  },
+  bricolage: {
+    label: "Bricolage Grotesque",
+    cssStack: '"Bricolage Grotesque", "Unbounded", system-ui, sans-serif',
+    googleQuery: "Bricolage+Grotesque:wght@700",
+    h1Weight: 700,
+    h1Letterspacing: "-0.022em",
+  },
+  "funnel-display": {
+    label: "Funnel Display",
+    cssStack: '"Funnel Display", "Unbounded", system-ui, sans-serif',
+    googleQuery: "Funnel+Display:wght@700",
+    h1Weight: 700,
+    h1Letterspacing: "-0.018em",
+  },
+};
+
+const urlDisplay = urlParams.get("display");
+if (urlDisplay && DISPLAY_VARIANTS[urlDisplay]) {
+  const variant = DISPLAY_VARIANTS[urlDisplay];
+  document.documentElement.dataset.display = urlDisplay;
+  if (variant.googleQuery) {
+    const preconnect = document.createElement("link");
+    preconnect.rel = "preconnect";
+    preconnect.href = "https://fonts.gstatic.com";
+    preconnect.crossOrigin = "anonymous";
+    document.head.appendChild(preconnect);
+    const fontLink = document.createElement("link");
+    fontLink.rel = "stylesheet";
+    fontLink.href = `https://fonts.googleapis.com/css2?family=${variant.googleQuery}&display=swap`;
+    document.head.appendChild(fontLink);
+  }
+}
+
 // Serializers. Each writes its slice into a shared mutable URLSearchParams
 // pulled fresh from window.location at call time, so they compose without
 // stomping each other when filter + season + camera change in the same tick.
@@ -374,7 +427,50 @@ async function start() {
 
   wireMethodologyModal();
 
+  if (urlDisplay && DISPLAY_VARIANTS[urlDisplay]) {
+    buildDisplayBanner(urlDisplay);
+  }
+
   dismissLoading();
+}
+
+// ── Display-font preview banner ──────────────────────────────
+// Renders a chip at bottom-center listing the active display variant and
+// links to switch between every candidate (plus a "Default" link that
+// drops the param). Mirrors the in-session palette switcher shape.
+function buildDisplayBanner(activeKey) {
+  const banner = document.createElement("div");
+  banner.id = "display-banner";
+  banner.setAttribute("role", "complementary");
+  banner.setAttribute("aria-label", "Display-font preview");
+
+  const label = document.createElement("span");
+  label.className = "display-banner__label";
+  label.textContent = `Display preview · ${DISPLAY_VARIANTS[activeKey].label}`;
+  banner.appendChild(label);
+
+  const switcher = document.createElement("span");
+  switcher.className = "display-banner__switcher";
+  for (const key of Object.keys(DISPLAY_VARIANTS)) {
+    if (key === activeKey) continue;
+    const link = document.createElement("a");
+    const url = new URL(window.location.href);
+    url.searchParams.set("display", key);
+    link.href = url.toString();
+    link.textContent = DISPLAY_VARIANTS[key].label;
+    link.className = "display-banner__link";
+    switcher.appendChild(link);
+  }
+  const defaultLink = document.createElement("a");
+  const defaultUrl = new URL(window.location.href);
+  defaultUrl.searchParams.delete("display");
+  defaultLink.href = defaultUrl.toString();
+  defaultLink.textContent = "Default (Unbounded)";
+  defaultLink.className = "display-banner__link display-banner__link--default";
+  switcher.appendChild(defaultLink);
+
+  banner.appendChild(switcher);
+  document.body.appendChild(banner);
 }
 
 function setTheme(name) {

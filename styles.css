@@ -1064,6 +1064,104 @@ img.topbar__mark {
   }
 }
 
+/* ── Display-font thesis exploration ─────────────────────── */
+/* Each candidate overrides --font-display plus the h1 weight and letter-
+   spacing tuned to that family. Activated by `?display=<key>` which sets
+   data-display on <html>. Inactive in production. */
+[data-display="geist"] {
+  --font-display: "Geist", system-ui, sans-serif;
+}
+[data-display="geist"] .topbar__titles h1 {
+  font-weight: 800;
+  letter-spacing: -0.026em;
+}
+
+[data-display="big-shoulders"] {
+  --font-display: "Big Shoulders Display", "Unbounded", system-ui, sans-serif;
+}
+[data-display="big-shoulders"] .topbar__titles h1 {
+  font-weight: 700;
+  letter-spacing: -0.012em;
+}
+
+[data-display="bricolage"] {
+  --font-display: "Bricolage Grotesque", "Unbounded", system-ui, sans-serif;
+}
+[data-display="bricolage"] .topbar__titles h1 {
+  font-weight: 700;
+  letter-spacing: -0.022em;
+}
+
+[data-display="funnel-display"] {
+  --font-display: "Funnel Display", "Unbounded", system-ui, sans-serif;
+}
+[data-display="funnel-display"] .topbar__titles h1 {
+  font-weight: 700;
+  letter-spacing: -0.018em;
+}
+
+/* Banner at bottom-center, same chrome as the (removed) palette banner. */
+#display-banner {
+  position: fixed;
+  bottom: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 8px 14px;
+  font-family: var(--font-ui);
+  font-size: var(--text-micro);
+  color: var(--ink-soft);
+  box-shadow: 0 6px 24px -10px var(--shadow);
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  z-index: 80;
+  max-width: calc(100% - 36px);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.display-banner__label {
+  font-weight: 500;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.display-banner__switcher {
+  display: inline-flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.display-banner__link {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--ink-soft);
+  text-decoration: none;
+  transition:
+    color 120ms ease,
+    border-color 120ms ease,
+    background 120ms ease;
+  white-space: nowrap;
+}
+
+.display-banner__link:hover {
+  color: var(--ink);
+  border-color: var(--line-strong);
+}
+
+.display-banner__link--default {
+  color: var(--ink-mute);
+  border-style: dashed;
+}
+
+body:has(#display-banner) .hint {
+  display: none;
+}
+
 /* ── Methodology modal ─────────────────────────────────────── */
 .methodology[hidden] {
   display: none;
