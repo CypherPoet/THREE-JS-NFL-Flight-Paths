@@ -381,10 +381,13 @@ img.topbar__mark {
 }
 
 /* The one kept kicker. Every other tracked-uppercase label in the chrome
-   was demoted so this slot can carry the voice on its own. */
+   was demoted so this slot can carry the voice on its own. Body family
+   (Geist) at small tracked uppercase: Big Shoulders condenses too tightly
+   at 13px to carry the kicker grammar; this slot wants legibility, not
+   display authority. */
 .panel__head h2 {
   margin: 0;
-  font-family: var(--font-display);
+  font-family: var(--font-ui);
   font-size: var(--text-meta);
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -572,10 +575,14 @@ img.topbar__mark {
   padding-top: 8px;
 }
 
+/* Division header: a real second-tier heading inside the panel, sized up
+   from the kicker grammar so Big Shoulders has room to read. The condensed
+   letterforms become an asset at 16px instead of a liability at 13px. */
 .team-group__name {
   font-family: var(--font-display);
-  font-size: var(--text-meta);
+  font-size: var(--text-base);
   font-weight: 700;
+  letter-spacing: -0.008em;
   color: var(--ink);
 }
 
@@ -1162,10 +1169,14 @@ img.topbar__mark {
   scrollbar-color: var(--ink-mute) transparent;
 }
 
+/* Body-content subheads in the methodology modal. Body family (Geist)
+   keeps subhead authority via weight contrast against the surrounding
+   paragraph text; Big Shoulders at 16px was reading dense inside a body
+   block where the display voice doesn't belong. */
 .methodology__body h3 {
-  font-family: var(--font-display);
+  font-family: var(--font-ui);
   font-size: var(--text-base);
-  font-weight: 650;
+  font-weight: 700;
   color: var(--ink);
   margin: 20px 0 6px;
 }
