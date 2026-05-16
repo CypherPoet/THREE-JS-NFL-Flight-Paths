@@ -9,7 +9,7 @@ export const THEMES = {
   // literal aviation route maps that pilots fly) with "modern sports
   // broadcast" (typography + chrome carry the broadcast-graphic register).
   light: {
-    sceneBg: 0xe8ebef,
+    sceneBg: 0xe8e7e3,
     sphereColor: 0xa5c0c8,
     reliefColor: 0xe6d4b0,
     // Country line ink pushed toward proper sectional-chart authority:
@@ -25,8 +25,9 @@ export const THEMES = {
     glowInnerColor: 0xf0f5f8,
     glowOuterColor: 0xb8c8d0,
     glowIntensity: 0.2,
-    // Held at 0 in light: the cool sphere on slate chrome already reads
-    // framed, and the dark-mode pass swaps both uniforms via applyThemeToGlobe.
+    // Held at 0 in light: the cool sphere on warm-grey chrome already reads
+    // framed by the temperature contrast, and the dark-mode pass swaps both
+    // uniforms via applyThemeToGlobe.
     vignetteColor: 0x18191b,
     vignetteIntensity: 0,
     // Lighting tuned for the sectional palette: cool overhead ambient lets

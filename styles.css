@@ -41,42 +41,11 @@
 /* ── Theme palettes ─────────────────────────────────────────── */
 :root,
 [data-theme="light"] {
-  /* Slate chrome: panel + topbar + hint + legend live in the sectional
-     ocean's family rather than reading as cream paper around a blue chart.
-     Landed from the `?chrome=` exploration after comparing warm / neutral /
-     slate / deep-slate. */
-  --bg: #e8ebef;
-  --bg-deep: #dee2e8;
-  --paper: #eff2f6;
-  --paper-soft: rgba(239, 242, 246, 0.62);
-  --ink: #18191b;
-  --ink-soft: #424a52;
-  --ink-mute: #7e858d;
-  --line: rgba(24, 28, 34, 0.14);
-  --line-strong: rgba(24, 28, 34, 0.32);
-  --shadow: rgba(24, 28, 34, 0.2);
-}
-
-/* ── Chrome retune variants (light theme only) ──────────────────
-   Second-round A/B against the slate baseline above. Critique reads the
-   current slate as sitting in the same dominant tone as the globe ocean,
-   so chrome and sphere camouflage rather than chrome framing sphere.
-   Switched in-browser via `?chrome=<variant>`; scaffolding stripped once
-   a direction is picked. Dark theme is untouched (SNF chrome is locked). */
-[data-theme="light"][data-chrome="lift"] {
-  --bg: #edf0f3;
-  --bg-deep: #e2e6eb;
-  --paper: #f4f6f9;
-  --paper-soft: rgba(244, 246, 249, 0.66);
-  --ink: #18191b;
-  --ink-soft: #424a52;
-  --ink-mute: #7e858d;
-  --line: rgba(24, 28, 34, 0.14);
-  --line-strong: rgba(24, 28, 34, 0.32);
-  --shadow: rgba(24, 28, 34, 0.18);
-}
-
-[data-theme="light"][data-chrome="warm-grey"] {
+  /* Warm-grey chrome: desk paper, faintly warm, against the cool sectional
+     sphere. Chrome and globe sit on different temperature axes (warm paper,
+     cool sea) so chrome frames the sphere rather than tone-matching it.
+     Landed from the second-round `?chrome=` A/B after comparing the prior
+     slate baseline, a luminance lift in the same hue, and this warm-grey. */
   --bg: #e8e7e3;
   --bg-deep: #dedcd7;
   --paper: #efeeea;
