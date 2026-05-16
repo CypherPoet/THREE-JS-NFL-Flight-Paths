@@ -9,7 +9,7 @@ export const THEMES = {
   // literal aviation route maps that pilots fly) with "modern sports
   // broadcast" (typography + chrome carry the broadcast-graphic register).
   light: {
-    sceneBg: 0xefe9dd,
+    sceneBg: 0xe8ebef,
     sphereColor: 0xa5c0c8,
     reliefColor: 0xe6d4b0,
     // Country line ink pushed toward proper sectional-chart authority:

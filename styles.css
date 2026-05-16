@@ -41,40 +41,10 @@
 /* ── Theme palettes ─────────────────────────────────────────── */
 :root,
 [data-theme="light"] {
-  --bg: #efe9dd;
-  --bg-deep: #e6dfd0;
-  --paper: #f6f1e6;
-  --paper-soft: rgba(246, 241, 230, 0.6);
-  --ink: #1c1a16;
-  --ink-soft: #514a3d;
-  --ink-mute: #8a8170;
-  --line: rgba(28, 26, 22, 0.14);
-  --line-strong: rgba(28, 26, 22, 0.32);
-  --shadow: rgba(28, 26, 22, 0.18);
-}
-
-/* ── Chrome cool-tint variants (light theme only) ──────────────
-   The default cascade above is the `warm` baseline. Each variant retints
-   the chrome tokens toward a cooler hue so the panel/topbar/hint/legend
-   lives in the sectional ocean's family rather than reading as "cream paper
-   around a blue chart." Switched in-browser via `?chrome=<variant>`;
-   scaffolding stripped once a direction is picked. Dark theme is untouched
-   because the SNF chrome thesis is locked.
-*/
-[data-theme="light"][data-chrome="neutral"] {
-  --bg: #ece9e0;
-  --bg-deep: #e2ddd2;
-  --paper: #f3f0e7;
-  --paper-soft: rgba(243, 240, 231, 0.6);
-  --ink: #1c1a17;
-  --ink-soft: #4f4a40;
-  --ink-mute: #87807a;
-  --line: rgba(28, 26, 22, 0.14);
-  --line-strong: rgba(28, 26, 22, 0.32);
-  --shadow: rgba(28, 26, 22, 0.18);
-}
-
-[data-theme="light"][data-chrome="slate"] {
+  /* Slate chrome: panel + topbar + hint + legend live in the sectional
+     ocean's family rather than reading as cream paper around a blue chart.
+     Landed from the `?chrome=` exploration after comparing warm / neutral /
+     slate / deep-slate. */
   --bg: #e8ebef;
   --bg-deep: #dee2e8;
   --paper: #eff2f6;
@@ -85,19 +55,6 @@
   --line: rgba(24, 28, 34, 0.14);
   --line-strong: rgba(24, 28, 34, 0.32);
   --shadow: rgba(24, 28, 34, 0.2);
-}
-
-[data-theme="light"][data-chrome="deep-slate"] {
-  --bg: #dfe5ec;
-  --bg-deep: #d4dbe3;
-  --paper: #e8eef5;
-  --paper-soft: rgba(232, 238, 245, 0.62);
-  --ink: #14171c;
-  --ink-soft: #3a4250;
-  --ink-mute: #768292;
-  --line: rgba(20, 28, 38, 0.16);
-  --line-strong: rgba(20, 28, 38, 0.36);
-  --shadow: rgba(20, 28, 38, 0.25);
 }
 
 /* Dark theme: Sunday Night Football primetime broadcast. Warm-graphite tunnel
