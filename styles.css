@@ -234,6 +234,7 @@ img.topbar__mark {
   .season-switch__button,
   .panel__sort-button,
   .panel__preset,
+  .panel__head-clear,
   .theme-toggle
 ):focus-visible {
   outline: 2px solid var(--ink);
@@ -343,7 +344,7 @@ img.topbar__mark {
    enough to teach on first hover, and on keyboard focus for screen-reader-
    adjacent users. Shared base; per-surface overrides set anchor + reveal
    translate below. */
-:where(.theme-toggle, .panel__preset, .panel__sort-button)[data-tooltip]::after {
+:where(.theme-toggle, .panel__preset, .panel__sort-button, .panel__head-clear)[data-tooltip]::after {
   content: attr(data-tooltip);
   position: absolute;
   white-space: nowrap;
@@ -481,7 +482,6 @@ img.topbar__mark {
 
 .panel__head-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   gap: 8px;
 }
@@ -493,12 +493,33 @@ img.topbar__mark {
    display authority. */
 .panel__head h2 {
   margin: 0;
+  margin-right: auto;
   font-family: var(--font-ui);
   font-size: var(--text-meta);
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--ink-soft);
+  color: var(--ink);
+}
+
+/* Section-level reset action. Lives in the head-row beside the sort toggle so
+   it reads as a section action — not a filter peer. Quieter than the H2 so
+   the row's primary anchor stays the kicker. */
+.panel__head-clear {
+  background: transparent;
+  border: 0;
+  padding: 4px 6px;
+  font: inherit;
+  font-family: var(--font-ui);
+  font-size: var(--text-micro);
+  font-weight: 500;
+  color: var(--ink-mute);
+  cursor: pointer;
+  transition: color 120ms ease;
+}
+
+.panel__head-clear:hover {
+  color: var(--ink);
 }
 
 /* Sort toggle: a two-state switch (by division / by miles). Plain text
@@ -532,8 +553,9 @@ img.topbar__mark {
 }
 
 .panel__sort-button[data-active="true"] {
-  background: var(--ink);
-  color: var(--bg);
+  background: var(--line);
+  color: var(--ink);
+  font-weight: 600;
 }
 
 .panel__sort-button:not([data-active="true"]):hover {
@@ -573,7 +595,7 @@ img.topbar__mark {
 .panel__presets {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 6px;
   padding: 2px 14px 12px;
   border-bottom: 1px solid var(--line);
 }
@@ -604,15 +626,6 @@ img.topbar__mark {
   background: var(--ink);
   color: var(--bg);
   border-color: var(--ink);
-}
-
-/* "Clear" sits at the right end of the chip row so it visually pairs with
-   "All" at the left. Same chrome as the other chips so it reads as a real
-   action, not a disabled placeholder. The label says "Clear" rather than
-   "None" so the destructive intent reads at first glance — the chip's
-   internal data-preset key is still `none` for URL stability. */
-.panel__preset--clear {
-  margin-left: auto;
 }
 
 /* Empty-state banner: appears below the preset chips when active.size === 0.
@@ -663,12 +676,14 @@ img.topbar__mark {
 }
 
 .panel__preset,
-.panel__sort-button {
+.panel__sort-button,
+.panel__head-clear {
   position: relative;
 }
 
 .panel__preset[data-tooltip]::after,
-.panel__sort-button[data-tooltip]::after {
+.panel__sort-button[data-tooltip]::after,
+.panel__head-clear[data-tooltip]::after {
   bottom: calc(100% + 6px);
   left: 50%;
   transform: translate(-50%, 2px);
@@ -677,7 +692,9 @@ img.topbar__mark {
 .panel__preset[data-tooltip]:hover::after,
 .panel__preset[data-tooltip]:focus-visible::after,
 .panel__sort-button[data-tooltip]:hover::after,
-.panel__sort-button[data-tooltip]:focus-visible::after {
+.panel__sort-button[data-tooltip]:focus-visible::after,
+.panel__head-clear[data-tooltip]:hover::after,
+.panel__head-clear[data-tooltip]:focus-visible::after {
   opacity: 1;
   transform: translate(-50%, 0);
 }
