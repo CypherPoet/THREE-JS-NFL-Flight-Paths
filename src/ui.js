@@ -39,10 +39,10 @@ export function buildTeamPanel({ summary, intl, listEl, onChange }) {
   // First-paint default. The bare URL boots showing the five longest-travel
   // teams so the data story leads with the lede; "All" is one chip away.
   const active = new Set(longest5);
-  // Snapshot of `active` taken the moment the user clicks "Clear" on a
-  // non-empty selection, so the empty-state banner can offer a one-click
-  // restore. Cleared on any other state-mutating action.
-  let previousActive = null;
+  // Snapshot saved when the user clicks Clear on a non-empty selection;
+  // reset on any other state-mutating action. `.size === 0` means "no
+  // snapshot available", which is also the URL-arrival state.
+  const previousActive = new Set();
 
   let currentSort = "division";
   const rowsByTeam = {};
@@ -123,10 +123,7 @@ export function buildTeamPanel({ summary, intl, listEl, onChange }) {
       <span class="team-row__miles">${formatMiles(miles)}</span>
     `;
     function toggleFromEvent(modifier) {
-      // Any direct team interaction moves the user's intent on; drop the
-      // Clear-undo snapshot so a stale "Restore last selection" can't
-      // reappear out of context.
-      previousActive = null;
+      previousActive.clear();
       if (modifier) {
         active.clear();
         active.add(teamKey);
@@ -165,23 +162,18 @@ export function buildTeamPanel({ summary, intl, listEl, onChange }) {
     onChange(active);
   }
 
-  // Empty-state banner: visible only when the globe has nothing on it; the
-  // restore button inside it appears only when there's a Clear-undo snapshot
-  // worth restoring (so URL arrivals at ?teams=none show the label without an
-  // irrelevant action).
+  // The restore button hides when previousActive is empty so URL arrivals
+  // at ?teams=none show the label without an irrelevant action.
   function updateEmptyBanner() {
-    const banner = document.getElementById("panel-empty");
-    const restore = document.getElementById("panel-empty-restore");
-    if (!banner || !restore) return;
-    banner.hidden = active.size > 0;
-    restore.hidden = previousActive === null;
+    emptyBannerEl.hidden = active.size > 0;
+    emptyRestoreBtnEl.hidden = previousActive.size === 0;
   }
 
   function restorePrevious() {
-    if (!previousActive) return;
+    if (previousActive.size === 0) return;
     active.clear();
     for (const k of previousActive) active.add(k);
-    previousActive = null;
+    previousActive.clear();
     refresh();
   }
 
@@ -191,11 +183,14 @@ export function buildTeamPanel({ summary, intl, listEl, onChange }) {
   // "Clear" empties the selection.
   function applyPreset(preset) {
     if (preset === "none") {
-      // Snapshot only when there's something to recover. A second Clear
-      // tap on an already-empty state must not overwrite the snapshot.
-      if (active.size > 0) previousActive = new Set(active);
+      // A second Clear tap on an already-empty state must not overwrite
+      // the snapshot, or the restore button silently goes dead.
+      if (active.size > 0) {
+        previousActive.clear();
+        for (const k of active) previousActive.add(k);
+      }
     } else {
-      previousActive = null;
+      previousActive.clear();
     }
     active.clear();
     if (preset === "all") {
@@ -275,11 +270,12 @@ export function buildTeamPanel({ summary, intl, listEl, onChange }) {
   rebind(".panel__preset", "preset", applyPreset);
   rebind(".panel__sort-button", "sort", setSort);
 
-  // Restore button is static markup; wire it once. The panel object lives
-  // across season switches (only `active` is mutated externally), so no
-  // clone-replace is needed here.
-  const restoreBtn = document.getElementById("panel-empty-restore");
-  if (restoreBtn) restoreBtn.addEventListener("click", restorePrevious);
+  // Empty-state banner nodes are static markup; cache the lookups and wire
+  // the restore button once. The panel object outlives season switches,
+  // which mutate `active` rather than rebuilding the panel.
+  const emptyBannerEl = document.getElementById("panel-empty");
+  const emptyRestoreBtnEl = document.getElementById("panel-empty-restore");
+  if (emptyRestoreBtnEl) emptyRestoreBtnEl.addEventListener("click", restorePrevious);
 
   renderRows();
   updatePresetState();

@@ -578,10 +578,6 @@ img.topbar__mark {
   color: var(--ink-soft);
 }
 
-.panel__empty-restore[hidden] {
-  display: none;
-}
-
 .panel__empty-restore:focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 2px;
