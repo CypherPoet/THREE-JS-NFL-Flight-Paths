@@ -302,6 +302,40 @@ img.topbar__mark {
   transform: translateY(-1px);
 }
 
+/* The three topbar icons (mileage / methodology / theme) share a single
+   pill frame so they read as one tool rail rather than three separate
+   buttons in identical chrome. Each button keeps its own background, top
+   and bottom borders, and shadow; adjacent buttons drop the inner border
+   so the right edge of one button becomes the divider to the next. Only
+   the outer corners round. The per-button hover lift is dropped inside
+   the cluster because adjacent buttons would visibly de-align by 1px. */
+.topbar__icons {
+  display: inline-flex;
+  align-items: stretch;
+}
+
+.topbar__icons .theme-toggle {
+  border-radius: 0;
+}
+
+.topbar__icons .theme-toggle + .theme-toggle {
+  border-left: 0;
+}
+
+.topbar__icons .theme-toggle:first-child {
+  border-top-left-radius: var(--radius);
+  border-bottom-left-radius: var(--radius);
+}
+
+.topbar__icons .theme-toggle:last-child {
+  border-top-right-radius: var(--radius);
+  border-bottom-right-radius: var(--radius);
+}
+
+.topbar__icons .theme-toggle:hover {
+  transform: none;
+}
+
 /* CSS-driven tooltips for icon-only buttons and chips. Native title="..."
    has a ~1s delay that hides the affordance; this surfaces the label fast
    enough to teach on first hover, and on keyboard focus for screen-reader-
