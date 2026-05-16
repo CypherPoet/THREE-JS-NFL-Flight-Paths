@@ -331,6 +331,12 @@ async function start() {
       for (const k of urlTeams) currentPanel.active.add(k);
       currentPanel.refresh();
       initialUrlTeamsApplied = true;
+    } else {
+      // No URL teams override: sync the globe to the panel's default active
+      // set (Longest 5). No URL write because the default state IS the bare
+      // URL. Without this, the panel shows 5 active rows but the globe
+      // renders all 32 teams' arcs because applyTeamFilter never fired.
+      applyTeamFilter(currentFlightPaths, currentPanel.active);
     }
 
     updateHeaderMetrics({ summary, intl });
