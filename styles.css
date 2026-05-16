@@ -1059,8 +1059,19 @@ img.topbar__mark {
     align-items: stretch;
     gap: 10px;
   }
+  /* Mobile only: a localized paper scrim under the title cluster.
+     Desktop has the panel anchoring the lower-left mass, so the H1 sits
+     against chrome; mobile drops the title cluster directly over the globe
+     where bright country relief and team-coloured arcs can degrade
+     contrast. Uses the same `--paper-soft` + backdrop-filter pattern the
+     methodology/mileage modal scrims already use. */
   .topbar__brand {
     gap: 10px;
+    padding: 8px 12px;
+    background: var(--paper-soft);
+    border-radius: var(--radius);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
   }
   .topbar__titles h1 {
     font-size: 22px;
