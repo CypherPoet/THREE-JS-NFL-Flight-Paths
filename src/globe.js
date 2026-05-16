@@ -108,7 +108,6 @@ export function applyThemeToGlobe(globe, theme) {
   atmosphere.material.uniforms.intensity.value = theme.glowIntensity;
   atmosphere.visible = theme.glowIntensity > 0;
 
-  // Limb vignette uniforms + visibility (skipped entirely when intensity is 0).
   vignette.material.uniforms.vignetteColor.value.set(theme.vignetteColor);
   vignette.material.uniforms.vignetteIntensity.value = theme.vignetteIntensity;
   vignette.visible = theme.vignetteIntensity > 0;
@@ -198,13 +197,11 @@ function makeAtmosphere(theme, lightDir) {
   return mesh;
 }
 
-// Front-side sphere just above the continent plates that paints a darkening
-// pass strongest at the limb (where surface normal is perpendicular to the
-// view direction) and transparent at the centre of the visible disc.
-// Reads as a framed studio shot: the sphere sits with a touch more weight
-// at its edges, focusing the eye toward the centre.
+// renderOrder 3 sits above the country lines so the limb darkening reads on
+// top of the silhouette engraving; the exponent 3 in the fragment stays out
+// of the centre and concentrates the alpha at the limb.
 function makeLimbVignette(theme) {
-  const geometry = new THREE.SphereGeometry(GLOBE_RADIUS * 1.026, 96, 96);
+  const geometry = new THREE.SphereGeometry(GLOBE_RADIUS * 1.026, 48, 48);
   const material = new THREE.ShaderMaterial({
     uniforms: {
       vignetteColor: { value: new THREE.Color(theme.vignetteColor) },
@@ -226,9 +223,6 @@ function makeLimbVignette(theme) {
       varying vec3 vNormal;
       varying vec3 vViewDir;
       void main() {
-        // dot(N, V): 1 at the centre of the visible disc, 0 at the limb.
-        // pow(1 - facing, 3.0) gives a soft falloff that stays out of the
-        // way of the centre and concentrates the darkening near the edge.
         float facing = clamp(dot(vNormal, vViewDir), 0.0, 1.0);
         float vignette = pow(1.0 - facing, 3.0);
         float alpha = vignette * vignetteIntensity;

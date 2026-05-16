@@ -25,10 +25,8 @@ export const THEMES = {
     glowInnerColor: 0xf0f5f8,
     glowOuterColor: 0xb8c8d0,
     glowIntensity: 0.2,
-    // No limb vignette in light mode. The cool sectional sphere against the
-    // slate chrome already reads as framed; an edge-darkening pass at this
-    // tonal range only muddies the limb. Held at 0 so the dark-mode pass
-    // can still swap uniforms without a null check.
+    // Held at 0 in light: the cool sphere on slate chrome already reads
+    // framed, and the dark-mode pass swaps both uniforms via applyThemeToGlobe.
     vignetteColor: 0x18191b,
     vignetteIntensity: 0,
     // Lighting tuned for the sectional palette: cool overhead ambient lets
