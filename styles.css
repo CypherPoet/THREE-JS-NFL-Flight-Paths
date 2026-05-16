@@ -886,17 +886,29 @@ img.topbar__mark {
   pointer-events: none;
 }
 
-.legend {
+/* Bottom corner clusters: the legend teaches the globe's home/away dot
+   grammar (bottom-right); the attribution pairs the byline with the
+   support link (bottom-left). They share posture and micro typography,
+   then diverge on corner + gap. */
+:where(.legend, .attribution) {
   position: absolute;
   bottom: 18px;
-  right: 18px;
   display: flex;
   align-items: center;
-  gap: 8px;
   font-size: var(--text-micro);
   color: var(--ink-soft);
   text-shadow: 0 1px 2px var(--shadow);
   z-index: 3;
+}
+
+.legend {
+  right: 18px;
+  gap: 8px;
+}
+
+.attribution {
+  left: 18px;
+  gap: 6px;
 }
 
 .legend__dot {
@@ -914,29 +926,7 @@ img.topbar__mark {
   border: 1.5px solid var(--ink-soft);
 }
 
-.legend__text {
-  font-weight: 500;
-}
-
-/* ── Attribution corner ─────────────────────────────────────
-   Pairs the "Built by" byline with the support link in a discrete
-   bottom-left slot, so the legend stays focused on teaching the
-   globe's home/away dot grammar. Mirrors .legend's micro typography
-   and ink-soft color; hover on either link lifts to full ink. */
-.attribution {
-  position: absolute;
-  bottom: 18px;
-  left: 18px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: var(--text-micro);
-  color: var(--ink-soft);
-  text-shadow: 0 1px 2px var(--shadow);
-  z-index: 3;
-}
-
-.attribution__text {
+:where(.legend__text, .attribution__text) {
   font-weight: 500;
 }
 
