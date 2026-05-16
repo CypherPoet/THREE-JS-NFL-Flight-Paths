@@ -129,22 +129,28 @@ function flushUrlStateImmediate() {
 // Share-link feedback: swap the button's data-tooltip + icon + aria-live text
 // for 1.2s after a click, then revert. The timer is module-scoped so rapid
 // re-clicks reset the window rather than stranding the button mid-feedback.
+// The idle tooltip text mirrors index.html so the first-paint label and the
+// post-feedback revert read the same.
+const SHARE_TEXT = {
+  idle: { tooltip: "Copy link to this view", status: "" },
+  success: {
+    tooltip: "Copied · captures filter + camera",
+    status: "Share link copied",
+  },
+  error: { tooltip: "Couldn't copy", status: "Couldn't copy link" },
+};
 let shareFeedbackTimer = 0;
 function showShareFeedback(button, ok) {
   window.clearTimeout(shareFeedbackTimer);
   const liveRegion = document.getElementById("share-status");
-  if (ok) {
-    button.dataset.tooltip = "Copied · captures filter + camera";
-    if (liveRegion) liveRegion.textContent = "Share link copied";
-  } else {
-    button.dataset.tooltip = "Couldn't copy";
-    if (liveRegion) liveRegion.textContent = "Couldn't copy link";
-  }
+  const state = ok ? SHARE_TEXT.success : SHARE_TEXT.error;
+  button.dataset.tooltip = state.tooltip;
+  liveRegion.textContent = state.status;
   button.classList.add("is-feedback");
   shareFeedbackTimer = window.setTimeout(() => {
     button.classList.remove("is-feedback");
-    button.dataset.tooltip = "Copy link to this view";
-    if (liveRegion) liveRegion.textContent = "";
+    button.dataset.tooltip = SHARE_TEXT.idle.tooltip;
+    liveRegion.textContent = SHARE_TEXT.idle.status;
   }, 1200);
 }
 
