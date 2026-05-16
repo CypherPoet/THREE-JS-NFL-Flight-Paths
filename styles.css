@@ -284,6 +284,18 @@ img.topbar__mark {
   transform: translateY(-1px);
 }
 
+/* Demote the coffee donation link so it stops competing with the data-explainer
+   controls for the same visual rail. Same chrome, dimmer ink, no shadow. */
+.theme-toggle--quiet {
+  color: var(--ink-mute);
+  box-shadow: none;
+  opacity: 0.7;
+}
+
+.theme-toggle--quiet:hover {
+  opacity: 1;
+}
+
 /* CSS-driven tooltip for the icon-only topbar buttons. Native title="..."
    tooltips have a ~1s delay that makes the affordance discoverable only by
    accident; this surfaces the label fast enough to teach what the icons do
@@ -473,16 +485,53 @@ img.topbar__mark {
   border-color: var(--ink);
 }
 
-.panel__preset--clear {
+/* "None" sits at the right end of the chip row so it visually pairs with
+   "All" at the left. Same chrome as the other chips so it reads as a real
+   action, not a disabled placeholder. */
+.panel__preset--none {
   margin-left: auto;
-  color: var(--ink-mute);
-  border-color: transparent;
 }
 
-.panel__preset--clear:hover {
-  color: var(--ink);
-  background: transparent;
-  border-color: var(--line);
+/* Fast CSS tooltips on preset chips. The chips live at the top of the panel,
+   so the bubble surfaces above so it doesn't cover the team rows. */
+.panel__preset {
+  position: relative;
+}
+
+.panel__preset[data-tooltip]::after,
+.panel__sort-button[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translate(-50%, 2px);
+  white-space: nowrap;
+  font-family: var(--font-ui);
+  font-size: var(--text-micro);
+  color: var(--ink-soft);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 6px 10px;
+  box-shadow: 0 4px 18px -8px var(--shadow);
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    opacity 140ms ease 80ms,
+    transform 140ms ease 80ms;
+  z-index: 60;
+}
+
+.panel__preset[data-tooltip]:hover::after,
+.panel__preset[data-tooltip]:focus-visible::after,
+.panel__sort-button[data-tooltip]:hover::after,
+.panel__sort-button[data-tooltip]:focus-visible::after {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.panel__sort-button {
+  position: relative;
 }
 
 .team-list {
@@ -553,6 +602,16 @@ img.topbar__mark {
 }
 
 .team-row:hover {
+  background: var(--line);
+}
+
+/* Focus ring uses the team accent inset so it reads against both themes and
+   over the bar; opacity is forced back to full when focused so a keyboard
+   user can see the row they're on even if it's inactive. */
+.team-row:focus-visible {
+  outline: 2px solid var(--accent, var(--ink));
+  outline-offset: -2px;
+  opacity: 1;
   background: var(--line);
 }
 
@@ -941,13 +1000,50 @@ img.topbar__mark {
     right: 18px;
     height: 38%;
   }
-  .topbar__meta {
+  /* Stack topbar to two rows on phones: brand on top, meta below.
+     Without this, .topbar__meta overflows past the viewport (~430px wide
+     against a 375px screen) and the icon cluster runs off-screen. */
+  .topbar {
     flex-direction: column;
-    align-items: flex-end;
-    gap: 6px;
+    align-items: stretch;
+    gap: 10px;
   }
+  .topbar__brand {
+    gap: 10px;
+  }
+  .topbar__titles h1 {
+    font-size: 22px;
+  }
+  /* Season switch is a power-user toggle, not load-bearing for first read.
+     Hide on phones so the title cluster fits cleanly. */
+  .topbar__brand .season-switch {
+    display: none;
+  }
+  .topbar__meta {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 8px;
+  }
+  /* Compress the metric cards: row layout (label : value), smaller padding,
+     hide the supplementary game-count sub line so the pair fits on one row
+     alongside the icon cluster. */
   .metric {
-    min-width: 110px;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 6px;
+    min-width: 0;
+    padding: 6px 10px;
+  }
+  .metric__label {
+    font-size: 10px;
+  }
+  .metric__value {
+    margin-top: 0;
+  }
+  .metric__sub {
+    display: none;
   }
   .hint,
   .legend {
@@ -959,6 +1055,12 @@ img.topbar__mark {
   * {
     transition-duration: 0ms !important;
     animation-duration: 0ms !important;
+  }
+  /* The loading bar is the only signal that the globe is still booting on a
+     slow connection. Keep its slide animation alive so a reduced-motion user
+     still gets feedback; the bar is 64px wide and the motion is small. */
+  .loading__bar::before {
+    animation-duration: 1.1s !important;
   }
 }
 

@@ -68,6 +68,19 @@ const urlView = parseViewParam(urlParams.get("view"));
 // Serializers. Each writes its slice into a shared mutable URLSearchParams
 // pulled fresh from window.location at call time, so they compose without
 // stomping each other when filter + season + camera change in the same tick.
+// Swap the bottom hint copy when the user filters down to no teams (the globe
+// goes empty otherwise, with no copy to explain it). All other selection
+// states keep the default canvas-gesture hint.
+const DEFAULT_HINT =
+  "Drag to rotate · scroll to zoom · hover a stadium · click a team to isolate";
+const EMPTY_HINT = "No teams selected. Pick All, AFC, or a division to bring arcs back.";
+
+function updateHintForSelection(active) {
+  const hint = document.getElementById("hint");
+  if (!hint) return;
+  hint.textContent = active.size === 0 ? EMPTY_HINT : DEFAULT_HINT;
+}
+
 function writeUrlState({ active, season, controls }) {
   const params = new URLSearchParams(window.location.search);
 
@@ -299,6 +312,7 @@ async function start() {
         applyTeamFilter(currentFlightPaths, active);
         updateHover();
         writeUrlState({ active, season: currentSeason, controls });
+        updateHintForSelection(active);
       },
     });
 
@@ -314,6 +328,7 @@ async function start() {
 
     updateHeaderMetrics({ summary, intl });
     mileageModal.setSummary(summary, `${meta.label} · regular-season totals`);
+    updateHintForSelection(currentPanel.active);
   }
 
   // Sync season-switch button data-active to whatever URL state resolved to,
@@ -424,7 +439,8 @@ start().catch((err) => {
   console.error("Failed to start scene:", err);
   const loading = document.getElementById("loading");
   if (loading) {
-    loading.querySelector("span").textContent = "Failed to load — see console";
+    loading.querySelector("span").textContent =
+      "Couldn't load the globe. Refresh to try again or check your network.";
   }
 });
 
