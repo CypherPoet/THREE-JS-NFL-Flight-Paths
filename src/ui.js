@@ -18,6 +18,10 @@ export function sortTeamsByMiles(summary) {
   );
 }
 
+export function totalLeagueMiles(summary) {
+  return Object.values(summary).reduce((sum, s) => sum + s.totalMiles, 0);
+}
+
 // Build the team list. Renders 32 rows grouped by division (default) or
 // flat-sorted by mileage, each row carrying a stacked mileage bar (team
 // accent + international segment). Preset chips above the list apply
@@ -245,13 +249,17 @@ export function buildTeamPanel({ summary, intl, listEl, onChange }) {
     renderRows();
   }
 
-  // Wire the panel-intl call-out, the preset chips, and the sort toggle.
-  // We do this once at build time; subsequent state updates flow through
-  // applyPreset/setSort which target the existing DOM nodes.
+  // The league span duplicates the topbar metric tile — CSS hides it on
+  // desktop where the tile is visible, reveals it on mobile where the tile
+  // is hidden.
   const intlEl = document.getElementById("panel-intl");
   if (intlEl) {
     if (intl && intl.teamCount > 0) {
-      intlEl.textContent = `${intl.teamCount} teams travel internationally · ${formatMiles(intl.totalMiles)} total`;
+      const leagueTotal = totalLeagueMiles(summary);
+      intlEl.innerHTML = `
+        <span class="panel__head-meta__league">${formatMiles(leagueTotal)} league · </span>
+        <span class="panel__head-meta__intl">${intl.teamCount} abroad · ${formatMiles(intl.totalMiles)}</span>
+      `;
       intlEl.hidden = false;
     } else {
       intlEl.hidden = true;
@@ -299,10 +307,7 @@ export function buildTeamPanel({ summary, intl, listEl, onChange }) {
 // Both display season facts, not filter state — the active filter shapes
 // the globe + panel, not the season totals.
 export function updateHeaderMetrics({ summary, intl }) {
-  const total = Object.values(summary).reduce(
-    (sum, s) => sum + s.totalMiles,
-    0,
-  );
+  const total = totalLeagueMiles(summary);
   const leagueEl = document.getElementById("league-miles");
   const intlMilesEl = document.getElementById("international-miles");
   const intlGamesEl = document.getElementById("international-games");

@@ -191,6 +191,14 @@ img.topbar__mark {
   margin-left: 6px;
 }
 
+/* The mobile-only duplicate lives inside .topbar__meta. Hidden on desktop —
+   the brand-side instance carries the toggle there. Shown on mobile by the
+   media query below, where the brand-side instance is hidden in turn. */
+.season-switch--mobile {
+  display: none;
+  margin-left: 0;
+}
+
 .season-switch__button {
   border: 0;
   background: transparent;
@@ -443,9 +451,13 @@ img.topbar__mark {
 }
 
 /* ── Panel ──────────────────────────────────────────────────── */
+/* `top` sits clear of the topbar's stacked H1 + sublabel so the joint
+   between identity and tool chrome reads as a break, not another flush
+   band. `overflow: visible` lets chip + sort tooltips escape; `.team-list`
+   re-clips the rounded bottom. */
 .panel {
   position: absolute;
-  top: 92px;
+  top: 132px;
   left: 18px;
   bottom: 64px;
   width: 290px;
@@ -455,12 +467,19 @@ img.topbar__mark {
   box-shadow: 0 10px 30px -10px var(--shadow);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
   z-index: 4;
 }
 
+/* Extra bottom padding separates the head from the chip row below. */
 .panel__head {
-  padding: 12px 14px 10px;
+  padding: 12px 14px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.panel__head-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -522,19 +541,29 @@ img.topbar__mark {
   background: var(--line);
 }
 
-/* Panel-head international call-out — telegraphs the season story
-   (e.g. "8 teams travel internationally · 32,140 mi total") in body
-   sentence case, deliberately NOT another uppercase-tracked kicker. */
-.panel__intl {
+/* Mirrors .metric__value typography — same numeric voice as the topbar tiles. */
+.panel__head-meta {
   margin: 0;
-  padding: 6px 14px 10px;
-  font-family: var(--font-ui);
-  font-size: var(--text-meta);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-variant-numeric: tabular-nums;
   line-height: 1.4;
-  color: var(--ink-soft);
+  color: var(--ink-mute);
+  letter-spacing: 0.02em;
 }
 
-.panel__intl[hidden] {
+.panel__head-meta[hidden] {
+  display: none;
+}
+
+/* Hidden on desktop where the topbar metric tile carries this; revealed on
+   mobile where the tile is hidden. */
+.panel__head-meta__league {
+  display: none;
+}
+
+/* Peek-up affordance for the mobile sheet — visual only, no JS drag yet. */
+.panel__handle {
   display: none;
 }
 
@@ -545,7 +574,7 @@ img.topbar__mark {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
-  padding: 0 14px 10px;
+  padding: 2px 14px 12px;
   border-bottom: 1px solid var(--line);
 }
 
@@ -661,6 +690,10 @@ img.topbar__mark {
   flex: 1;
   scrollbar-width: thin;
   scrollbar-color: var(--ink-mute) transparent;
+  /* Panel dropped its overflow:hidden so chip tooltips can escape; team-list
+     keeps the card's rounded bottom corners by clipping itself instead. */
+  border-bottom-left-radius: var(--radius);
+  border-bottom-right-radius: var(--radius);
 }
 
 .team-list::-webkit-scrollbar {
@@ -674,18 +707,23 @@ img.topbar__mark {
 
 /* Division group header (e.g. "AFC East · 41,402 mi"). A different
    grammar from the panel's uppercase-tracked H2 so the panel doesn't
-   stack two kicker labels. Display font, normal case, generous tracking. */
+   stack two kicker labels. Display font, normal case, generous tracking.
+   The top margin (instead of padding) puts the divider line inside the
+   breath between divisions, not flush at the line of the prior row — the
+   eye reads 8 distinct clusters with rest between them. */
 .team-group__head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 10px;
-  padding: 14px 14px 4px;
+  padding: 8px 14px 4px;
+  margin-top: 22px;
   border-top: 1px solid var(--line);
 }
 
 .team-group__head:first-child {
   border-top: 0;
+  margin-top: 0;
   padding-top: 8px;
 }
 
@@ -1169,17 +1207,36 @@ img.topbar__mark {
 
 /* ── Responsive ─────────────────────────────────────────────── */
 @media (max-width: 760px) {
+  /* Peek-up sheet posture — short band so the globe gets the room. */
   .panel {
     width: calc(100% - 36px);
     top: auto;
     bottom: 64px;
     left: 18px;
     right: 18px;
-    height: 38%;
+    height: 30%;
   }
-  /* Stack topbar to two rows on phones: brand on top, meta below.
-     Without this, .topbar__meta overflows past the viewport (~430px wide
-     against a 375px screen) and the icon cluster runs off-screen. */
+  .panel__handle {
+    display: block;
+    width: 36px;
+    height: 4px;
+    margin: 6px auto 2px;
+    background: var(--line-strong);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .panel__head {
+    padding: 6px 14px 14px;
+  }
+  /* League total only surfaces here on mobile (topbar tile hides). */
+  .panel__head-meta__league {
+    display: inline;
+  }
+  /* Topbar stacks into two rows on mobile so the brand cluster gets the
+     full viewport width — otherwise the H1 and sublabel wrap into 3–4
+     lines inside a ~114px-wide titles block when they share the row with
+     the icon rail. Metric tiles are hidden below, so row 2 is just the
+     icon rail (short and quiet). */
   .topbar {
     flex-direction: column;
     align-items: stretch;
@@ -1198,45 +1255,39 @@ img.topbar__mark {
   .topbar__titles h1 {
     font-size: 22px;
   }
-  /* Season switch is a power-user toggle, not load-bearing for first read.
-     Hide on phones so the title cluster fits cleanly. */
+  /* Hide the brand-side switch on phones (the brand cluster needs every
+     pixel of width for the H1 + sublabel without wrapping). The
+     .season-switch--mobile duplicate below carries the toggle on phones. */
   .topbar__brand .season-switch {
     display: none;
   }
+  /* Row 2 carries the mobile season switch on the left and the icon rail
+     on the right. `space-between` balances them across the row instead of
+     bunching everything at one edge. */
   .topbar__meta {
-    flex-direction: row;
     align-items: center;
-    flex-wrap: wrap;
-    justify-content: flex-start;
+    justify-content: space-between;
     gap: 8px;
   }
-  /* Compress the metric cards: row layout (label : value), smaller padding,
-     hide the supplementary game-count sub line so the pair fits on one row
-     alongside the icon cluster. */
-  .metric {
-    flex-direction: row;
-    align-items: baseline;
-    gap: 6px;
-    min-width: 0;
-    padding: 6px 10px;
+  /* Reveal the mobile-only season switch — sits at the left end of row 2,
+     paired across the row with the icon rail. */
+  .season-switch--mobile {
+    display: inline-flex;
   }
-  .metric__label {
-    font-size: 10px;
-  }
-  .metric__value {
-    margin-top: 0;
-  }
-  .metric__sub {
+  /* Metric tiles drop out of the topbar on mobile — the league total moves
+     into the panel kicker, the intl figure was already there. */
+  .topbar__meta .metric {
     display: none;
   }
   .hint,
   .legend {
     display: none;
   }
-  /* Topbar icons wrap onto a second row at phone widths, so the desktop
-     `right: 0` tooltip anchoring (which extends the bubble leftward from the
-     button) overflows the viewport when the button sits at the left edge of
-     that row. Re-anchor centered on the button and cap width to the viewport. */
+  /* Re-anchor topbar icon tooltips centered on the button (rather than the
+     desktop `right: 0` posture) and cap the width to the viewport. With four
+     icons in the rail and the share button's `is-feedback` state that has to
+     stay visible without hover, centering keeps every tooltip inside 375px
+     and lets the longer feedback copy ("Link copied!") wrap cleanly. */
   .topbar__meta .theme-toggle[data-tooltip]::after {
     left: 50%;
     right: auto;
