@@ -577,11 +577,60 @@ img.topbar__mark {
   border-color: var(--ink);
 }
 
-/* "None" sits at the right end of the chip row so it visually pairs with
+/* "Clear" sits at the right end of the chip row so it visually pairs with
    "All" at the left. Same chrome as the other chips so it reads as a real
-   action, not a disabled placeholder. */
-.panel__preset--none {
+   action, not a disabled placeholder. The label says "Clear" rather than
+   "None" so the destructive intent reads at first glance — the chip's
+   internal data-preset key is still `none` for URL stability. */
+.panel__preset--clear {
   margin-left: auto;
+}
+
+/* Empty-state banner: appears below the preset chips when active.size === 0.
+   The chip row is right above it, so the banner doesn't repeat "pick a
+   preset" — it just labels the state and offers an undo when one is
+   available. Visible at both breakpoints so the mobile user, who never
+   sees the 10px gesture hint, still gets the recovery affordance. */
+.panel__empty {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  padding: 8px 14px 10px;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-ui);
+  font-size: var(--text-meta);
+  color: var(--ink-soft);
+}
+
+.panel__empty[hidden] {
+  display: none;
+}
+
+.panel__empty-text {
+  font-weight: 500;
+}
+
+.panel__empty-restore {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  transition: color 120ms ease;
+}
+
+.panel__empty-restore:hover {
+  color: var(--ink-soft);
+}
+
+.panel__empty-restore:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
 .panel__preset,

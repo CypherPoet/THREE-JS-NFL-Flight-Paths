@@ -65,17 +65,6 @@ const urlTeams = parseTeamsParam(urlParams.get("teams"));
 const urlSeason = parseSeasonParam(urlParams.get("season"));
 const urlView = parseViewParam(urlParams.get("view"));
 
-const DEFAULT_HINT =
-  "Drag to rotate · scroll to zoom · hover a stadium · click a team to toggle · shift-click to isolate";
-const EMPTY_HINT = "No teams selected. Pick All, AFC, or a division to bring arcs back.";
-
-// Empty selection produces a blank globe; swap copy so the user knows why.
-function updateHintForSelection(active) {
-  const hint = document.getElementById("hint");
-  if (!hint) return;
-  hint.textContent = active.size === 0 ? EMPTY_HINT : DEFAULT_HINT;
-}
-
 // Serializers. Each writes its slice into a shared mutable URLSearchParams
 // pulled fresh from window.location at call time, so they compose without
 // stomping each other when filter + season + camera change in the same tick.
@@ -360,7 +349,6 @@ async function start() {
         applyTeamFilter(currentFlightPaths, active);
         updateHover();
         persistUrlState();
-        updateHintForSelection(active);
       },
     });
 
@@ -379,7 +367,6 @@ async function start() {
 
     updateHeaderMetrics({ summary, intl });
     mileageModal.setSummary(summary, `${meta.label} · regular-season totals`);
-    updateHintForSelection(currentPanel.active);
   }
 
   // Sync season-switch button data-active to whatever URL state resolved to,

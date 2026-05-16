@@ -280,11 +280,22 @@
           </button>
           <button
             type="button"
-            class="panel__preset panel__preset--none"
+            class="panel__preset panel__preset--clear"
             data-preset="none"
-            aria-label="Show no teams"
+            aria-label="Clear selection"
           >
-            None
+            Clear
+          </button>
+        </div>
+        <div class="panel__empty" id="panel-empty" role="status" hidden>
+          <span class="panel__empty-text">No teams selected.</span>
+          <button
+            type="button"
+            class="panel__empty-restore"
+            id="panel-empty-restore"
+            hidden
+          >
+            Restore last selection
           </button>
         </div>
         <ol class="team-list" id="team-list"></ol>

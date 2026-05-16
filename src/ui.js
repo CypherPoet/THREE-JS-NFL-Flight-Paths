@@ -39,6 +39,10 @@ export function buildTeamPanel({ summary, intl, listEl, onChange }) {
   // First-paint default. The bare URL boots showing the five longest-travel
   // teams so the data story leads with the lede; "All" is one chip away.
   const active = new Set(longest5);
+  // Snapshot saved when the user clicks Clear on a non-empty selection;
+  // reset on any other state-mutating action. `.size === 0` means "no
+  // snapshot available", which is also the URL-arrival state.
+  const previousActive = new Set();
 
   let currentSort = "division";
   const rowsByTeam = {};
@@ -119,6 +123,7 @@ export function buildTeamPanel({ summary, intl, listEl, onChange }) {
       <span class="team-row__miles">${formatMiles(miles)}</span>
     `;
     function toggleFromEvent(modifier) {
+      previousActive.clear();
       if (modifier) {
         active.clear();
         active.add(teamKey);
@@ -153,7 +158,23 @@ export function buildTeamPanel({ summary, intl, listEl, onChange }) {
   function refresh() {
     applyActiveState();
     updatePresetState();
+    updateEmptyBanner();
     onChange(active);
+  }
+
+  // The restore button hides when previousActive is empty so URL arrivals
+  // at ?teams=none show the label without an irrelevant action.
+  function updateEmptyBanner() {
+    emptyBannerEl.hidden = active.size > 0;
+    emptyRestoreBtnEl.hidden = previousActive.size === 0;
+  }
+
+  function restorePrevious() {
+    if (previousActive.size === 0) return;
+    active.clear();
+    for (const k of previousActive) active.add(k);
+    previousActive.clear();
+    refresh();
   }
 
   // Each preset corresponds to a canonical Set of teams. "All" sets every
@@ -161,6 +182,16 @@ export function buildTeamPanel({ summary, intl, listEl, onChange }) {
   // top 5 by mileage; "International" picks teams with overseas games;
   // "Clear" empties the selection.
   function applyPreset(preset) {
+    if (preset === "none") {
+      // A second Clear tap on an already-empty state must not overwrite
+      // the snapshot, or the restore button silently goes dead.
+      if (active.size > 0) {
+        previousActive.clear();
+        for (const k of active) previousActive.add(k);
+      }
+    } else {
+      previousActive.clear();
+    }
     active.clear();
     if (preset === "all") {
       for (const k of TEAM_KEYS) active.add(k);
@@ -239,8 +270,19 @@ export function buildTeamPanel({ summary, intl, listEl, onChange }) {
   rebind(".panel__preset", "preset", applyPreset);
   rebind(".panel__sort-button", "sort", setSort);
 
+  // The panel is rebuilt on every season switch (see loadSeason in main.js),
+  // so the restore button needs the same clone-replace treatment the preset
+  // and sort chips get via rebind() — otherwise each switch stacks another
+  // listener (and another stale `previousActive` closure) on the static node.
+  const emptyBannerEl = document.getElementById("panel-empty");
+  const staleRestoreBtn = document.getElementById("panel-empty-restore");
+  const emptyRestoreBtnEl = staleRestoreBtn.cloneNode(true);
+  staleRestoreBtn.parentNode.replaceChild(emptyRestoreBtnEl, staleRestoreBtn);
+  emptyRestoreBtnEl.addEventListener("click", restorePrevious);
+
   renderRows();
   updatePresetState();
+  updateEmptyBanner();
 
   function setAll(on) {
     applyPreset(on ? "all" : "none");
