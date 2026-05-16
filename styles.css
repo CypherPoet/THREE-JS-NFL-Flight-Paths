@@ -502,9 +502,7 @@ img.topbar__mark {
   color: var(--ink);
 }
 
-/* Section-level reset action. Lives in the head-row beside the sort toggle so
-   it reads as a section action — not a filter peer. Quieter than the H2 so
-   the row's primary anchor stays the kicker. */
+/* Lives in the head-row, not the chip row, so it doesn't read as a filter peer. */
 .panel__head-clear {
   background: transparent;
   border: 0;

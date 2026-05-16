@@ -275,8 +275,7 @@ export function buildTeamPanel({ summary, intl, listEl, onChange }) {
       fresh.addEventListener("click", () => handler(fresh.dataset[datasetKey]));
     }
   }
-  rebind(".panel__preset", "preset", applyPreset);
-  rebind(".panel__head-clear", "preset", applyPreset);
+  rebind(".panel__preset, .panel__head-clear", "preset", applyPreset);
   rebind(".panel__sort-button", "sort", setSort);
 
   // The panel is rebuilt on every season switch (see loadSeason in main.js),
