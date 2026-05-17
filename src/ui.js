@@ -12,9 +12,9 @@ export function formatMiles(miles) {
   return numberFormatter.format(Math.round(miles)) + " mi";
 }
 
-export function sortTeamsByMiles(summary) {
+export function sortTeamsByMiles(summary, field = "totalMiles") {
   return [...TEAM_KEYS].sort(
-    (a, b) => summary[b].totalMiles - summary[a].totalMiles,
+    (a, b) => summary[b][field] - summary[a][field],
   );
 }
 

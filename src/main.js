@@ -366,7 +366,7 @@ async function start() {
     }
 
     updateHeaderMetrics({ summary, intl });
-    mileageModal.setSummary(summary, `${meta.label} · regular-season totals`);
+    mileageModal.setSummary(summary, meta.label, intl);
   }
 
   // Sync season-switch button data-active to whatever URL state resolved to,
