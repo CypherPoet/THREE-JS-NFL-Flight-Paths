@@ -79,12 +79,14 @@
   --font-display: "Big Shoulders Display", system-ui, sans-serif;
   --font-ui: "Geist", system-ui, sans-serif;
   --font-mono: "Departure Mono", ui-monospace, monospace;
-  /* Keep chrome on the fixed rem rungs; only the H1 breathes via clamp(). */
-  --text-micro: 0.625rem;
-  --text-meta: 0.8125rem;
+  /* Keep chrome on the fixed rem rungs; only the H1 breathes via clamp().
+     Chrome rungs (12 / 14 / 16) sit close on purpose — same family, three
+     roles (chip / secondary / body) — then the content jumps commit. */
+  --text-micro: 0.75rem;
+  --text-meta: 0.875rem;
   --text-base: 1rem;
-  --text-section: 1.25rem;
-  --text-display: clamp(1.5rem, 1.25rem + 1vw, 2rem);
+  --text-section: 1.375rem;
+  --text-display: clamp(1.875rem, 1.3rem + 1.6vw, 2.5rem);
   /* International-segment marker for stacked mileage bars. Reads as a
      "distinct material" overlay against any team accent. */
   --intl-marker: #7a6b3d;
@@ -477,9 +479,11 @@ img.topbar__mark {
   z-index: 4;
 }
 
-/* Extra bottom padding separates the head from the chip row below. */
+/* Single-row head on desktop (title + Clear + sort toggle). The mobile
+   breakpoint inflates bottom padding when the meta call-out row reveals
+   below. */
 .panel__head {
-  padding: 12px 14px 22px;
+  padding: 12px 14px 14px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -491,38 +495,46 @@ img.topbar__mark {
   gap: 8px;
 }
 
-/* The one kept kicker. Every other tracked-uppercase label in the chrome
-   was demoted so this slot can carry the voice on its own. Body family
-   (Geist) at small tracked uppercase: Big Shoulders condenses too tightly
-   at 13px to carry the kicker grammar; this slot wants legibility, not
-   display authority. */
+/* Panel title. Display family at a tier between the H1 (40px) and the
+   division headers (16px) so the panel head reads as a real heading, not
+   a tracked-uppercase kicker that competes with the sort toggle for
+   visual weight in the same row. */
 .panel__head h2 {
   margin: 0;
   margin-right: auto;
-  font-family: var(--font-ui);
-  font-size: var(--text-meta);
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: 0.007em;
   color: var(--ink);
 }
 
-/* Lives in the head-row, not the chip row, so it doesn't read as a filter peer. */
+/* Sits at the right end of the preset chip row — conceptually a peer of
+   the filter chips (it's the "none" preset) but visually held apart from
+   them: rectangle posture (6px radius, not the 999px chip pill) + smaller
+   text + `margin-left: auto` pushing it away from the cluster. The
+   distinct shape says "meta action, not another filter". */
 .panel__head-clear {
+  margin-left: auto;
   background: transparent;
-  border: 0;
-  padding: 4px 6px;
+  border: 1px solid var(--line-strong);
+  padding: 4px 10px;
   font: inherit;
   font-family: var(--font-ui);
   font-size: var(--text-micro);
   font-weight: 500;
-  color: var(--ink-mute);
+  color: var(--ink-soft);
+  border-radius: 6px;
   cursor: pointer;
-  transition: color 120ms ease;
+  transition:
+    background 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease;
 }
 
 .panel__head-clear:hover {
   color: var(--ink);
+  background: var(--line);
 }
 
 /* Sort toggle: a two-state switch (by division / by miles). Plain text
@@ -573,7 +585,10 @@ img.topbar__mark {
   background: var(--line);
 }
 
-/* Mirrors .metric__value typography — same numeric voice as the topbar tiles. */
+/* Mirrors .metric__value typography — same numeric voice as the topbar tiles.
+   Hidden on desktop entirely; the topbar metric tiles (League total miles +
+   International miles) carry the same data there. The mobile breakpoint
+   reveals this row (and both spans inside it) when those tiles drop out. */
 .panel__head-meta {
   margin: 0;
   font-family: var(--font-mono);
@@ -582,15 +597,10 @@ img.topbar__mark {
   line-height: 1.4;
   color: var(--ink-mute);
   letter-spacing: 0.02em;
-}
-
-.panel__head-meta[hidden] {
   display: none;
 }
 
-/* Hidden on desktop where the topbar metric tile carries this; revealed on
-   mobile where the tile is hidden. */
-.panel__head-meta__league {
+.panel__head-meta[hidden] {
   display: none;
 }
 
@@ -642,7 +652,7 @@ img.topbar__mark {
    The chip row is right above it, so the banner doesn't repeat "pick a
    preset" — it just labels the state and offers an undo when one is
    available. Visible at both breakpoints so the mobile user, who never
-   sees the 10px gesture hint, still gets the recovery affordance. */
+   sees the 12px gesture hint, still gets the recovery affordance. */
 .panel__empty {
   display: flex;
   flex-wrap: wrap;
@@ -754,14 +764,15 @@ img.topbar__mark {
   padding-top: 8px;
 }
 
-/* Division header: a real second-tier heading inside the panel, sized up
-   from the kicker grammar so Big Shoulders has room to read. The condensed
-   letterforms become an asset at 16px instead of a liability at 13px. */
+/* Division header: one tier below the panel title (18px → 16px), same
+   family + weight + tracking, so size alone carries the nested-heading
+   relationship. The condensed letterforms have enough room at 16px that
+   the display voice reads as an asset, not a squeeze. */
 .team-group__name {
   font-family: var(--font-display);
   font-size: var(--text-base);
   font-weight: 700;
-  letter-spacing: -0.008em;
+  letter-spacing: 0.007em;
   color: var(--ink);
 }
 
@@ -1271,9 +1282,10 @@ img.topbar__mark {
   .panel__head {
     padding: 6px 14px 14px;
   }
-  /* League total only surfaces here on mobile (topbar tile hides). */
-  .panel__head-meta__league {
-    display: inline;
+  /* Both meta spans surface here on mobile — the topbar metric tiles hide
+     below, so this row carries the league total + international call-out. */
+  .panel__head-meta {
+    display: block;
   }
   /* Topbar stacks into two rows on mobile so the brand cluster gets the
      full viewport width — otherwise the H1 and sublabel wrap into 3–4
@@ -1296,7 +1308,7 @@ img.topbar__mark {
     -webkit-backdrop-filter: blur(6px);
   }
   .topbar__titles h1 {
-    font-size: 22px;
+    font-size: 26px;
   }
   /* Hide the brand-side switch on phones (the brand cluster needs every
      pixel of width for the H1 + sublabel without wrapping). The
@@ -1424,7 +1436,7 @@ img.topbar__mark {
   font-family: var(--font-display);
   font-size: var(--text-section);
   font-weight: 650;
-  letter-spacing: -0.012em;
+  letter-spacing: 0.007em;
   color: var(--ink);
 }
 
@@ -1449,17 +1461,17 @@ img.topbar__mark {
 .methodology__body {
   padding: 18px 22px 22px;
   overflow-y: auto;
-  font-size: var(--text-meta);
-  line-height: 1.55;
+  font-size: var(--text-base);
+  line-height: 1.6;
   color: var(--ink-soft);
   scrollbar-width: thin;
   scrollbar-color: var(--ink-mute) transparent;
 }
 
-/* Body-content subheads in the methodology modal. Body family (Geist)
-   keeps subhead authority via weight contrast against the surrounding
-   paragraph text; Big Shoulders at 16px was reading dense inside a body
-   block where the display voice doesn't belong. */
+/* Body-content subheads in the methodology modal. Same family + size
+   as the paragraphs they head; weight contrast (700 vs 400) carries the
+   subhead. Big Shoulders is a display face and doesn't belong inside a
+   body block, even at matched size. */
 .methodology__body h3 {
   font-family: var(--font-ui);
   font-size: var(--text-base);
@@ -1582,7 +1594,7 @@ img.topbar__mark {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: var(--text-section);
-  letter-spacing: -0.01em;
+  letter-spacing: 0.007em;
   color: var(--ink);
 }
 

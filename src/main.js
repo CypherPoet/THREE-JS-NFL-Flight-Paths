@@ -337,7 +337,7 @@ async function start() {
 
     const legs = buildTravelLegs(meta.games);
     const summary = summariseByTeam(legs);
-    const intl = summariseInternational(summary);
+    const intl = summariseInternational(summary, legs);
     currentFlightPaths = createFlightPaths(legs, THEMES[currentThemeName]);
     globe.group.add(currentFlightPaths.group);
     if (prefersReducedMotion) tickTravelers(currentFlightPaths, 0);
