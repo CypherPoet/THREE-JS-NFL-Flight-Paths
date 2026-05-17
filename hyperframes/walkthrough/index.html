@@ -86,7 +86,7 @@
       data-width="1920"
       data-height="1080"
       data-start="0"
-      data-duration="19"
+      data-duration="21"
     >
       <div
         id="intro-host"
@@ -94,14 +94,14 @@
         data-composition-id="intro"
         data-composition-src="compositions/intro.html"
         data-start="0"
-        data-duration="2.4"
+        data-duration="3.4"
         data-track-index="1"
       ></div>
 
       <video
         id="footage-video"
         class="clip scene"
-        data-start="2"
+        data-start="3"
         data-duration="15.4"
         data-media-start="0"
         data-track-index="2"
@@ -115,8 +115,8 @@
         class="clip scene"
         data-composition-id="outro"
         data-composition-src="compositions/outro.html"
-        data-start="17"
-        data-duration="2"
+        data-start="18"
+        data-duration="3"
         data-track-index="3"
       ></div>
     </div>
@@ -131,11 +131,11 @@
       tl.set("#footage-video", { opacity: 0 }, 0);
       tl.set("#outro-host", { opacity: 0 }, 0);
 
-      tl.to("#intro-host", { opacity: 0, duration: 0.4, ease: "power2.inOut" }, 1.8);
-      tl.to("#footage-video", { opacity: 1, duration: 0.4, ease: "power2.inOut" }, 1.8);
+      tl.to("#intro-host", { opacity: 0, duration: 0.4, ease: "power2.inOut" }, 2.8);
+      tl.to("#footage-video", { opacity: 1, duration: 0.4, ease: "power2.inOut" }, 2.8);
 
-      tl.to("#footage-video", { opacity: 0, duration: 0.4, ease: "power2.inOut" }, 16.8);
-      tl.to("#outro-host", { opacity: 1, duration: 0.4, ease: "power2.inOut" }, 16.8);
+      tl.to("#footage-video", { opacity: 0, duration: 0.4, ease: "power2.inOut" }, 17.8);
+      tl.to("#outro-host", { opacity: 1, duration: 0.4, ease: "power2.inOut" }, 17.8);
 
       window.__timelines = window.__timelines || {};
       window.__timelines["walkthrough"] = tl;

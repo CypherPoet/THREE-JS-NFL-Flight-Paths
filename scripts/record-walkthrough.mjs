@@ -136,37 +136,59 @@ async function main() {
   });
 
   // Beats are documented in hyperframes/walkthrough/beat-sheet.md.
+  // The theme-toggle click lands at footage t≈6.5s, which lines up with
+  // composition t=9.5s once the 3s intro is in front — that's the structural
+  // beat the soundtrack is written to.
+  //
+  // Each `waitUntil(t)` anchors against absolute footage time, not a delta —
+  // so click()/hover() wallclock overhead doesn't drift later beats. If a
+  // Playwright action runs over budget we lose the cushion before it, but the
+  // theme flip and downstream beats still land where the soundtrack expects.
   console.log("Recording 15.5s beat sheet...");
   const captureStartMs = Date.now();
+  const waitUntil = async (footageSec) => {
+    const remaining = captureStartMs + footageSec * 1000 - Date.now();
+    if (remaining > 0) await sleep(remaining);
+  };
   // Drag-safe area: left half of the viewport (sidebar is on the right).
   const dragY = 540;
 
-  await sleep(2000);
+  // beat 1 [0.0–1.5s]: hero pose holds on the US, Longest 5 default
+  await waitUntil(1.5);
 
-  await page.mouse.move(700, dragY);
-  await page.mouse.down();
-  await page.mouse.move(960, dragY - 50, { steps: 60 });
-  await page.mouse.up();
-  await sleep(900);
-
+  // beat 2 [1.5–3.0s]: hover first team row — chip + arcs glow
   await page.locator("#team-list .team-row").first().hover().catch(() => {});
-  await sleep(1500);
+  await waitUntil(3.0);
 
-  await page.locator('[data-preset="international"]').click();
-  await sleep(1500);
+  // beat 3 [3.0–4.5s]: click "All" — arcs fill across the continental US
+  await page.locator('[data-preset="all"]').click();
+  await waitUntil(4.5);
 
+  // beat 4 [4.5–6.0s]: hover a different team row in the dense field
+  await page.locator("#team-list .team-row").nth(5).hover().catch(() => {});
+  await waitUntil(6.5);
+
+  // beat 5 [6.5s]: theme-toggle click → composition t=9.5s
   await page.locator("#theme-toggle").click();
-  await sleep(500);
+  await waitUntil(7.0);
 
-  await page.mouse.move(960, dragY);
+  // beat 6 [7.0–8.5s]: click "International" — overseas arcs only
+  await page.locator('[data-preset="international"]').click();
+  await waitUntil(8.5);
+
+  // beat 7 [8.5–11.0s]: drag east — sweep the globe toward Europe
+  await page.mouse.move(1100, dragY);
   await page.mouse.down();
-  await page.mouse.move(640, dragY + 80, { steps: 60 });
+  await page.mouse.move(380, dragY + 40, { steps: 80 });
   await page.mouse.up();
-  await sleep(1500);
+  await waitUntil(11.0);
 
+  // beat 8 [11.0–13.0s]: hover team row — highlight an international leg
   await page.locator("#team-list .team-row").first().hover().catch(() => {});
-  const elapsed = Date.now() - captureStartMs;
-  await sleep(Math.max(0, 15500 - elapsed));
+  await waitUntil(13.0);
+
+  // beat 9 [13.0–15.5s]: settle, travelers run, final hold
+  await waitUntil(15.5);
 
   const captureEndMs = Date.now();
   await cdp.send("Page.stopScreencast");

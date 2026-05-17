@@ -12,25 +12,24 @@ Paste-ready prompts for generating an instrumental soundtrack for `media/walkthr
 
 ## What you're scoring
 
-**Total: 19 seconds.** One climactic structural beat at 9.5s — the on-screen light → dark theme toggle.
+**Total: 21 seconds.** One climactic structural beat at 9.5s — the on-screen light → dark theme toggle.
 
 | Time           | What's on screen                                                                                |
 | -------------- | ----------------------------------------------------------------------------------------------- |
-| 0.0 – 2.0s     | Intro card. "NFL FLIGHT PATHS" title staggers in.                                               |
-| 2.0 – 6.5s     | Live app footage, light theme. Globe drag-rotates across the US.                                |
-| 6.5 – 9.5s     | "International" preset clicks, new arc set draws. Tension builds.                               |
+| 0.0 – 3.0s     | Intro card. "NFL FLIGHT PATHS" title staggers in.                                               |
+| 3.0 – 9.5s     | Live app footage, light theme. Toggle controls used; arcs fill across the US.                   |
 | **9.5s**       | **THE HIT.** Theme toggles light → dark. UI flashes black; arcs glow against the dark sphere.   |
-| 9.5 – 17.0s    | Dark theme. Camera pans east; Atlantic crossings, travelers running along the great circles.    |
-| 17.0 – 19.0s   | Outro card. Glyph, URL, "Built with Three.js" tagline. Final 0.5s fades to black.               |
+| 9.5 – 18.0s    | Dark theme. International preset, camera pans east toward Europe; travelers run.                |
+| 18.0 – 21.0s   | Outro card. Glyph, URL, "Built with Three.js" tagline. Final 0.5s fades to black.               |
 
 ## Universal constraints
 
 These apply to every prompt and are already embedded inside each prompt's text — repeated here for human awareness:
 
-- **Length: 19 seconds.** Most generators produce 30s minimums; trim the tail.
+- **Length: 21 seconds.** Most generators produce 30s minimums; trim the tail.
 - **Instrumental only. No vocals, no lyrics, no spoken word, no choir, no vocal samples.**
 - **The big musical event lands at 9.5s** — drop, stinger, swell, full-ensemble entry, whatever the genre allows. Non-negotiable; it's the visual's climax.
-- **Arc**: sparse 0–2s, build 2–9s, hit at 9.5s, sustain 9.5–17s, resolve to silence 17–19s.
+- **Arc**: sparse 0–3s, build 3–9s, hit at 9.5s, sustain 9.5–18s, resolve to silence 18–21s.
 
 ## Integration
 
@@ -41,7 +40,7 @@ These apply to every prompt and are already embedded inside each prompt's text �
      id="soundtrack"
      class="clip"
      data-start="0"
-     data-duration="19"
+     data-duration="21"
      data-track-index="4"
      data-volume="0.85"
      src="audio/soundtrack.mp3"
@@ -55,7 +54,7 @@ These apply to every prompt and are already embedded inside each prompt's text �
 
 ## If a generator misbehaves
 
-- **Outputs longer than 19s.** Trim with `ffmpeg -i in.mp3 -t 19 -c copy out.mp3` or in your DAW.
+- **Outputs longer than 21s.** Trim with `ffmpeg -i in.mp3 -t 21 -c copy out.mp3` or in your DAW.
 - **Sneaks in vocals.** Re-prompt with "purely instrumental, absolutely no singing, no speech, no vocal pads."
 - **Misses the 9.5s hit.** Re-prompt with "the single most important moment is the impact at 9 seconds in — do not soften it, the rest of the piece exists to set up and sustain that moment."
 - **Wrong overall length.** Models can't reliably hit exact durations; generate at the tool's natural length and trim or loop the resolution.

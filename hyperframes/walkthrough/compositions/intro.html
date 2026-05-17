@@ -196,6 +196,24 @@
               1.15,
             );
 
+            // Hold-phase pulse on the arc dot. The host slot is 3.4s, but the
+            // entrance animations all land by ~1.7s — without a tween covering
+            // the rest of the window, HyperFrames stops rendering this sub-comp
+            // and the slot goes black. The pulse runs the timeline through the
+            // full hold and reads as a subtle "live signal" beat.
+            tl.fromTo(
+              ".intro-arc-dot",
+              { scale: 1, transformOrigin: "center" },
+              {
+                scale: 1.18,
+                duration: 0.7,
+                ease: "sine.inOut",
+                yoyo: true,
+                repeat: 1,
+              },
+              1.7,
+            );
+
             window.__timelines = window.__timelines || {};
             window.__timelines["intro"] = tl;
           })();
