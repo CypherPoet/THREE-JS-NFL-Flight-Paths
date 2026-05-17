@@ -34,14 +34,17 @@ export function magickArgs(source, target) {
   ];
 }
 
+export function isMagickAvailable() {
+  return spawnSync("magick", ["-version"], { stdio: "ignore" }).status === 0;
+}
+
 // Module loaded by another file (e.g. the sync test) just gets the exports.
 if (import.meta.url === `file://${process.argv[1]}`) {
   await main();
 }
 
 async function main() {
-  const probe = spawnSync("magick", ["-version"], { stdio: "ignore" });
-  if (probe.status !== 0) {
+  if (!isMagickAvailable()) {
     console.error("derive-og-image: ImageMagick `magick` not on PATH.");
     console.error("                 install via: brew install imagemagick");
     process.exit(2);

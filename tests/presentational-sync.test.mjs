@@ -17,7 +17,13 @@ import { existsSync, readFileSync } from "node:fs";
 import { readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { ROOT, OG_SOURCE, OG_TARGET, magickArgs } from "../scripts/derive-og-image.mjs";
+import {
+  ROOT,
+  OG_SOURCE,
+  OG_TARGET,
+  magickArgs,
+  isMagickAvailable,
+} from "../scripts/derive-og-image.mjs";
 
 // Top-level sync reads — `it.skipIf` evaluates the condition at registration
 // time, which is before `beforeAll` would run. Reading files at module load
@@ -26,7 +32,7 @@ const css = readFileSync(join(ROOT, "styles.css"), "utf8");
 const html = readFileSync(join(ROOT, "index.html"), "utf8");
 const manifest = JSON.parse(readFileSync(join(ROOT, "public", "site.webmanifest"), "utf8"));
 const ogBytes = existsSync(OG_TARGET) ? readFileSync(OG_TARGET) : null;
-const magickOk = spawnSync("magick", ["-version"], { stdio: "ignore" }).status === 0;
+const magickOk = isMagickAvailable();
 
 // The file declares --bg exactly twice: light first, dark second. If a third
 // theme is ever added, scope this by selector before extracting.
