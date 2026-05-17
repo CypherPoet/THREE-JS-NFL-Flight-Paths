@@ -79,12 +79,8 @@ Make sure GitHub Pages is set to **GitHub Actions** under `Settings → Pages` f
 - **[world-atlas](https://github.com/topojson/world-atlas)** — origin of the bundled `data/countries-110m.json` used as the land source
 - **2025 schedule data** from [Pro Football Reference](https://www.pro-football-reference.com/years/2025/games.htm) (regular-season subset)
 - **2026 schedule data** from [Pro Football Reference](https://www.pro-football-reference.com/years/2026/games.htm) (regular-season subset)
-- **Stadium coordinates** are public-domain venue locations; **team brand colours** are the franchises' own. This project is an educational data visualisation and is not affiliated with the NFL.
+- **Stadium coordinates** are public-domain venue locations; **team brand colours** are the franchises' own. This project is an educational data visualization and is not affiliated with the NFL.
 
 ## License
 
-MIT — see [`LICENSE`](LICENSE). Team marks, logos, and league names are the property of their respective owners and used here under nominative fair use for non-commercial visualisation.
-
----
-
-If this changed how you think about the AFC West's frequent-flyer balance, click another team. ✈️
+MIT — see [`LICENSE`](LICENSE). Team marks, logos, and league names are the property of their respective owners and used here under nominative fair use for non-commercial visualizations.
