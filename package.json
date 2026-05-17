@@ -8,7 +8,11 @@
     "build": "vite build",
     "preview": "vite preview",
     "deploy": "vite build && gh-pages -d dist",
-    "record:walkthrough": "node scripts/record-walkthrough.mjs"
+    "record:walkthrough": "node scripts/record-walkthrough.mjs",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "media:derive": "node scripts/derive-og-image.mjs",
+    "media:check": "vitest run tests/presentational-sync.test.mjs"
   },
   "dependencies": {
     "three": "^0.184.0",
@@ -16,7 +20,9 @@
   },
   "devDependencies": {
     "gh-pages": "^6.2.0",
+    "happy-dom": "^20.9.0",
     "playwright": "^1.49.0",
-    "vite": "^8.0.12"
+    "vite": "^8.0.12",
+    "vitest": "^4.1.6"
   }
 }

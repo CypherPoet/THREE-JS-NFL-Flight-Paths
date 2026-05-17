@@ -22,6 +22,14 @@ export function totalLeagueMiles(summary) {
   return Object.values(summary).reduce((sum, s) => sum + s.totalMiles, 0);
 }
 
+// CSS keys off data-active; assistive tech keys off aria-pressed/aria-selected.
+// They describe the same underlying state, so they must move together — the
+// test in tests/ui-panel.test.mjs locks this in.
+export function setToggleState(el, on, ariaAttr) {
+  el.dataset.active = on ? "true" : "false";
+  el.setAttribute(ariaAttr, on ? "true" : "false");
+}
+
 // Build the team list. Renders 32 rows grouped by division (default) or
 // flat-sorted by mileage, each row carrying a stacked mileage bar (team
 // accent + international segment). Preset chips above the list apply
@@ -153,9 +161,7 @@ export function buildTeamPanel({ summary, intl, listEl, onChange }) {
 
   function applyActiveState() {
     for (const [key, row] of Object.entries(rowsByTeam)) {
-      const on = active.has(key);
-      row.dataset.active = on ? "true" : "false";
-      row.setAttribute("aria-pressed", on ? "true" : "false");
+      setToggleState(row, active.has(key), "aria-pressed");
     }
   }
 
@@ -215,10 +221,9 @@ export function buildTeamPanel({ summary, intl, listEl, onChange }) {
   // Mark a preset chip "active" only if the current selection exactly
   // matches its canonical set. Custom selections leave every chip inactive.
   function updatePresetState() {
-    const presetButtons = document.querySelectorAll(".panel__preset");
     const matched = matchActiveToPreset();
-    for (const btn of presetButtons) {
-      btn.dataset.active = btn.dataset.preset === matched ? "true" : "false";
+    for (const btn of document.querySelectorAll(".panel__preset")) {
+      setToggleState(btn, btn.dataset.preset === matched, "aria-pressed");
     }
   }
 
@@ -244,7 +249,7 @@ export function buildTeamPanel({ summary, intl, listEl, onChange }) {
     if (sort === currentSort) return;
     currentSort = sort;
     for (const btn of document.querySelectorAll(".panel__sort-button")) {
-      btn.dataset.active = btn.dataset.sort === sort ? "true" : "false";
+      setToggleState(btn, btn.dataset.sort === sort, "aria-pressed");
     }
     renderRows();
   }
@@ -315,6 +320,11 @@ export function updateHeaderMetrics({ summary, intl }) {
   if (intlMilesEl) intlMilesEl.textContent = formatMiles(intl.totalMiles);
   if (intlGamesEl) {
     intlGamesEl.textContent = `${intl.gameCount} game${intl.gameCount === 1 ? "" : "s"}`;
+  }
+  // Settle live regions once real values are in place; placeholders held
+  // aria-busy="true" so SR users weren't told to listen to an em dash.
+  for (const el of [leagueEl, intlMilesEl]) {
+    el?.closest(".metric")?.setAttribute("aria-busy", "false");
   }
 }
 
