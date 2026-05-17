@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#e8e7e3" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0f0d0a" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#081420" media="(prefers-color-scheme: dark)" />
     <script>
       // Resolve theme before paint to avoid a flash.
       (function () {
@@ -246,6 +246,15 @@
         <div class="panel__head">
           <div class="panel__head-row">
             <h2>Teams</h2>
+            <button
+              type="button"
+              class="panel__head-clear"
+              data-preset="none"
+              aria-label="Clear team selection"
+              data-tooltip="Reset filters"
+            >
+              Clear
+            </button>
             <div class="panel__sort" role="group" aria-label="Sort teams">
               <button
                 type="button"
@@ -309,14 +318,6 @@
             data-tooltip="Teams with a game played abroad"
           >
             International
-          </button>
-          <button
-            type="button"
-            class="panel__preset panel__preset--clear"
-            data-preset="none"
-            aria-label="Clear selection"
-          >
-            Clear
           </button>
         </div>
         <div class="panel__empty" id="panel-empty" role="status" hidden>
