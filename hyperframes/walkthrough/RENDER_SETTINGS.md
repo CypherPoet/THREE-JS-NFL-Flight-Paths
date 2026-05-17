@@ -4,7 +4,7 @@ The final deliverable, `media/walkthrough.mp4`, is built in two stages:
 
 | Stage | Command | Produces | Reads |
 | ----- | ------- | -------- | ----- |
-| **Capture** | `npm run record:walkthrough` | `hyperframes/walkthrough/footage.mp4` (raw app footage) | the live Vite dev server + [beat sheet](./beat-sheet.md) |
+| **Capture** | `npm run record:walkthrough` | `hyperframes/walkthrough/footage.mp4` (raw app footage) | the live Vite dev server + [storyboard](./STORYBOARD.md) |
 | **Render** | `npx hyperframes render …` | `media/walkthrough.mp4` (final 4K 60fps) | the HyperFrames composition + `footage.mp4` |
 
 Capture is project-specific — it drives the live app through a scripted beat sheet to record fresh footage of the actual UI. Render is the standard HyperFrames build step — it composites the intro card + footage + outro card into the final mp4 using the timeline in `index.html`.
@@ -45,7 +45,7 @@ Output specs:
 | Frame rate | 60fps |
 | Codec | H.264 / AVC1 High Profile, yuv420p |
 | Bitrate | ~15 Mbps |
-| Audio | none (until a soundtrack is wired up — see [music-prompts/](./music-prompts/)) |
+| Audio | AAC stereo, derived from `assets/audio/soundtrack-01.mp3` (see [STORYBOARD.md](./STORYBOARD.md) "Underscore direction") |
 | Duration | 21.0s |
 | File size | ~40 MB |
 
@@ -66,7 +66,7 @@ What each flag does:
 
 ## Capture — `npm run record:walkthrough`
 
-`scripts/record-walkthrough.mjs` drives the live Vite dev server through the [beat sheet](./beat-sheet.md) and captures frames directly off Chromium's compositor via the Chrome DevTools Protocol (`Page.startScreencast`). Playwright's `recordVideo` is not used — it throttles to ~25fps regardless of GPU acceleration.
+`scripts/record-walkthrough.mjs` drives the live Vite dev server through the [storyboard](./STORYBOARD.md) and captures frames directly off Chromium's compositor via the Chrome DevTools Protocol (`Page.startScreencast`). Playwright's `recordVideo` is not used — it throttles to ~25fps regardless of GPU acceleration.
 
 Capture specs:
 

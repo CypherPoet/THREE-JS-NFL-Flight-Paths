@@ -234,6 +234,39 @@ if (urlView) {
   controls.update();
 }
 
+// Programmatic camera tween used by the walkthrough recorder to land on a
+// bookmarked view exactly. Wraps theta to the shortest path so US→Europe
+// rotates ~60° east instead of ~300° west.
+window.__animateToView = ({ theta, phi, r, duration = 1500 }) =>
+  new Promise((resolve) => {
+    const startTheta = controls.getAzimuthalAngle();
+    const startPhi = controls.getPolarAngle();
+    const startR = controls.getDistance();
+    let deltaTheta = theta - startTheta;
+    if (deltaTheta > Math.PI) deltaTheta -= 2 * Math.PI;
+    else if (deltaTheta < -Math.PI) deltaTheta += 2 * Math.PI;
+    const t0 = performance.now();
+    const easeInOut = (t) =>
+      t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+    function tick() {
+      const elapsed = performance.now() - t0;
+      const eased = easeInOut(Math.min(1, elapsed / duration));
+      const spherical = new THREE.Spherical(
+        startR + (r - startR) * eased,
+        startPhi + (phi - startPhi) * eased,
+        startTheta + deltaTheta * eased,
+      );
+      camera.position.setFromSpherical(spherical).add(controls.target);
+      controls.update();
+      if (eased < 1) requestAnimationFrame(tick);
+      else {
+        flushUrlStateImmediate();
+        resolve();
+      }
+    }
+    requestAnimationFrame(tick);
+  });
+
 // ── Build the world ─────────────────────────────────────────────
 let globe = null;
 let currentFlightPaths = null;

@@ -2,6 +2,12 @@
 
 Paste-ready prompts for generating an instrumental soundtrack for `media/walkthrough.mp4`. Five sonic territories — pick one, copy the prompt from the corresponding file into Suno/Udio/AIVA, save the result to `../audio/soundtrack.mp3`, then wire it into the composition (see [Integration](#integration) below).
 
+## Active soundtrack
+
+- **File:** `../assets/audio/soundtrack-01.mp3` (20.565s, 64 kbps stereo)
+- **Generated from:** [3-modern-minimal-data-viz.md](./3-modern-minimal-data-viz.md)
+- **Wired into:** `../index.html` as `<audio id="soundtrack-audio" data-track-index="0" …>` (see [STORYBOARD.md](../STORYBOARD.md) "Underscore direction" + "Composition timing" for the full timing context)
+
 ## The five styles
 
 1. [Sport-broadcast cinematic](./1-sport-broadcast-cinematic.md) — big orchestral, SNF/MNF theme vibe
@@ -33,19 +39,23 @@ These apply to every prompt and are already embedded inside each prompt's text �
 
 ## Integration
 
-1. Save the generated track as `../audio/soundtrack.mp3`. Normalize to roughly **-1 dB peak**, around **-14 LUFS** integrated loudness.
-2. Add an `<audio>` clip to `../index.html` as a sibling to the existing clips:
+> **Status: wired in.** See [Active soundtrack](#active-soundtrack) above for the actual file path, track index, and volume. The block below is the original guidance — kept for context if a future re-pick lands on a different prompt.
+
+1. Save the generated track as `../assets/audio/soundtrack-NN.mp3`. Normalize to roughly **-1 dB peak**, around **-14 LUFS** integrated loudness.
+2. Add (or update) an `<audio>` clip in `../index.html` as a sibling to the existing intro / footage / outro clips:
    ```html
    <audio
-     id="soundtrack"
+     id="soundtrack-audio"
      class="clip"
      data-start="0"
-     data-duration="21"
-     data-track-index="4"
-     data-volume="0.85"
-     src="audio/soundtrack.mp3"
+     data-duration="20.565"
+     data-media-start="0"
+     data-track-index="0"
+     data-volume="1"
+     src="assets/audio/soundtrack-01.mp3"
    ></audio>
    ```
+   Set `data-duration` to the actual mp3 length (ffprobe). Use a `data-track-index` that doesn't collide with intro (1) / footage (2) / outro (3).
 3. Re-render from `hyperframes/walkthrough/`:
    ```bash
    npx hyperframes render --fps 60 --quality high --resolution 4k --output ../../media/walkthrough.mp4

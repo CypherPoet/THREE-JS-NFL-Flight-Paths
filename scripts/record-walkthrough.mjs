@@ -135,10 +135,13 @@ async function main() {
     maxHeight: HEIGHT,
   });
 
-  // Beats are documented in hyperframes/walkthrough/beat-sheet.md.
-  // The theme-toggle click lands at footage t≈6.5s, which lines up with
-  // composition t=9.5s once the 3s intro is in front — that's the structural
-  // beat the soundtrack is written to.
+  // Beats are documented in hyperframes/walkthrough/STORYBOARD.md.
+  // The theme-toggle click fires at footage t=6.5s. The visible flip lands
+  // essentially on the click frame — the body's 250ms background-color
+  // transition is barely perceptible because the globe (most of the screen)
+  // repaints synchronously via a Three.js material swap. So visible midpoint
+  // ≈ footage t=6.5s → composition t=9.5s once the 3s intro is in front —
+  // that's the structural beat the soundtrack is written to.
   //
   // Each `waitUntil(t)` anchors against absolute footage time, not a delta —
   // so click()/hover() wallclock overhead doesn't drift later beats. If a
@@ -150,8 +153,6 @@ async function main() {
     const remaining = captureStartMs + footageSec * 1000 - Date.now();
     if (remaining > 0) await sleep(remaining);
   };
-  // Drag-safe area: left half of the viewport (sidebar is on the right).
-  const dragY = 540;
 
   // beat 1 [0.0–1.5s]: hero pose holds on the US, Longest 5 default
   await waitUntil(1.5);
@@ -168,7 +169,8 @@ async function main() {
   await page.locator("#team-list .team-row").nth(5).hover().catch(() => {});
   await waitUntil(6.5);
 
-  // beat 5 [6.5s]: theme-toggle click → composition t=9.5s
+  // beat 5 [6.5s]: theme-toggle click → visible flip on the same frame
+  // → composition t≈9.5s
   await page.locator("#theme-toggle").click();
   await waitUntil(7.0);
 
@@ -176,11 +178,18 @@ async function main() {
   await page.locator('[data-preset="international"]').click();
   await waitUntil(8.5);
 
-  // beat 7 [8.5–11.0s]: drag east — sweep the globe toward Europe
-  await page.mouse.move(1100, dragY);
-  await page.mouse.down();
-  await page.mouse.move(380, dragY + 40, { steps: 80 });
-  await page.mouse.up();
+  // beat 7 [8.5–11.0s]: animate east to the bookmarked Europe view.
+  // window.__animateToView (src/main.js) returns a Promise that resolves
+  // when the tween completes — page.evaluate awaits it, so this blocks
+  // for ~1.5s before waitUntil(11.0) dwells on the new framing.
+  await page.evaluate(() =>
+    window.__animateToView({
+      theta: 1.066,
+      phi: 0.799,
+      r: 2.32,
+      duration: 1500,
+    }),
+  );
   await waitUntil(11.0);
 
   // beat 8 [11.0–13.0s]: hover team row — highlight an international leg

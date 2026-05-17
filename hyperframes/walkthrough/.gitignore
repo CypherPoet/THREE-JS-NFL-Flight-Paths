@@ -3,3 +3,9 @@ footage.mp4
 
 # Playwright's intermediate webm + any half-finished captures.
 .tmp-record/
+
+# Per-clip preview thumbnails emitted by `hyperframes render` caching.
+.thumbnails/
+
+# Audio waveform cache emitted by `hyperframes render` for the soundtrack track.
+.waveform-cache/
