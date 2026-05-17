@@ -95,10 +95,23 @@ export function buildTravelLegs(schedule = SCHEDULE_2026) {
   return legs;
 }
 
+// Mileage savings (mi) below which a team is modeled as returning home
+// between consecutive road weeks. NFL teams almost always fly home after a
+// road game — players sleep in their own beds, use their own training and
+// medical facilities, and keep their normal practice routine. The published
+// exception is when the home detour would add a substantial number of miles
+// (cross-coast back-to-back trips, or back-to-back International Series
+// games), in which case the team stays on the road venue-to-venue.
+const STAY_ON_ROAD_DETOUR_MI = 1500;
+
 // Walk a team's sorted away/neutral legs chronologically to model realistic
-// travel: consecutive away weeks connect venue-to-venue (the team stays on the
-// road); a gap of one or more weeks means the team was at home in between
-// (home game or bye). Implicit trips home at season start and end.
+// travel. Default behavior: between any two away games (consecutive or with a
+// bye/home week in between) the team flies home and back out — matching the
+// real-world "hub-and-spoke" routine. The one exception is consecutive road
+// weeks where going home would add more than STAY_ON_ROAD_DETOUR_MI miles
+// versus a direct venue-to-venue hop, which captures the cross-coast and
+// back-to-back International Series cases. Implicit trips home at season
+// start and end.
 function computeSequentialMiles(teamKey, sortedLegs) {
   if (sortedLegs.length === 0) return 0;
   const home = TEAMS[teamKey];
@@ -108,10 +121,34 @@ function computeSequentialMiles(teamKey, sortedLegs) {
   let total = 0;
 
   for (const leg of sortedLegs) {
-    if (prevWeek > 0 && leg.week > prevWeek + 1) {
-      total += greatCircleMiles(prevLat, prevLon, home.lat, home.lon);
-      prevLat = home.lat;
-      prevLon = home.lon;
+    if (prevWeek > 0) {
+      const gap = leg.week - prevWeek;
+      const directVenueToVenue = greatCircleMiles(
+        prevLat,
+        prevLon,
+        leg.toLat,
+        leg.toLon,
+      );
+      const prevToHome = greatCircleMiles(
+        prevLat,
+        prevLon,
+        home.lat,
+        home.lon,
+      );
+      const homeToNext = greatCircleMiles(
+        home.lat,
+        home.lon,
+        leg.toLat,
+        leg.toLon,
+      );
+      const homeDetour = prevToHome + homeToNext - directVenueToVenue;
+      const staysOnRoad =
+        gap === 1 && homeDetour > STAY_ON_ROAD_DETOUR_MI;
+      if (!staysOnRoad) {
+        total += prevToHome;
+        prevLat = home.lat;
+        prevLon = home.lon;
+      }
     }
     total += greatCircleMiles(prevLat, prevLon, leg.toLat, leg.toLon);
     prevLat = leg.toLat;

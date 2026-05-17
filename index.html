@@ -522,9 +522,16 @@
             <p>
               Every mile reported here is <strong>great-circle (haversine)
               air distance</strong> between stadium coordinates, totalled by
-              walking each team's schedule in chronological order. Consecutive
-              road weeks connect venue-to-venue (the team stays on the road);
-              bye and home weeks anchor the team at its home stadium. Totals
+              walking each team's schedule in chronological order. Between any
+              two away games — even back-to-back ones — the team is modeled as
+              flying <strong>home and back out</strong>. NFL teams almost
+              always return home immediately after a road game (own beds,
+              training facility, normal practice routine). The one exception
+              modeled here is when the home detour would add more than
+              <strong>1,500 mi</strong> versus going straight to the next
+              venue — which captures rare patterns like a West Coast team
+              playing back-to-back games in the Northeast, or a team staying
+              in London for two consecutive International Series games. Totals
               are rounded to the nearest mile.
             </p>
 
@@ -551,13 +558,17 @@ d = R·c</pre>
             </p>
             <ul>
               <li>
-                Between two <strong>consecutive</strong> away weeks the team
-                flies directly from the prior venue to the next.
+                Every road trip begins and ends with a flight from / to the
+                team's home stadium. Bye and home weeks anchor the team at
+                home in between trips.
               </li>
               <li>
-                If a home or bye week sits between two away weeks, the
-                previous trip ends with a venue → home flight and the next
-                trip starts fresh from home.
+                Between two <strong>consecutive</strong> road weeks the team
+                still flies home in between by default. If going home would
+                add more than <strong>1,500 mi</strong> compared to flying
+                straight to the next venue, the team is modeled as staying on
+                the road and going directly venue-to-venue — the cross-coast
+                back-to-back and back-to-back London cases.
               </li>
               <li>
                 Neutral-site / international games count for
@@ -580,10 +591,10 @@ d = R·c</pre>
             <h3>Arcs vs. totals</h3>
             <p>
               The arcs on the globe show each team's home → venue flights as
-              independent visual tracks. The numeric totals reflect the
-              realistic chronological path instead — so summing arc lengths
-              by eye won't quite match a team's total when they have
-              back-to-back road weeks.
+              independent visual tracks; they don't include return-home flights
+              or the rare venue → venue legs. The numeric totals reflect the
+              realistic chronological path instead, so summing arc lengths by
+              eye will undercount a team's total miles.
             </p>
 
             <h3>What's <em>not</em> modelled</h3>
