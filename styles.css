@@ -79,12 +79,14 @@
   --font-display: "Big Shoulders Display", system-ui, sans-serif;
   --font-ui: "Geist", system-ui, sans-serif;
   --font-mono: "Departure Mono", ui-monospace, monospace;
-  /* Keep chrome on the fixed rem rungs; only the H1 breathes via clamp(). */
-  --text-micro: 0.625rem;
-  --text-meta: 0.8125rem;
+  /* Keep chrome on the fixed rem rungs; only the H1 breathes via clamp().
+     Chrome rungs (12 / 14 / 16) sit close on purpose — same family, three
+     roles (chip / secondary / body) — then the content jumps commit. */
+  --text-micro: 0.75rem;
+  --text-meta: 0.875rem;
   --text-base: 1rem;
-  --text-section: 1.25rem;
-  --text-display: clamp(1.5rem, 1.25rem + 1vw, 2rem);
+  --text-section: 1.375rem;
+  --text-display: clamp(1.875rem, 1.3rem + 1.6vw, 2.5rem);
   /* International-segment marker for stacked mileage bars. Reads as a
      "distinct material" overlay against any team accent. */
   --intl-marker: #7a6b3d;
@@ -761,7 +763,7 @@ img.topbar__mark {
   font-family: var(--font-display);
   font-size: var(--text-base);
   font-weight: 700;
-  letter-spacing: -0.008em;
+  letter-spacing: 0.007em;
   color: var(--ink);
 }
 
@@ -1296,7 +1298,7 @@ img.topbar__mark {
     -webkit-backdrop-filter: blur(6px);
   }
   .topbar__titles h1 {
-    font-size: 22px;
+    font-size: 26px;
   }
   /* Hide the brand-side switch on phones (the brand cluster needs every
      pixel of width for the H1 + sublabel without wrapping). The
@@ -1424,7 +1426,7 @@ img.topbar__mark {
   font-family: var(--font-display);
   font-size: var(--text-section);
   font-weight: 650;
-  letter-spacing: -0.012em;
+  letter-spacing: 0.007em;
   color: var(--ink);
 }
 
@@ -1449,8 +1451,8 @@ img.topbar__mark {
 .methodology__body {
   padding: 18px 22px 22px;
   overflow-y: auto;
-  font-size: var(--text-meta);
-  line-height: 1.55;
+  font-size: var(--text-base);
+  line-height: 1.6;
   color: var(--ink-soft);
   scrollbar-width: thin;
   scrollbar-color: var(--ink-mute) transparent;
@@ -1582,7 +1584,7 @@ img.topbar__mark {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: var(--text-section);
-  letter-spacing: -0.01em;
+  letter-spacing: 0.007em;
   color: var(--ink);
 }
 
