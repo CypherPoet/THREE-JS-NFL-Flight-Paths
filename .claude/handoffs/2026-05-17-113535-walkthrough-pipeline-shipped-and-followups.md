@@ -48,8 +48,8 @@ URL state contract in `src/main.js`: `?view=θ,φ,r` sets spherical camera coord
 | `hyperframes/walkthrough/STORYBOARD.md` | Storyboard + narrative direction | Narrative bodies are stubs — user fills, or next agent drafts a pass from `design.md` + `music-prompts/3-modern-minimal-data-viz.md` for user to edit |
 | `hyperframes/walkthrough/index.html` | Composition root | New `<audio>` element wired at `data-track-index="0"`. Has `data-composition-variables` opportunity — currently none declared |
 | `src/main.js:236-269` | `window.__animateToView` | Camera tween hook. Uses `controls.update()` no-arg (vs main loop's `controls.update(delta)`). Minor inconsistency surfaced by code review — non-blocking |
-| `.claude/upstream-issue-draft.md` | Bug report draft for `heygen-com/hyperframes` | Paste-ready; never filed. Issue: sub-composition goes black for the rest of its slot when its internal GSAP timeline runs shorter than the host's `data-duration`. Repro: https://github.com/CypherPoet/hyperframes-subcomp-blanks-after-timeline-end |
-| `hyperframes/walkthrough/compositions/intro.html:199-212` | Yoyo dot pulse | Workaround for the sub-comp duration bug — extends the timeline past `data-duration`. Keep until upstream fix lands |
+| `.claude/upstream-issue-draft.md` | Bug report draft for `heygen-com/hyperframes` | Body was used to file issue [#911](https://github.com/heygen-com/hyperframes/issues/911). File can be deleted — see "Cleanup housekeeping" |
+| `hyperframes/walkthrough/compositions/intro.html:199-212` | Yoyo dot pulse | Workaround for [hyperframes#911](https://github.com/heygen-com/hyperframes/issues/911) — extends the timeline past `data-duration`. Keep until upstream fix lands. Inline comment doesn't yet reference the issue # — see "Cleanup housekeeping" |
 | `tests/presentational-sync.test.mjs` | New Vitest suite from main-merge | Worktree never ran `npm install` post-merge; vitest/happy-dom not installed locally |
 
 ### Key Patterns Discovered
@@ -88,19 +88,20 @@ URL state contract in `src/main.js`: `?view=θ,φ,r` sets spherical camera coord
 
 ### Immediate Next Steps
 
-1. **File the upstream hyperframes sub-comp duration bug.**
-   - Body draft: `.claude/upstream-issue-draft.md` (paste-ready, matches `heygen-com/hyperframes` bug template)
-   - Repro repo: https://github.com/CypherPoet/hyperframes-subcomp-blanks-after-timeline-end
-   - Issue template URL: https://github.com/heygen-com/hyperframes/issues/new?template=bug.yml
-   - After filing, delete `.claude/upstream-issue-draft.md` and replace the workaround comment at `hyperframes/walkthrough/compositions/intro.html:199-212` with a link to the filed issue.
+1. **`npm install` housekeeping.** The main-merge brought in vitest + happy-dom + a `tests/` suite, but this worktree's `node_modules` only has playwright. Run `npm install`, then `npm run test:run` and `npm run media:check` to confirm the local env matches CI. Surface any failures before they bite.
 
-2. **`npm install` housekeeping.** The main-merge brought in vitest + happy-dom + a `tests/` suite, but this worktree's `node_modules` only has playwright. Run `npm install`, then `npm run test:run` and `npm run media:check` to confirm the local env matches CI. Surface any failures before they bite.
-
-3. **Draft the STORYBOARD narrative voice.** The user said they'd fill in the section stubs themselves (Concept / Audience / Take-away / Mood / NOT / per-beat Concept+Mood+SFX). If they ask for a draft, source material is:
+2. **Draft the STORYBOARD narrative voice.** The user said they'd fill in the section stubs themselves (Concept / Audience / Take-away / Mood / NOT / per-beat Concept+Mood+SFX). If they ask for a draft, source material is:
    - `hyperframes/walkthrough/design.md` (brand voice)
    - `hyperframes/walkthrough/music-prompts/3-modern-minimal-data-viz.md` (mood prose)
    - The "Why these beats" section already in `STORYBOARD.md`
    - **Don't pre-fill without being asked** — per the original plan, the user owns the voice.
+
+### Cleanup housekeeping (low-priority)
+
+Upstream sub-comp duration bug was filed as [heygen-com/hyperframes#911](https://github.com/heygen-com/hyperframes/issues/911) ("Sub-composition slot goes black after GSAP timeline ends, regardless of host data-duration"). Two follow-ups are pending:
+
+- **Delete `.claude/upstream-issue-draft.md`.** Body was used; draft is no longer needed.
+- **Link issue #911 from the workaround comment** at `hyperframes/walkthrough/compositions/intro.html:199-212` (the yoyo dot pulse). Future readers will want to know which upstream bug the workaround tracks and when to remove it.
 
 ### Blockers/Open Questions
 
@@ -122,7 +123,7 @@ URL state contract in `src/main.js`: `?view=θ,φ,r` sets spherical camera coord
 
 **STORYBOARD narrative bodies are intentionally empty.** The user owns the voice. Don't draft prose into those `<!-- ... -->` HTML-comment hints unless explicitly asked.
 
-**The upstream bug is the cheapest next win.** Body draft is ready, repro is public. Just needs `gh issue create --repo heygen-com/hyperframes --title "..." --body-file .claude/upstream-issue-draft.md` (or equivalent). Confirm the user wants it filed before submitting — it's a public issue on a third-party repo.
+**Upstream bug is filed** as [heygen-com/hyperframes#911](https://github.com/heygen-com/hyperframes/issues/911). The draft file and the workaround comment haven't been linked to the issue yet — see "Cleanup housekeeping" in Pending Work. Don't take destructive cleanup actions (file deletion, comment rewrites) without confirming with the user.
 
 **Empirical verification matters more than reasoning from CSS specs.** The theme-flip timing taught us this — the prior handoff's "click delay = CSS transition + actionability" model was plausible but wrong. Sample the actual rendered output before tuning.
 
@@ -162,10 +163,9 @@ URL state contract in `src/main.js`: `?view=θ,φ,r` sets spherical camera coord
 ## 📚 Related Resources
 
 - **PR #22 (merged)**: https://github.com/CypherPoet/THREE-JS-NFL-Flight-Paths/pull/22
+- **Upstream bug (filed)**: https://github.com/heygen-com/hyperframes/issues/911
 - **Upstream bug repro**: https://github.com/CypherPoet/hyperframes-subcomp-blanks-after-timeline-end
-- **Upstream issue draft**: `.claude/upstream-issue-draft.md` (in repo)
 - **Hyperframes recommended workflow**: https://hyperframes.heygen.com/guides/prompting#recommended-workflow
-- **Hyperframes bug template**: https://github.com/heygen-com/hyperframes/issues/new?template=bug.yml
 - **`website-to-hyperframes` skill STORYBOARD format**: `~/.claude/plugins/cache/temp_github_*/skills/website-to-hyperframes/references/step-4-storyboard.md`
 - **Previous handoff (plan that became PR #22)**: [2026-05-17-080548-walkthrough-precision-camera-and-concept-doc.md](./2026-05-17-080548-walkthrough-precision-camera-and-concept-doc.md)
 - **Original pipeline handoff**: [2026-05-16-163000-walkthrough-video-pipeline-shipped.md](./2026-05-16-163000-walkthrough-video-pipeline-shipped.md)
