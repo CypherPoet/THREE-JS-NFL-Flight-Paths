@@ -31,7 +31,7 @@ A small interactive Three.js scene that plots **every NFL road trip of the 2025 
 - **2025 ↔ 2026 toggle.** Switch seasons from the header.
 - **Live mileage tally.** League-wide total + sum of selected teams in the header.
 - **Per-team mileage breakdown.** A button in the header opens a modal of all 32 teams as contrail bars with a plane icon at the tip, ordered by miles flown.
-- **Methodology modal.** A small "how mileage is calculated" panel explains the chronological-walk model behind the totals.
+- **Methodology modal.** A small "how mileage is calculated" panel explains the hub-and-spoke travel model behind the totals — including the rule for when consecutive road weeks stay on the road instead of returning home.
 
 ## A Look Around
 
