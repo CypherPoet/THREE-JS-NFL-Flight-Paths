@@ -246,12 +246,13 @@ window.__animateToView = ({ theta, phi, r, duration = 1500 }) =>
     if (deltaTheta > Math.PI) deltaTheta -= 2 * Math.PI;
     else if (deltaTheta < -Math.PI) deltaTheta += 2 * Math.PI;
     const t0 = performance.now();
+    const spherical = new THREE.Spherical();
     const easeInOut = (t) =>
       t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
     function tick() {
       const elapsed = performance.now() - t0;
       const eased = easeInOut(Math.min(1, elapsed / duration));
-      const spherical = new THREE.Spherical(
+      spherical.set(
         startR + (r - startR) * eased,
         startPhi + (phi - startPhi) * eased,
         startTheta + deltaTheta * eased,
