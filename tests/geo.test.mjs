@@ -44,11 +44,13 @@ describe("isFrontOfSphere", () => {
     expect(isFrontOfSphere({ x: 1, y: 0, z: 0 }, center, camera)).toBe(false);
   });
 
-  it("returns true within 5° of the limb on the camera side", () => {
+  it("returns true within 1° of the limb on the camera side", () => {
     // Regression test for the past `(M − G) · (M − C) < 0` bug, which
     // rejected ~15° at the limb. The correct `(M − G) · (C − G) > 0`
-    // predicate must include this near-limb point.
-    const theta = (85 * Math.PI) / 180; // 5° inside the limb on the front side
+    // predicate must accept every point on the front hemisphere up to the
+    // limb itself — a 1° offset stays well above float epsilon while
+    // catching any predicate that's even slightly stricter at the limb.
+    const theta = (89 * Math.PI) / 180;
     const point = { x: Math.sin(theta), y: 0, z: Math.cos(theta) };
     expect(isFrontOfSphere(point, center, camera)).toBe(true);
   });

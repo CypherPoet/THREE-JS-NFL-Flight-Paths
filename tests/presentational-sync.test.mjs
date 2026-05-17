@@ -14,10 +14,8 @@ import { describe, it, expect, beforeAll } from "vitest";
 import { spawnSync } from "node:child_process";
 import { readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+import { join } from "node:path";
+import { ROOT, OG_SOURCE, magickArgs } from "../scripts/derive-og-image.mjs";
 
 let css, html, manifest, ogBytes;
 let bgLight, bgDark;
@@ -80,18 +78,10 @@ describe("og-image is derived from the latest dark hero", () => {
       console.warn("presentational-sync: `magick` not on PATH; skipping byte check.");
       return;
     }
-    const source = join(ROOT, "media", "04-dark-hero.png");
     const staging = join(tmpdir(), `og-image-check-${process.pid}.png`);
-    // Must match scripts/derive-og-image.mjs::magickArgs.
-    const result = spawnSync("magick", [
-      source,
-      "-strip",
-      "-resize", "1200x",
-      "-gravity", "north",
-      "-crop", "1200x630+0+0",
-      "+repage",
-      staging,
-    ], { stdio: "inherit" });
+    const result = spawnSync("magick", magickArgs(OG_SOURCE, staging), {
+      stdio: "inherit",
+    });
     expect(result.status, "magick re-derivation failed").toBe(0);
     const fresh = await readFile(staging);
     await rm(staging, { force: true });

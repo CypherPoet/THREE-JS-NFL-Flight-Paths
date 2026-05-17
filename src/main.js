@@ -19,6 +19,7 @@ import {
   buildTeamPanel,
   updateHeaderMetrics,
   dismissLoading,
+  setToggleState,
   wireMethodologyModal,
 } from "./ui.js";
 import { wireMileageModal } from "./mileage-modal.js";
@@ -369,12 +370,10 @@ async function start() {
     mileageModal.setSummary(summary, meta.label, intl);
   }
 
-  // Sync season-switch button data-active to whatever URL state resolved to,
+  // Sync season-switch button state to whatever URL state resolved to,
   // before the wiring loop below caches the initial active button.
   for (const btn of document.querySelectorAll(".season-switch__button")) {
-    const on = btn.dataset.season === currentSeason;
-    btn.dataset.active = on ? "true" : "false";
-    btn.setAttribute("aria-selected", on ? "true" : "false");
+    setToggleState(btn, btn.dataset.season === currentSeason, "aria-selected");
   }
 
   let initialUrlTeamsApplied = false;
@@ -388,9 +387,7 @@ async function start() {
       const target = btn.dataset.season;
       if (target === currentSeason) return;
       for (const other of document.querySelectorAll(".season-switch__button")) {
-        const on = other.dataset.season === target;
-        other.dataset.active = on ? "true" : "false";
-        other.setAttribute("aria-selected", on ? "true" : "false");
+        setToggleState(other, other.dataset.season === target, "aria-selected");
       }
       loadSeason(target);
       persistUrlState();
