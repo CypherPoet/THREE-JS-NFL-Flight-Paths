@@ -38,7 +38,7 @@ function mount() {
   document.body.innerHTML = FIXTURE_HTML;
   const legs = buildTravelLegs(SCHEDULES[DEFAULT_SEASON].games);
   const summary = summariseByTeam(legs);
-  const intl = summariseInternational(summary);
+  const intl = summariseInternational(summary, legs);
   buildTeamPanel({
     summary,
     intl,
