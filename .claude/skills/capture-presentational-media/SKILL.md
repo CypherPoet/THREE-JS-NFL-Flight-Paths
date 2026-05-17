@@ -35,7 +35,7 @@ Project-specific shot list — the sections above are the project-agnostic mecha
 | --- | --- | --- | --- | --- |
 | `01-dark-hero.png` | dark | Primary hero; source for `public/og-image.png` | Default view, no team selected, no rotation; dark mode set via `localStorage` before page load to avoid first-paint flash | Standard mouse-park before shot. After capture, re-run `npm run media:derive` so OG image tracks |
 | `02-dark-atlantic.png` | dark | Trans-Atlantic arcs in dark mode | Drag canvas to rotate Atlantic into frame | Settle 1–2s after drag |
-| `03-dark-stadium-detail.png` | dark | Stadium tooltip + zoomed venue detail (showcases hover-detail feature in `src/tooltip.js`) | Deep-link `?view=0.000,1.460,3.78`; hover the European venue marker that lands centered/front-facing | **Do NOT park the mouse — cursor + tooltip are the subject.** Tooltip fetches a Wikipedia thumbnail async; settle ≥1s after hover so the photo paints |
+| `03-dark-stadium-detail.png` | dark | Stadium tooltip + zoomed venue detail (showcases hover-detail feature in `src/tooltip.js`) | Deep-link `?view=1.566,0.671,3.78` (Wembley-centered); hover the European venue marker that lands centered/front-facing | **Do NOT park the mouse — cursor + tooltip are the subject.** Tooltip fetches a Wikipedia thumbnail async; settle ≥1s after hover so the photo paints |
 | `04-light-hero.png` | light | Secondary hero (atlas/cartographic identity) | Default view, no team selected, no rotation; light mode | Standard mouse-park before shot |
 | `05-light-atlantic.png` | light | Atlantic in light mode | Mirror `02`'s rotation in light mode | Standard mouse-park |
 | `06-light-pacific.png` | light | Single team solo'd showing long trans-Pacific arc | Click a team with a Pacific-host road game in the panel; rotate to frame the arc | Note which team in the commit message — selection is visible in panel state |
@@ -45,13 +45,36 @@ Project-specific shot list — the sections above are the project-agnostic mecha
 The one shot with non-obvious mechanics. Six gotchas conspire here; respect the order:
 
 1. `eval` `localStorage.setItem("nfl-flight-paths-theme", "dark")` then reload — first-paint dark, no flash.
-2. `goto` `${BASE_URL}/?view=0.000,1.460,3.78&cb=<ts>`. `src/main.js:67` reads `view=theta,phi,r` and applies it to OrbitControls at boot, so the framing is deterministic.
+2. `goto` `${BASE_URL}/?view=1.566,0.671,3.78&cb=<ts>`. `src/main.js:67` reads `view=theta,phi,r` and applies it to OrbitControls at boot, so the framing is deterministic. This view puts Wembley (`LON_WEM`) at screen center.
 3. Settle 3s.
-4. Identify which European venue marker (`LON_TOT`, `LON_WEM`, `MUN`, `MAD`, `DUB` — `src/data/teams.js:484+`) is visible and front-facing at this framing. Project each venue's world position to screen coords via `eval` and pick the one inside the viewport with the highest dot product against the camera forward. Front-facing test is `(M − G) · (C − G) > 0`, NOT `(M − G) · (M − C) < 0` — the wrong form rejects ~15° of marker at the limb.
+4. Identify which European venue marker (`LON_TOT`, `LON_WEM`, `MUN`, `MAD`, `DUB` — `src/data/teams.js:484+`) is visible and front-facing at this framing. Project each venue's world position to screen coords via `eval` and pick the one inside the viewport with the highest dot product against the camera forward. Front-facing test is `(M − G) · (C − G) > 0`, NOT `(M − G) · (M − C) < 0` — the wrong form rejects ~15° of marker at the limb. **Heads-up:** `LON_WEM` and `LON_TOT` are only ~15 mi apart on the surface, which projects to 2–3 px on this view — after picking a hover pixel, read back `.stadium-tooltip__body`'s first text line to confirm you got Wembley, not Tottenham. If you got the wrong one, nudge 3–5 px west/south and re-check.
 5. Issue a single discrete `mousemove <x> <y>` onto the marker. Don't sweep through intermediate points — dense `pointermove` synthesis can reset the tooltip's show timer indefinitely.
 6. Sleep ≥150ms (tooltip `SHOW_DELAY_MS` is 90ms — `src/tooltip.js:7`), then ≥1s more for the Wikipedia thumbnail to load (`src/tooltip.js:17`).
 7. Screenshot **without** the usual `mousemove 5 5` park.
 8. After capture, `mousemove 5 5` and let `HIDE_DELAY_MS` (70ms) clear the tooltip before doing anything else.
+
+**Recomputing the deep-link** if the globe rotation in `src/main.js:312–313` (`globe.group.rotation.x/y`) ever changes — or if you want a different venue centered — derive `(theta, phi, r)` from the venue's lat/lon:
+
+```js
+const lat = 51.556, lon = -0.2796;        // target venue
+const phiGeo = (90 - lat) * Math.PI / 180;
+const thetaGeo = (lon + 180) * Math.PI / 180;
+// Surface unit vector via src/geo.js latLonToVec3
+let x = -Math.sin(phiGeo) * Math.cos(thetaGeo);
+let y =  Math.cos(phiGeo);
+let z =  Math.sin(phiGeo) * Math.sin(thetaGeo);
+// Apply globe.group rotation (XYZ order: Ry then Rx)
+const ry = 0.1, rx = 0.58;                // from src/main.js
+const cy = Math.cos(ry), sy = Math.sin(ry);
+[x, z] = [cy*x + sy*z, -sy*x + cy*z];
+const cx = Math.cos(rx), sx = Math.sin(rx);
+[y, z] = [cx*y - sx*z, sx*y + cx*z];
+// OrbitControls spherical
+const r = 3.78;                            // pick distance (3.0–4.5 are reasonable)
+const phi   = Math.acos(y);
+const theta = Math.atan2(x, z);
+console.log(`view=${theta.toFixed(3)},${phi.toFixed(3)},${r}`);
+```
 
 ### Adding a new shot
 
