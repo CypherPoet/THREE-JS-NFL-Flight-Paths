@@ -27,6 +27,36 @@ Gather four things from the project — do not assume.
 
 Then verify `playwright-cli --version` works and Chrome is available.
 
+## Strategy guide
+
+Project-specific shot list — the sections above are the project-agnostic mechanics; this is *what* to shoot for this repo. Six committed shots, ordered so dark mode (the project's primary visual identity, and source of the OG image) leads.
+
+| File | Theme | Purpose | Framing recipe | Capture notes |
+| --- | --- | --- | --- | --- |
+| `01-dark-hero.png` | dark | Primary hero; source for `public/og-image.png` | Default view, no team selected, no rotation; dark mode set via `localStorage` before page load to avoid first-paint flash | Standard mouse-park before shot. After capture, re-run `npm run media:derive` so OG image tracks |
+| `02-dark-atlantic.png` | dark | Trans-Atlantic arcs in dark mode | Drag canvas to rotate Atlantic into frame | Settle 1–2s after drag |
+| `03-dark-stadium-detail.png` | dark | Stadium tooltip + zoomed venue detail (showcases hover-detail feature in `src/tooltip.js`) | Deep-link `?view=0.000,1.460,3.78`; hover the European venue marker that lands centered/front-facing | **Do NOT park the mouse — cursor + tooltip are the subject.** Tooltip fetches a Wikipedia thumbnail async; settle ≥1s after hover so the photo paints |
+| `04-light-hero.png` | light | Secondary hero (atlas/cartographic identity) | Default view, no team selected, no rotation; light mode | Standard mouse-park before shot |
+| `05-light-atlantic.png` | light | Atlantic in light mode | Mirror `02`'s rotation in light mode | Standard mouse-park |
+| `06-light-pacific.png` | light | Single team solo'd showing long trans-Pacific arc | Click a team with a Pacific-host road game in the panel; rotate to frame the arc | Note which team in the commit message — selection is visible in panel state |
+
+### Detailed recipe — `03-dark-stadium-detail.png`
+
+The one shot with non-obvious mechanics. Six gotchas conspire here; respect the order:
+
+1. `eval` `localStorage.setItem("nfl-flight-paths-theme", "dark")` then reload — first-paint dark, no flash.
+2. `goto` `${BASE_URL}/?view=0.000,1.460,3.78&cb=<ts>`. `src/main.js:67` reads `view=theta,phi,r` and applies it to OrbitControls at boot, so the framing is deterministic.
+3. Settle 3s.
+4. Identify which European venue marker (`LON_TOT`, `LON_WEM`, `MUN`, `MAD`, `DUB` — `src/data/teams.js:484+`) is visible and front-facing at this framing. Project each venue's world position to screen coords via `eval` and pick the one inside the viewport with the highest dot product against the camera forward. Front-facing test is `(M − G) · (C − G) > 0`, NOT `(M − G) · (M − C) < 0` — the wrong form rejects ~15° of marker at the limb.
+5. Issue a single discrete `mousemove <x> <y>` onto the marker. Don't sweep through intermediate points — dense `pointermove` synthesis can reset the tooltip's show timer indefinitely.
+6. Sleep ≥150ms (tooltip `SHOW_DELAY_MS` is 90ms — `src/tooltip.js:7`), then ≥1s more for the Wikipedia thumbnail to load (`src/tooltip.js:17`).
+7. Screenshot **without** the usual `mousemove 5 5` park.
+8. After capture, `mousemove 5 5` and let `HIDE_DELAY_MS` (70ms) clear the tooltip before doing anything else.
+
+### Adding a new shot
+
+Pick a filename matching `NN-<theme>-<role>.png` (next free number, `dark`/`light`, hyphenated role). Add a row to the table above with framing recipe + capture notes. Add a README entry alongside. If the shot needs a deep-link to be reproducible, record the full `?view=…&teams=…&season=…` URL in the recipe — `src/main.js:33–98` is the URL state contract.
+
 ## Capture loop pattern
 
 For each shot:

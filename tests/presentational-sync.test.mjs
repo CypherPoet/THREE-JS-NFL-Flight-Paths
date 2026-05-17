@@ -6,7 +6,7 @@
 //                              === site.webmanifest.background_color
 //   · styles.css --bg (dark)  === index.html theme-color (dark)
 //   · public/og-image.png is 1200×630 and byte-matches a fresh derivation
-//     from media/04-dark-hero.png
+//     from media/01-dark-hero.png
 //
 // Preconditions (og-image present, `magick` on PATH) drive Vitest `it.skipIf`
 // so missing-tool environments report SKIPPED rather than vacuously PASSED.
@@ -80,7 +80,7 @@ describe("og-image is derived from the latest dark hero", () => {
   });
 
   it.skipIf(!ogBytes || !magickOk)(
-    "public/og-image.png bytes match a fresh derivation from media/04-dark-hero.png",
+    "public/og-image.png bytes match a fresh derivation from media/01-dark-hero.png",
     async () => {
       const staging = join(tmpdir(), `og-image-check-${process.pid}.png`);
       const result = spawnSync("magick", magickArgs(OG_SOURCE, staging), {

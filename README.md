@@ -1,6 +1,6 @@
 # NFL Flight Paths · A Travel-Schedule Globe
 
-![NFL Flight Paths — NFL road trips drawn as great-circle arcs on a clay globe](media/01-hero.png)
+![NFL Flight Paths — NFL road trips drawn as great-circle arcs on a Sunday-Night-Football dark globe](media/01-dark-hero.png)
 
 <div align="center">
 
@@ -35,10 +35,12 @@ A small interactive Three.js scene that plots **every NFL road trip of the 2025 
 
 ## A Look Around
 
-|                                                                     |                                                                                 |
-| ------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| ![Atlantic spin showing trans-Atlantic arcs](media/02-atlantic.png) | ![A single team solo'd, showing a long trans-Pacific arc](media/03-pacific.png) |
-| ![Dark mode hero](media/04-dark-hero.png)                           | ![Dark mode rotated to the Atlantic](media/05-dark-atlantic.png)                |
+|                                                                                                  |                                                                                                |
+| ------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| ![Dark mode rotated to the Atlantic](media/02-dark-atlantic.png)                                 | ![Wembley Stadium tooltip surfaced over a zoomed-in dark globe](media/03-dark-stadium-detail.png) |
+| ![Light mode hero — the same scene on a clay-paper palette](media/04-light-hero.png)             | ![Light mode rotated to the Atlantic](media/05-light-atlantic.png)                             |
+
+![SF 49ers solo'd, the trans-Pacific arc to Melbourne curving across the ocean](media/06-light-pacific.png)
 
 ## The Schedule
 

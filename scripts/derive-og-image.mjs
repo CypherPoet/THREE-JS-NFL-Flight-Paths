@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Regenerate public/og-image.png from media/04-dark-hero.png.
+// Regenerate public/og-image.png from media/01-dark-hero.png.
 //
 // Canonical transform; tests/presentational-sync.test.mjs re-runs `magickArgs`
 // and byte-compares the result against the committed og-image to catch drift.
@@ -15,7 +15,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-export const OG_SOURCE = join(ROOT, "media", "04-dark-hero.png");
+export const OG_SOURCE = join(ROOT, "media", "01-dark-hero.png");
 export const OG_TARGET = join(ROOT, "public", "og-image.png");
 
 // Resize the 1920×1200 hero to 1200×750, then top-crop to 1200×630 so the
