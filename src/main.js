@@ -372,7 +372,9 @@ async function start() {
   // Sync season-switch button data-active to whatever URL state resolved to,
   // before the wiring loop below caches the initial active button.
   for (const btn of document.querySelectorAll(".season-switch__button")) {
-    btn.dataset.active = btn.dataset.season === currentSeason ? "true" : "false";
+    const on = btn.dataset.season === currentSeason;
+    btn.dataset.active = on ? "true" : "false";
+    btn.setAttribute("aria-selected", on ? "true" : "false");
   }
 
   let initialUrlTeamsApplied = false;
@@ -386,8 +388,9 @@ async function start() {
       const target = btn.dataset.season;
       if (target === currentSeason) return;
       for (const other of document.querySelectorAll(".season-switch__button")) {
-        other.dataset.active =
-          other.dataset.season === target ? "true" : "false";
+        const on = other.dataset.season === target;
+        other.dataset.active = on ? "true" : "false";
+        other.setAttribute("aria-selected", on ? "true" : "false");
       }
       loadSeason(target);
       persistUrlState();

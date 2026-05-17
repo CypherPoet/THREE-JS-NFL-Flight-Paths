@@ -218,7 +218,9 @@ export function buildTeamPanel({ summary, intl, listEl, onChange }) {
     const presetButtons = document.querySelectorAll(".panel__preset");
     const matched = matchActiveToPreset();
     for (const btn of presetButtons) {
-      btn.dataset.active = btn.dataset.preset === matched ? "true" : "false";
+      const on = btn.dataset.preset === matched;
+      btn.dataset.active = on ? "true" : "false";
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
     }
   }
 
@@ -244,7 +246,9 @@ export function buildTeamPanel({ summary, intl, listEl, onChange }) {
     if (sort === currentSort) return;
     currentSort = sort;
     for (const btn of document.querySelectorAll(".panel__sort-button")) {
-      btn.dataset.active = btn.dataset.sort === sort ? "true" : "false";
+      const on = btn.dataset.sort === sort;
+      btn.dataset.active = on ? "true" : "false";
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
     }
     renderRows();
   }
@@ -315,6 +319,11 @@ export function updateHeaderMetrics({ summary, intl }) {
   if (intlMilesEl) intlMilesEl.textContent = formatMiles(intl.totalMiles);
   if (intlGamesEl) {
     intlGamesEl.textContent = `${intl.gameCount} game${intl.gameCount === 1 ? "" : "s"}`;
+  }
+  // Settle live regions once real values are in place; placeholders held
+  // aria-busy="true" so SR users weren't told to listen to an em dash.
+  for (const el of [leagueEl, intlMilesEl]) {
+    el?.closest(".metric")?.setAttribute("aria-busy", "false");
   }
 }
 
