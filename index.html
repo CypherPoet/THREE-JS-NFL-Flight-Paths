@@ -21,16 +21,44 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
-    <title>NFL Team Flight Paths</title>
+    <link rel="canonical" href="https://cypherpoet.github.io/THREE-JS-NFL-Flight-Paths/" />
+    <title>NFL Flight Paths</title>
     <meta
       name="description"
-      content="An interactive Three.js globe of every NFL team's 2025 flight schedule — great-circle road-trip arcs, team-coloured, total miles tallied."
+      content="An interactive Three.js globe of every NFL team's 2025 and 2026 road trips — great-circle arcs, team-coloured, total miles tallied."
     />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="NFL Flight Paths" />
+    <meta property="og:title" content="NFL Flight Paths" />
+    <meta
+      property="og:description"
+      content="An interactive Three.js globe of every NFL team's 2025 and 2026 road trips — great-circle arcs, team-coloured, total miles tallied."
+    />
+    <meta property="og:url" content="https://cypherpoet.github.io/THREE-JS-NFL-Flight-Paths/" />
+    <meta property="og:image" content="https://cypherpoet.github.io/THREE-JS-NFL-Flight-Paths/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="NFL Flight Paths — Three.js globe with team flight arcs across North America" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="NFL Flight Paths" />
+    <meta
+      name="twitter:description"
+      content="An interactive Three.js globe of every NFL team's 2025 and 2026 road trips — great-circle arcs, team-coloured, total miles tallied."
+    />
+    <meta name="twitter:image" content="https://cypherpoet.github.io/THREE-JS-NFL-Flight-Paths/og-image.png" />
+
+    <link rel="modulepreload" href="/src/main.js" />
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
     <div id="app">
-      <canvas id="scene-canvas"></canvas>
+      <canvas
+        id="scene-canvas"
+        role="img"
+        aria-label="Interactive globe of NFL team flight paths"
+      ></canvas>
 
       <header class="topbar">
         <div class="topbar__brand">
@@ -47,6 +75,7 @@
             alt=""
             aria-hidden="true"
             decoding="async"
+            fetchpriority="high"
           />
           <div class="topbar__titles">
             <h1>NFL Flight Paths</h1>
@@ -61,6 +90,7 @@
               data-season="2026"
               data-active="true"
               role="tab"
+              aria-selected="true"
             >
               2026
             </button>
@@ -70,6 +100,7 @@
               data-season="2025"
               data-active="false"
               role="tab"
+              aria-selected="false"
             >
               2025
             </button>
@@ -92,6 +123,7 @@
               data-season="2026"
               data-active="true"
               role="tab"
+              aria-selected="true"
             >
               2026
             </button>
@@ -101,20 +133,21 @@
               data-season="2025"
               data-active="false"
               role="tab"
+              aria-selected="false"
             >
               2025
             </button>
           </div>
-          <span class="metric">
+          <span class="metric" aria-live="polite" aria-busy="true">
             <span class="metric__label">League total miles</span>
             <span class="metric__value" id="league-miles">—</span>
           </span>
-          <span class="metric">
+          <span class="metric" aria-live="polite" aria-busy="true">
             <span class="metric__label">International miles</span>
             <span class="metric__value" id="international-miles">—</span>
             <span class="metric__sub" id="international-games">— games</span>
           </span>
-          <div class="topbar__icons">
+          <div class="topbar__icons" role="group" aria-label="View options">
             <button
               type="button"
               id="mileage-toggle"
@@ -252,6 +285,7 @@
                 class="panel__sort-button"
                 data-sort="division"
                 data-active="true"
+                aria-pressed="true"
                 data-tooltip="Group by AFC / NFC division"
               >
                 By division
@@ -261,6 +295,7 @@
                 class="panel__sort-button"
                 data-sort="mileage"
                 data-active="false"
+                aria-pressed="false"
                 data-tooltip="Longest travel first"
               >
                 By miles
@@ -276,6 +311,7 @@
             type="button"
             class="panel__preset"
             data-preset="all"
+            aria-pressed="false"
           >
             All
           </button>
@@ -283,6 +319,7 @@
             type="button"
             class="panel__preset"
             data-preset="afc"
+            aria-pressed="false"
           >
             AFC
           </button>
@@ -290,6 +327,7 @@
             type="button"
             class="panel__preset"
             data-preset="nfc"
+            aria-pressed="false"
           >
             NFC
           </button>
@@ -298,6 +336,7 @@
             class="panel__preset"
             data-preset="longest5"
             data-active="true"
+            aria-pressed="true"
             data-tooltip="Five teams with the most travel miles"
           >
             Longest 5
@@ -306,6 +345,7 @@
             type="button"
             class="panel__preset"
             data-preset="international"
+            aria-pressed="false"
             data-tooltip="Teams with a game played abroad"
           >
             International
@@ -387,7 +427,12 @@
         </a>
       </div>
 
-      <div class="loading" id="loading">
+      <div
+        class="loading"
+        id="loading"
+        role="status"
+        aria-live="polite"
+      >
         <div class="loading__bar"></div>
         <span>Loading globe</span>
       </div>

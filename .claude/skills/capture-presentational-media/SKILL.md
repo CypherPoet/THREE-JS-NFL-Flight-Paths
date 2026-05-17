@@ -1,7 +1,7 @@
 ---
 name: capture-presentational-media
-description: Regenerate every screenshot + walkthrough video under media/ for a presentational frontend project (Three.js, WebGL, or any interactive web scene). Use when the scene changes, the HUD restyles, theme variants are added, or anything visual gets refreshed. Triggers on phrases like "refresh the screenshots", "regenerate media", "update the README images", or "capture new walkthrough".
-allowed-tools: Bash(playwright-cli:*), Read, Bash(npm:*), Bash(python3:*), Bash(lsof:*), Bash(kill:*), Bash(ls:*), Bash(rm:*), Bash(trash:*), Bash(node:*), Bash(ffmpeg:*), Bash(git:*)
+description: Regenerate every screenshot + walkthrough video under media/ for a presentational frontend project (Three.js, WebGL, or any interactive web scene), and keep derived assets (OG image, manifest theme colors) in sync. Use when the scene changes, the HUD restyles, theme variants are added, the brand palette shifts, or anything visual gets refreshed. Triggers on phrases like "refresh the screenshots", "regenerate media", "update the README images", "capture new walkthrough", "social card is stale", or "theme color drifted".
+allowed-tools: Bash(playwright-cli:*), Read, Bash(npm:*), Bash(python3:*), Bash(lsof:*), Bash(kill:*), Bash(ls:*), Bash(rm:*), Bash(trash:*), Bash(node:*), Bash(ffmpeg:*), Bash(git:*), Bash(magick:*)
 ---
 
 # capture-presentational-media
@@ -181,3 +181,26 @@ trash <project-root>/.playwright-cli/test-*.png 2>/dev/null   # scratch test sho
 ```
 
 `.playwright-cli/` is git-ignored — leave it alone otherwise.
+
+## Sync derived assets
+
+Some presentational artifacts are *derived* from `media/` or `styles.css` and silently drift unless re-derived and re-verified at the end of the capture loop. Always run both, in this order:
+
+```bash
+npm run media:derive   # regenerates public/og-image.png from media/04-dark-hero.png (idempotent)
+npm run media:check    # vitest run tests/presentational-sync.test.mjs — same assertions, Vitest output
+```
+
+`media:check` runs under Vitest (one source of truth with the rest of the test suite). `npm run test:run` executes every test file; CI should prefer the full run.
+
+What these cover:
+
+- **OG image.** `public/og-image.png` is a deterministic 1200×630 crop of `media/04-dark-hero.png` (`-strip -resize 1200x -gravity north -crop 1200x630+0+0`). If the dark-hero capture changed, derive rewrites og-image to match; otherwise it's a no-op. The exact transform lives in `scripts/derive-og-image.mjs` and is mirrored read-only inside `tests/presentational-sync.test.mjs`.
+- **Chrome colors.** `--bg` in `styles.css` is the source of truth (one value per theme). It must equal: `index.html` `<meta name="theme-color">` for the matching `prefers-color-scheme`, and (light only) `site.webmanifest.theme_color` + `background_color`. Vitest renders a precise diff for every mismatch.
+
+If `media:check` fails:
+
+- **Color drift** → the palette in `styles.css` moved; update `index.html` theme-color meta and `public/site.webmanifest` by hand to match the diff, then re-run.
+- **og-image drift** → run `npm run media:derive` to refresh. If the transform itself needs to change (different framing, different crop), edit `scripts/derive-og-image.mjs` *and* the magick args in `tests/presentational-sync.test.mjs` together so they stay in lockstep.
+
+Don't suppress the check by relaxing its assertions; the drift is the signal.
