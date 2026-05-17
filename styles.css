@@ -496,7 +496,7 @@ img.topbar__mark {
 /* The one kept kicker. Every other tracked-uppercase label in the chrome
    was demoted so this slot can carry the voice on its own. Body family
    (Geist) at small tracked uppercase: Big Shoulders condenses too tightly
-   at 13px to carry the kicker grammar; this slot wants legibility, not
+   at 14px to carry the kicker grammar; this slot wants legibility, not
    display authority. */
 .panel__head h2 {
   margin: 0;
@@ -644,7 +644,7 @@ img.topbar__mark {
    The chip row is right above it, so the banner doesn't repeat "pick a
    preset" — it just labels the state and offers an undo when one is
    available. Visible at both breakpoints so the mobile user, who never
-   sees the 10px gesture hint, still gets the recovery affordance. */
+   sees the 12px gesture hint, still gets the recovery affordance. */
 .panel__empty {
   display: flex;
   flex-wrap: wrap;
@@ -758,7 +758,7 @@ img.topbar__mark {
 
 /* Division header: a real second-tier heading inside the panel, sized up
    from the kicker grammar so Big Shoulders has room to read. The condensed
-   letterforms become an asset at 16px instead of a liability at 13px. */
+   letterforms become an asset at 16px instead of a liability at 14px. */
 .team-group__name {
   font-family: var(--font-display);
   font-size: var(--text-base);
@@ -1458,10 +1458,10 @@ img.topbar__mark {
   scrollbar-color: var(--ink-mute) transparent;
 }
 
-/* Body-content subheads in the methodology modal. Body family (Geist)
-   keeps subhead authority via weight contrast against the surrounding
-   paragraph text; Big Shoulders at 16px was reading dense inside a body
-   block where the display voice doesn't belong. */
+/* Body-content subheads in the methodology modal. Same family + size
+   as the paragraphs they head; weight contrast (700 vs 400) carries the
+   subhead. Big Shoulders is a display face and doesn't belong inside a
+   body block, even at matched size. */
 .methodology__body h3 {
   font-family: var(--font-ui);
   font-size: var(--text-base);
