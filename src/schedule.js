@@ -161,17 +161,24 @@ export function summariseByTeam(legs) {
 }
 
 // Roll the per-team summary into one league-wide international view for the
-// metric card and the panel-head call-out.
-export function summariseInternational(summary) {
+// metric card and the panel-head call-out. `legs` is taken separately so
+// the league-wide game count walks distinct (week, venue) pairs — every
+// international game spawns two travel legs (away + listed home), so summing
+// per-team `internationalCount` would double-count the games themselves.
+export function summariseInternational(summary, legs) {
   let teamCount = 0;
   let totalMiles = 0;
-  let gameCount = 0;
   for (const team of Object.values(summary)) {
     if (team.internationalCount > 0) {
       teamCount += 1;
       totalMiles += team.internationalMiles;
-      gameCount += team.internationalCount;
     }
   }
-  return { teamCount, totalMiles, gameCount };
+  const games = new Set();
+  for (const leg of legs) {
+    if (leg.destinationInternational) {
+      games.add(`${leg.week}|${leg.destinationVenueKey}`);
+    }
+  }
+  return { teamCount, totalMiles, gameCount: games.size };
 }
