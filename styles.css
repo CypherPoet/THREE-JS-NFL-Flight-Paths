@@ -56,11 +56,13 @@
   --shadow: rgba(28, 26, 22, 0.2);
 }
 
-/* Dark theme: Sunday Night Football primetime broadcast. Warm-graphite tunnel
-   axis (stadium-tunnel shadow + sodium-vapor key light), not cool-navy. */
+/* Dark theme: Sunday Night Football primetime broadcast. Warm sodium-vapor
+   chrome (paper + ink + line) floats over a cool teal-graphite tunnel-shadow
+   void (bg + bg-deep) — the warm/cool counterpoint that lets the warm sphere
+   read as warm instead of dissolving into a flat monochromatic warm slab. */
 [data-theme="dark"] {
-  --bg: #0f0d0a;
-  --bg-deep: #070604;
+  --bg: #081420;
+  --bg-deep: #040810;
   --paper: #1a1612;
   --paper-soft: rgba(26, 22, 18, 0.6);
   --ink: #f3ecd6;
@@ -91,7 +93,10 @@
 }
 
 [data-theme="dark"] {
-  --intl-marker: #f3ecd6;
+  /* Cool teal — meaningful third color in the dark HUD palette, distinct
+     from both team accents and --ink so the international segment of the
+     stacked mileage bar reads as its own material. */
+  --intl-marker: #5fb0c8;
 }
 
 * {
@@ -191,6 +196,14 @@ img.topbar__mark {
   margin-left: 6px;
 }
 
+/* The mobile-only duplicate lives inside .topbar__meta. Hidden on desktop —
+   the brand-side instance carries the toggle there. Shown on mobile by the
+   media query below, where the brand-side instance is hidden in turn. */
+.season-switch--mobile {
+  display: none;
+  margin-left: 0;
+}
+
 .season-switch__button {
   border: 0;
   background: transparent;
@@ -226,6 +239,7 @@ img.topbar__mark {
   .season-switch__button,
   .panel__sort-button,
   .panel__preset,
+  .panel__head-clear,
   .theme-toggle
 ):focus-visible {
   outline: 2px solid var(--ink);
@@ -335,7 +349,7 @@ img.topbar__mark {
    enough to teach on first hover, and on keyboard focus for screen-reader-
    adjacent users. Shared base; per-surface overrides set anchor + reveal
    translate below. */
-:where(.theme-toggle, .panel__preset, .panel__sort-button)[data-tooltip]::after {
+:where(.theme-toggle, .panel__preset, .panel__sort-button, .panel__head-clear)[data-tooltip]::after {
   content: attr(data-tooltip);
   position: absolute;
   white-space: nowrap;
@@ -393,10 +407,63 @@ img.topbar__mark {
   transform: rotate(0) scale(1);
 }
 
+/* Share-link icon swap: link glyph idle, check glyph during the 1.2s
+   post-click feedback window. Mirrors the theme-toggle__icon absolute-
+   stack pattern so the SVGs cross-fade in place. */
+.share-toggle__icon {
+  position: absolute;
+  transition: opacity 200ms ease;
+}
+.share-toggle__icon--check {
+  opacity: 0;
+}
+.theme-toggle.is-feedback .share-toggle__icon--link {
+  opacity: 0;
+}
+.theme-toggle.is-feedback .share-toggle__icon--check {
+  opacity: 1;
+}
+
+/* Force the CSS-driven tooltip open during the click-feedback window so the
+   same ::after surface doubles as a transient toast without a hover. */
+.theme-toggle.is-feedback[data-tooltip]::after {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0ms;
+}
+
+/* Scale pulse on copy. Curve matches the mileage-modal trail ease so the eye
+   recognises the project's signature motion in a second surface. Scoped to
+   the check glyph (not the whole button) so the cluster pill stays static —
+   the same reason .topbar__icons suppresses the hover-lift transform. */
+@keyframes share-pulse {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.12);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.theme-toggle.is-feedback .share-toggle__icon--check {
+  animation: share-pulse 320ms cubic-bezier(0.18, 0.7, 0.22, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle.is-feedback .share-toggle__icon--check {
+    animation: none;
+  }
+}
+
 /* ── Panel ──────────────────────────────────────────────────── */
+/* `top` sits clear of the topbar's stacked H1 + sublabel so the joint
+   between identity and tool chrome reads as a break, not another flush
+   band. `overflow: visible` lets chip + sort tooltips escape; `.team-list`
+   re-clips the rounded bottom. */
 .panel {
   position: absolute;
-  top: 92px;
+  top: 132px;
   left: 18px;
   bottom: 64px;
   width: 290px;
@@ -406,14 +473,20 @@ img.topbar__mark {
   box-shadow: 0 10px 30px -10px var(--shadow);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
   z-index: 4;
 }
 
+/* Extra bottom padding separates the head from the chip row below. */
 .panel__head {
-  padding: 12px 14px 10px;
+  padding: 12px 14px 22px;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.panel__head-row {
+  display: flex;
   align-items: center;
   gap: 8px;
 }
@@ -425,18 +498,40 @@ img.topbar__mark {
    display authority. */
 .panel__head h2 {
   margin: 0;
+  margin-right: auto;
   font-family: var(--font-ui);
   font-size: var(--text-meta);
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--ink-soft);
+  color: var(--ink);
+}
+
+/* Lives in the head-row, not the chip row, so it doesn't read as a filter peer. */
+.panel__head-clear {
+  background: transparent;
+  border: 0;
+  padding: 4px 6px;
+  font: inherit;
+  font-family: var(--font-ui);
+  font-size: var(--text-micro);
+  font-weight: 500;
+  color: var(--ink-mute);
+  cursor: pointer;
+  transition: color 120ms ease;
+}
+
+.panel__head-clear:hover {
+  color: var(--ink);
 }
 
 /* Sort toggle: a two-state switch (by division / by miles). Plain text
    chips, no glass-blur — chrome distillation is out of scope for this pass
-   but new chrome shouldn't add to the glassmorphism count. */
-.panel__sort {
+   but new chrome shouldn't add to the glassmorphism count.
+   .mileage__view shares this vocabulary so the modal doesn't grow its
+   own control style. */
+.panel__sort,
+.mileage__view {
   display: inline-flex;
   gap: 0;
   border: 1px solid var(--line);
@@ -444,7 +539,8 @@ img.topbar__mark {
   overflow: hidden;
 }
 
-.panel__sort-button {
+.panel__sort-button,
+.mileage__view-button {
   background: transparent;
   border: 0;
   color: var(--ink-mute);
@@ -459,33 +555,47 @@ img.topbar__mark {
     color 120ms ease;
 }
 
-.panel__sort-button + .panel__sort-button {
+.panel__sort-button + .panel__sort-button,
+.mileage__view-button + .mileage__view-button {
   border-left: 1px solid var(--line);
 }
 
-.panel__sort-button[data-active="true"] {
-  background: var(--ink);
-  color: var(--bg);
+.panel__sort-button[data-active="true"],
+.mileage__view-button[data-active="true"] {
+  background: var(--line);
+  color: var(--ink);
+  font-weight: 600;
 }
 
-.panel__sort-button:not([data-active="true"]):hover {
+.panel__sort-button:not([data-active="true"]):hover,
+.mileage__view-button:not([data-active="true"]):hover {
   color: var(--ink);
   background: var(--line);
 }
 
-/* Panel-head international call-out — telegraphs the season story
-   (e.g. "8 teams travel internationally · 32,140 mi total") in body
-   sentence case, deliberately NOT another uppercase-tracked kicker. */
-.panel__intl {
+/* Mirrors .metric__value typography — same numeric voice as the topbar tiles. */
+.panel__head-meta {
   margin: 0;
-  padding: 6px 14px 10px;
-  font-family: var(--font-ui);
-  font-size: var(--text-meta);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-variant-numeric: tabular-nums;
   line-height: 1.4;
-  color: var(--ink-soft);
+  color: var(--ink-mute);
+  letter-spacing: 0.02em;
 }
 
-.panel__intl[hidden] {
+.panel__head-meta[hidden] {
+  display: none;
+}
+
+/* Hidden on desktop where the topbar metric tile carries this; revealed on
+   mobile where the tile is hidden. */
+.panel__head-meta__league {
+  display: none;
+}
+
+/* Peek-up affordance for the mobile sheet — visual only, no JS drag yet. */
+.panel__handle {
   display: none;
 }
 
@@ -495,8 +605,8 @@ img.topbar__mark {
 .panel__presets {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
-  padding: 0 14px 10px;
+  gap: 6px;
+  padding: 2px 14px 12px;
   border-bottom: 1px solid var(--line);
 }
 
@@ -528,20 +638,62 @@ img.topbar__mark {
   border-color: var(--ink);
 }
 
-/* "None" sits at the right end of the chip row so it visually pairs with
-   "All" at the left. Same chrome as the other chips so it reads as a real
-   action, not a disabled placeholder. */
-.panel__preset--none {
-  margin-left: auto;
+/* Empty-state banner: appears below the preset chips when active.size === 0.
+   The chip row is right above it, so the banner doesn't repeat "pick a
+   preset" — it just labels the state and offers an undo when one is
+   available. Visible at both breakpoints so the mobile user, who never
+   sees the 10px gesture hint, still gets the recovery affordance. */
+.panel__empty {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  padding: 8px 14px 10px;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-ui);
+  font-size: var(--text-meta);
+  color: var(--ink-soft);
+}
+
+.panel__empty[hidden] {
+  display: none;
+}
+
+.panel__empty-text {
+  font-weight: 500;
+}
+
+.panel__empty-restore {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  transition: color 120ms ease;
+}
+
+.panel__empty-restore:hover {
+  color: var(--ink-soft);
+}
+
+.panel__empty-restore:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
 .panel__preset,
-.panel__sort-button {
+.panel__sort-button,
+.panel__head-clear {
   position: relative;
 }
 
 .panel__preset[data-tooltip]::after,
-.panel__sort-button[data-tooltip]::after {
+.panel__sort-button[data-tooltip]::after,
+.panel__head-clear[data-tooltip]::after {
   bottom: calc(100% + 6px);
   left: 50%;
   transform: translate(-50%, 2px);
@@ -550,7 +702,9 @@ img.topbar__mark {
 .panel__preset[data-tooltip]:hover::after,
 .panel__preset[data-tooltip]:focus-visible::after,
 .panel__sort-button[data-tooltip]:hover::after,
-.panel__sort-button[data-tooltip]:focus-visible::after {
+.panel__sort-button[data-tooltip]:focus-visible::after,
+.panel__head-clear[data-tooltip]:hover::after,
+.panel__head-clear[data-tooltip]:focus-visible::after {
   opacity: 1;
   transform: translate(-50%, 0);
 }
@@ -563,6 +717,10 @@ img.topbar__mark {
   flex: 1;
   scrollbar-width: thin;
   scrollbar-color: var(--ink-mute) transparent;
+  /* Panel dropped its overflow:hidden so chip tooltips can escape; team-list
+     keeps the card's rounded bottom corners by clipping itself instead. */
+  border-bottom-left-radius: var(--radius);
+  border-bottom-right-radius: var(--radius);
 }
 
 .team-list::-webkit-scrollbar {
@@ -576,18 +734,23 @@ img.topbar__mark {
 
 /* Division group header (e.g. "AFC East · 41,402 mi"). A different
    grammar from the panel's uppercase-tracked H2 so the panel doesn't
-   stack two kicker labels. Display font, normal case, generous tracking. */
+   stack two kicker labels. Display font, normal case, generous tracking.
+   The top margin (instead of padding) puts the divider line inside the
+   breath between divisions, not flush at the line of the prior row — the
+   eye reads 8 distinct clusters with rest between them. */
 .team-group__head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 10px;
-  padding: 14px 14px 4px;
+  padding: 8px 14px 4px;
+  margin-top: 22px;
   border-top: 1px solid var(--line);
 }
 
 .team-group__head:first-child {
   border-top: 0;
+  margin-top: 0;
   padding-top: 8px;
 }
 
@@ -750,17 +913,29 @@ img.topbar__mark {
   pointer-events: none;
 }
 
-.legend {
+/* Bottom corner clusters: the legend teaches the globe's home/away dot
+   grammar (bottom-right); the attribution pairs the byline with the
+   support link (bottom-left). They share posture and micro typography,
+   then diverge on corner + gap. */
+:where(.legend, .attribution) {
   position: absolute;
   bottom: 18px;
-  right: 18px;
   display: flex;
   align-items: center;
-  gap: 8px;
   font-size: var(--text-micro);
   color: var(--ink-soft);
   text-shadow: 0 1px 2px var(--shadow);
   z-index: 3;
+}
+
+.legend {
+  right: 18px;
+  gap: 8px;
+}
+
+.attribution {
+  left: 18px;
+  gap: 6px;
 }
 
 .legend__dot {
@@ -778,18 +953,19 @@ img.topbar__mark {
   border: 1.5px solid var(--ink-soft);
 }
 
-.legend__text {
+:where(.legend__text, .attribution__text) {
   font-weight: 500;
 }
 
-/* Coffee link lives here so the topbar icon rail can stay data-only.
-   Inherits the legend's micro typography and ink-soft color; hover lifts
-   to full ink so it reads as enabled at all times (no opacity dimming). */
-.legend__link {
+.attribution__sep {
+  opacity: 0.6;
+}
+
+.attribution__byline,
+.attribution__link {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  margin-left: 4px;
   padding: 2px 0;
   color: inherit;
   text-decoration: none;
@@ -797,17 +973,20 @@ img.topbar__mark {
   transition: color 140ms ease;
 }
 
-.legend__link:hover,
-.legend__link:focus-visible {
+.attribution__byline:hover,
+.attribution__byline:focus-visible,
+.attribution__link:hover,
+.attribution__link:focus-visible {
   color: var(--ink);
 }
 
-.legend__link:focus-visible {
+.attribution__byline:focus-visible,
+.attribution__link:focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 3px;
 }
 
-.legend__link-icon {
+.attribution__link-icon {
   flex-shrink: 0;
 }
 
@@ -1071,17 +1250,36 @@ img.topbar__mark {
 
 /* ── Responsive ─────────────────────────────────────────────── */
 @media (max-width: 760px) {
+  /* Peek-up sheet posture — short band so the globe gets the room. */
   .panel {
     width: calc(100% - 36px);
     top: auto;
     bottom: 64px;
     left: 18px;
     right: 18px;
-    height: 38%;
+    height: 30%;
   }
-  /* Stack topbar to two rows on phones: brand on top, meta below.
-     Without this, .topbar__meta overflows past the viewport (~430px wide
-     against a 375px screen) and the icon cluster runs off-screen. */
+  .panel__handle {
+    display: block;
+    width: 36px;
+    height: 4px;
+    margin: 6px auto 2px;
+    background: var(--line-strong);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .panel__head {
+    padding: 6px 14px 14px;
+  }
+  /* League total only surfaces here on mobile (topbar tile hides). */
+  .panel__head-meta__league {
+    display: inline;
+  }
+  /* Topbar stacks into two rows on mobile so the brand cluster gets the
+     full viewport width — otherwise the H1 and sublabel wrap into 3–4
+     lines inside a ~114px-wide titles block when they share the row with
+     the icon rail. Metric tiles are hidden below, so row 2 is just the
+     icon rail (short and quiet). */
   .topbar {
     flex-direction: column;
     align-items: stretch;
@@ -1100,45 +1298,40 @@ img.topbar__mark {
   .topbar__titles h1 {
     font-size: 22px;
   }
-  /* Season switch is a power-user toggle, not load-bearing for first read.
-     Hide on phones so the title cluster fits cleanly. */
+  /* Hide the brand-side switch on phones (the brand cluster needs every
+     pixel of width for the H1 + sublabel without wrapping). The
+     .season-switch--mobile duplicate below carries the toggle on phones. */
   .topbar__brand .season-switch {
     display: none;
   }
+  /* Row 2 carries the mobile season switch on the left and the icon rail
+     on the right. `space-between` balances them across the row instead of
+     bunching everything at one edge. */
   .topbar__meta {
-    flex-direction: row;
     align-items: center;
-    flex-wrap: wrap;
-    justify-content: flex-start;
+    justify-content: space-between;
     gap: 8px;
   }
-  /* Compress the metric cards: row layout (label : value), smaller padding,
-     hide the supplementary game-count sub line so the pair fits on one row
-     alongside the icon cluster. */
-  .metric {
-    flex-direction: row;
-    align-items: baseline;
-    gap: 6px;
-    min-width: 0;
-    padding: 6px 10px;
+  /* Reveal the mobile-only season switch — sits at the left end of row 2,
+     paired across the row with the icon rail. */
+  .season-switch--mobile {
+    display: inline-flex;
   }
-  .metric__label {
-    font-size: 10px;
-  }
-  .metric__value {
-    margin-top: 0;
-  }
-  .metric__sub {
+  /* Metric tiles drop out of the topbar on mobile — the league total moves
+     into the panel kicker, the intl figure was already there. */
+  .topbar__meta .metric {
     display: none;
   }
   .hint,
-  .legend {
+  .legend,
+  .attribution {
     display: none;
   }
-  /* Topbar icons wrap onto a second row at phone widths, so the desktop
-     `right: 0` tooltip anchoring (which extends the bubble leftward from the
-     button) overflows the viewport when the button sits at the left edge of
-     that row. Re-anchor centered on the button and cap width to the viewport. */
+  /* Re-anchor topbar icon tooltips centered on the button (rather than the
+     desktop `right: 0` posture) and cap the width to the viewport. With four
+     icons in the rail and the share button's `is-feedback` state that has to
+     stay visible without hover, centering keeps every tooltip inside 375px
+     and lets the longer feedback copy ("Link copied!") wrap cleanly. */
   .topbar__meta .theme-toggle[data-tooltip]::after {
     left: 50%;
     right: auto;
@@ -1148,7 +1341,8 @@ img.topbar__mark {
     text-align: center;
   }
   .topbar__meta .theme-toggle[data-tooltip]:hover::after,
-  .topbar__meta .theme-toggle[data-tooltip]:focus-visible::after {
+  .topbar__meta .theme-toggle[data-tooltip]:focus-visible::after,
+  .topbar__meta .theme-toggle.is-feedback[data-tooltip]::after {
     transform: translate(-50%, 0);
   }
 }
@@ -1392,8 +1586,22 @@ img.topbar__mark {
   color: var(--ink);
 }
 
+.mileage__head-text {
+  min-width: 0;
+  flex: 1;
+}
+
+.mileage__subtitle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
 .mileage__subtitle {
-  margin: 4px 0 0;
+  margin: 0;
   font-size: var(--text-meta);
   font-weight: 400;
   color: var(--ink-mute);
@@ -1490,15 +1698,23 @@ img.topbar__mark {
   position: relative;
   height: 18px;
   padding-right: 22px;
+  container-type: inline-size;
 }
 
 .mileage-row__trail {
   position: absolute;
   left: 0;
   top: 50%;
+  width: 100cqi;
   height: 2px;
-  width: 0;
   transform: translateY(-50%);
+  filter: drop-shadow(0 0 2px color-mix(in srgb, var(--accent) 35%, transparent));
+}
+
+.mileage-row__trail-fill {
+  display: block;
+  width: 100%;
+  height: 100%;
   background: linear-gradient(
     to right,
     transparent 0%,
@@ -1507,12 +1723,14 @@ img.topbar__mark {
     var(--accent) 100%
   );
   border-radius: 999px;
-  filter: drop-shadow(0 0 2px color-mix(in srgb, var(--accent) 35%, transparent));
-  transition: width 780ms cubic-bezier(0.18, 0.7, 0.22, 1);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 780ms cubic-bezier(0.18, 0.7, 0.22, 1);
+  will-change: transform;
 }
 
-.mileage-row--drawn .mileage-row__trail {
-  width: calc(var(--pct) - 6px);
+.mileage-row--drawn .mileage-row__trail-fill {
+  transform: scaleX(var(--pct-scale, 0));
 }
 
 .mileage-row__plane {
@@ -1525,16 +1743,43 @@ img.topbar__mark {
   transform: translate(0, -50%) scale(0.6);
   opacity: 0;
   transition:
-    left 780ms cubic-bezier(0.18, 0.7, 0.22, 1),
     transform 780ms cubic-bezier(0.18, 0.7, 0.22, 1),
     opacity 240ms ease 120ms;
   filter: drop-shadow(0 1px 1px var(--shadow));
+  will-change: transform, opacity;
 }
 
 .mileage-row--drawn .mileage-row__plane {
-  left: calc(var(--pct) - 6px);
+  transform:
+    translate(calc(var(--pct-scale, 0) * 100cqi - 6px), -50%)
+    scale(1);
+  opacity: 1;
+}
+
+/* Stateside rows (international view, zero overseas miles): a small house
+   silhouette sits at the bar origin in place of the plane. No bar fill,
+   no along-bar transform — the icon just rests there as a visual aside. */
+.mileage-row--stateside .mileage-row__house {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--ink-mute);
+  transform: translate(0, -50%) scale(0.6);
+  opacity: 0;
+  transition:
+    transform 480ms cubic-bezier(0.18, 0.7, 0.22, 1),
+    opacity 240ms ease 120ms;
+}
+
+.mileage-row--stateside.mileage-row--drawn .mileage-row__house {
   transform: translate(0, -50%) scale(1);
   opacity: 1;
+}
+
+.mileage-row--stateside .mileage-row__value {
+  color: var(--ink-mute);
 }
 
 .mileage-row__value {
@@ -1568,8 +1813,23 @@ img.topbar__mark {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mileage-row__trail,
+  .mileage-row__trail-fill,
   .mileage-row__plane {
     transition: none;
   }
+}
+
+/* SR-only utility for the share-link aria-live region (and any future
+   off-screen status text). Standard recipe — pulls the node out of the
+   visual layout while keeping it discoverable by assistive tech. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
 }

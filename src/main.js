@@ -65,17 +65,6 @@ const urlTeams = parseTeamsParam(urlParams.get("teams"));
 const urlSeason = parseSeasonParam(urlParams.get("season"));
 const urlView = parseViewParam(urlParams.get("view"));
 
-const DEFAULT_HINT =
-  "Drag to rotate · scroll to zoom · hover a stadium · click a team to toggle · shift-click to isolate";
-const EMPTY_HINT = "No teams selected. Pick All, AFC, or a division to bring arcs back.";
-
-// Empty selection produces a blank globe; swap copy so the user knows why.
-function updateHintForSelection(active) {
-  const hint = document.getElementById("hint");
-  if (!hint) return;
-  hint.textContent = active.size === 0 ? EMPTY_HINT : DEFAULT_HINT;
-}
-
 // Serializers. Each writes its slice into a shared mutable URLSearchParams
 // pulled fresh from window.location at call time, so they compose without
 // stomping each other when filter + season + camera change in the same tick.
@@ -115,6 +104,43 @@ function persistUrlState() {
     controls,
     isDefault: currentPanel.isDefault(),
   });
+}
+
+// Camera writes are debounced 220ms so a rotate gesture flushes once when it
+// settles, not 60×/s mid-drag. The share button needs to bypass the debounce
+// so the clipboard URL reflects the user's actual current view.
+let cameraWriteTimer = 0;
+function flushUrlStateImmediate() {
+  window.clearTimeout(cameraWriteTimer);
+  persistUrlState();
+}
+
+// Share-link feedback: swap the button's data-tooltip + icon + aria-live text
+// for 1.2s after a click, then revert. The timer is module-scoped so rapid
+// re-clicks reset the window rather than stranding the button mid-feedback.
+// The idle tooltip text mirrors index.html so the first-paint label and the
+// post-feedback revert read the same.
+const SHARE_TEXT = {
+  idle: { tooltip: "Copy link to this view", status: "" },
+  success: {
+    tooltip: "Copied · captures filter + camera",
+    status: "Share link copied",
+  },
+  error: { tooltip: "Couldn't copy", status: "Couldn't copy link" },
+};
+let shareFeedbackTimer = 0;
+function showShareFeedback(button, ok) {
+  window.clearTimeout(shareFeedbackTimer);
+  const liveRegion = document.getElementById("share-status");
+  const state = ok ? SHARE_TEXT.success : SHARE_TEXT.error;
+  button.dataset.tooltip = state.tooltip;
+  liveRegion.textContent = state.status;
+  button.classList.add("is-feedback");
+  shareFeedbackTimer = window.setTimeout(() => {
+    button.classList.remove("is-feedback");
+    button.dataset.tooltip = SHARE_TEXT.idle.tooltip;
+    liveRegion.textContent = SHARE_TEXT.idle.status;
+  }, 1200);
 }
 
 // Theme is resolved before paint by the inline script in index.html; we just
@@ -323,7 +349,6 @@ async function start() {
         applyTeamFilter(currentFlightPaths, active);
         updateHover();
         persistUrlState();
-        updateHintForSelection(active);
       },
     });
 
@@ -341,8 +366,7 @@ async function start() {
     }
 
     updateHeaderMetrics({ summary, intl });
-    mileageModal.setSummary(summary, `${meta.label} · regular-season totals`);
-    updateHintForSelection(currentPanel.active);
+    mileageModal.setSummary(summary, meta.label, intl);
   }
 
   // Sync season-switch button data-active to whatever URL state resolved to,
@@ -355,12 +379,15 @@ async function start() {
   loadSeason(currentSeason);
 
   // ── Season switch wiring ───────────────────────────────────
+  // Match by data-season, not element identity — multiple .season-switch
+  // instances are kept in sync.
   for (const btn of document.querySelectorAll(".season-switch__button")) {
     btn.addEventListener("click", () => {
       const target = btn.dataset.season;
       if (target === currentSeason) return;
       for (const other of document.querySelectorAll(".season-switch__button")) {
-        other.dataset.active = other === btn ? "true" : "false";
+        other.dataset.active =
+          other.dataset.season === target ? "true" : "false";
       }
       loadSeason(target);
       persistUrlState();
@@ -370,8 +397,8 @@ async function start() {
   // ── Camera → URL (debounced) ───────────────────────────────
   // OrbitControls fires 'change' on every damped frame (~60Hz). Debounce so a
   // single rotate/zoom gesture writes once when motion settles, not 60 times
-  // per second mid-drag.
-  let cameraWriteTimer = 0;
+  // per second mid-drag. cameraWriteTimer is module-scoped so the share button
+  // can flush it synchronously before reading location.href.
   controls.addEventListener("change", () => {
     window.clearTimeout(cameraWriteTimer);
     cameraWriteTimer = window.setTimeout(persistUrlState, 220);
@@ -382,6 +409,24 @@ async function start() {
     const next = currentThemeName === "light" ? "dark" : "light";
     setTheme(next);
   });
+
+  // ── Share-link wiring ──────────────────────────────────────
+  // Flush the pending camera write so the clipboard URL matches what the user
+  // sees, then copy and surface a 1.2s tooltip-as-toast via showShareFeedback.
+  document
+    .getElementById("share-link-toggle")
+    .addEventListener("click", async (event) => {
+      const button = event.currentTarget;
+      flushUrlStateImmediate();
+      let succeeded = false;
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        succeeded = true;
+      } catch {
+        succeeded = false;
+      }
+      showShareFeedback(button, succeeded);
+    });
 
   wireMethodologyModal();
 

@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#e8e7e3" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0f0d0a" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#081420" media="(prefers-color-scheme: dark)" />
     <script>
       // Resolve theme before paint to avoid a flash.
       (function () {
@@ -76,6 +76,35 @@
           </div>
         </div>
         <div class="topbar__meta">
+          <!-- Mobile-only duplicate of the season switch. The desktop instance
+               lives in the brand cluster paired with the "2026 Season · …"
+               sublabel; this instance surfaces the toggle on phones where
+               that brand-side switch is hidden by media query. Both share the
+               same JS wiring (querySelectorAll on .season-switch__button). -->
+          <div
+            class="season-switch season-switch--mobile"
+            role="tablist"
+            aria-label="Season"
+          >
+            <button
+              type="button"
+              class="season-switch__button"
+              data-season="2026"
+              data-active="true"
+              role="tab"
+            >
+              2026
+            </button>
+            <button
+              type="button"
+              class="season-switch__button"
+              data-season="2025"
+              data-active="false"
+              role="tab"
+            >
+              2025
+            </button>
+          </div>
           <span class="metric">
             <span class="metric__label">League total miles</span>
             <span class="metric__value" id="league-miles">—</span>
@@ -136,6 +165,43 @@
             </button>
             <button
               type="button"
+              id="share-link-toggle"
+              class="theme-toggle"
+              aria-label="Copy a link to this view"
+              data-tooltip="Copy link to this view"
+            >
+              <svg
+                class="share-toggle__icon share-toggle__icon--link"
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.4 1.4" />
+                <path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.4-1.4" />
+              </svg>
+              <svg
+                class="share-toggle__icon share-toggle__icon--check"
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <polyline points="4 12 10 18 20 6" />
+              </svg>
+            </button>
+            <button
+              type="button"
               id="theme-toggle"
               class="theme-toggle"
               aria-label="Toggle dark mode"
@@ -176,32 +242,44 @@
       </header>
 
       <aside class="panel" id="team-panel">
+        <div class="panel__handle" aria-hidden="true"></div>
         <div class="panel__head">
-          <h2>Teams</h2>
-          <div class="panel__sort" role="group" aria-label="Sort teams">
+          <div class="panel__head-row">
+            <h2>Teams</h2>
             <button
               type="button"
-              class="panel__sort-button"
-              data-sort="division"
-              data-active="true"
-              data-tooltip="Group by AFC / NFC division"
+              class="panel__head-clear"
+              data-preset="none"
+              aria-label="Clear team selection"
+              data-tooltip="Reset filters"
             >
-              By division
+              Clear
             </button>
-            <button
-              type="button"
-              class="panel__sort-button"
-              data-sort="mileage"
-              data-active="false"
-              data-tooltip="Longest travel first"
-            >
-              By miles
-            </button>
+            <div class="panel__sort" role="group" aria-label="Sort teams">
+              <button
+                type="button"
+                class="panel__sort-button"
+                data-sort="division"
+                data-active="true"
+                data-tooltip="Group by AFC / NFC division"
+              >
+                By division
+              </button>
+              <button
+                type="button"
+                class="panel__sort-button"
+                data-sort="mileage"
+                data-active="false"
+                data-tooltip="Longest travel first"
+              >
+                By miles
+              </button>
+            </div>
           </div>
+          <p class="panel__head-meta" id="panel-intl">
+            <!-- populated by buildTeamPanel: "8 abroad · 32,140 mi" (mobile prepends league total) -->
+          </p>
         </div>
-        <p class="panel__intl" id="panel-intl">
-          <!-- populated by buildTeamPanel: "8 teams travel internationally · 32,140 mi total" -->
-        </p>
         <div class="panel__presets" role="group" aria-label="Filter teams">
           <button
             type="button"
@@ -241,13 +319,16 @@
           >
             International
           </button>
+        </div>
+        <div class="panel__empty" id="panel-empty" role="status" hidden>
+          <span class="panel__empty-text">No teams selected.</span>
           <button
             type="button"
-            class="panel__preset panel__preset--none"
-            data-preset="none"
-            aria-label="Show no teams"
+            class="panel__empty-restore"
+            id="panel-empty-restore"
+            hidden
           >
-            None
+            Restore last selection
           </button>
         </div>
         <ol class="team-list" id="team-list"></ol>
@@ -262,15 +343,29 @@
         <span class="legend__text">Home stadium</span>
         <span class="legend__dot legend__dot--away"></span>
         <span class="legend__text">Away venue</span>
+      </div>
+
+      <div class="attribution" id="attribution">
+        <span class="attribution__text">
+          Built by
+          <a
+            href="https://github.com/CypherPoet"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="attribution__byline"
+            aria-label="@cypherpoet on GitHub (opens in a new tab)"
+          >@cypherpoet</a>
+        </span>
+        <span class="attribution__sep" aria-hidden="true">·</span>
         <a
           href="https://buymeacoffee.com/cypherpoet"
           target="_blank"
           rel="noopener noreferrer"
-          class="legend__link"
+          class="attribution__link"
           aria-label="Buy me a coffee (opens in a new tab)"
         >
           <svg
-            class="legend__link-icon"
+            class="attribution__link-icon"
             viewBox="0 0 24 24"
             width="12"
             height="12"
@@ -288,7 +383,7 @@
               d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"
             />
           </svg>
-          <span class="legend__text">Buy me a coffee</span>
+          <span class="attribution__text">Buy me a coffee</span>
         </a>
       </div>
 
@@ -309,11 +404,39 @@
         <div class="mileage__scrim" data-mileage-close></div>
         <article class="mileage__card">
           <header class="mileage__head">
-            <div>
+            <div class="mileage__head-text">
               <h2 id="mileage-title">Team travel miles</h2>
-              <p class="mileage__subtitle" id="mileage-subtitle">
-                Full-season distances by team
-              </p>
+              <div class="mileage__subtitle-row">
+                <p class="mileage__subtitle" id="mileage-subtitle">
+                  Full-season distances by team
+                </p>
+                <div
+                  class="mileage__view"
+                  role="tablist"
+                  aria-label="Mileage view"
+                >
+                  <button
+                    type="button"
+                    class="mileage__view-button"
+                    role="tab"
+                    data-mileage-view="regular"
+                    data-active="true"
+                    aria-selected="true"
+                  >
+                    Regular season
+                  </button>
+                  <button
+                    type="button"
+                    class="mileage__view-button"
+                    role="tab"
+                    data-mileage-view="international"
+                    data-active="false"
+                    aria-selected="false"
+                  >
+                    International
+                  </button>
+                </div>
+              </div>
             </div>
             <button
               type="button"
@@ -442,6 +565,14 @@ d = R·c</pre>
         </article>
       </div>
     </div>
+
+    <div
+      id="share-status"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+      class="visually-hidden"
+    ></div>
 
     <script type="module" src="/src/main.js"></script>
   </body>
