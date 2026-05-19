@@ -125,6 +125,8 @@ describe.skipIf(!toolsReady)("walkthrough.mp4 render contract", () => {
     expect(Number.parseFloat(a.duration)).toBeGreaterThanOrEqual(20.5);
   });
 
+  // ~11 ffmpeg seek+decode+crop subprocess calls — default 5s timeout is
+  // tight on CI runners where each spawn takes ~500ms.
   it("theme-flip transition crosses inside composition [9.40, 9.60]", () => {
     // Light/dark anchors — generous margins from the calibrated plateaus
     // (light ≈ 109, dark ≈ 54). If these fail, something has structurally
@@ -150,5 +152,5 @@ describe.skipIf(!toolsReady)("walkthrough.mp4 render contract", () => {
       .not.toBeNull();
     expect(crossing).toBeGreaterThanOrEqual(9.4);
     expect(crossing).toBeLessThanOrEqual(9.6);
-  });
+  }, 30000);
 });
