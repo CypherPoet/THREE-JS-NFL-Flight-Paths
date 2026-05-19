@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>NFL Flight Paths — Walkthrough</title>
+    <style>
+      @font-face {
+        font-family: "Big Shoulders Display";
+        font-style: normal;
+        font-weight: 600 800;
+        font-display: swap;
+        src: url("./fonts/big-shoulders-display/big-shoulders-display-latin.woff2")
+          format("woff2");
+      }
+      @font-face {
+        font-family: "Geist";
+        font-style: normal;
+        font-weight: 100 900;
+        font-display: swap;
+        src: url("./fonts/geist/geist-variable.woff2") format("woff2-variations");
+      }
+      @font-face {
+        font-family: "Departure Mono";
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url("./fonts/departure-mono/departure-mono.woff2") format("woff2");
+      }
+
+      /* Brand tokens — see design.md. Defined on the composition root so
+         sub-comp scoped styles can reference them via var(--*). */
+      #walkthrough {
+        --bg: #0f0d0a;
+        --bg-card: #1a1612;
+        --bg-deep: #050402;
+        --fg: #fff2c4;
+        --fg-muted: #e8e2d0;
+        --accent: #c89060;
+        --accent-muted: #5a3a14;
+        --card-vignette: radial-gradient(
+          ellipse 80% 60% at 50% 50%,
+          var(--bg-card) 0%,
+          var(--bg) 70%,
+          var(--bg-deep) 100%
+        );
+      }
+
+      html, body {
+        margin: 0;
+        padding: 0;
+        background: var(--bg, #0f0d0a);
+        overflow: hidden;
+      }
+
+      #walkthrough {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--bg);
+        font-family: "Geist", system-ui, sans-serif;
+        color: var(--fg-muted);
+      }
+
+      .scene {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+      #intro-host { z-index: 3; }
+      #footage-video {
+        z-index: 1;
+        background: var(--bg);
+        object-fit: cover;
+        display: block;
+      }
+      #outro-host { z-index: 4; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="walkthrough"
+      data-composition-id="walkthrough"
+      data-width="1920"
+      data-height="1080"
+      data-start="0"
+      data-duration="21"
+    >
+      <div
+        id="intro-host"
+        class="clip scene"
+        data-composition-id="intro"
+        data-composition-src="compositions/intro.html"
+        data-start="0"
+        data-duration="3.4"
+        data-track-index="1"
+      ></div>
+
+      <video
+        id="footage-video"
+        class="clip scene"
+        data-start="3"
+        data-duration="15.4"
+        data-media-start="0"
+        data-track-index="2"
+        src="footage.mp4"
+        muted
+        playsinline
+      ></video>
+
+      <div
+        id="outro-host"
+        class="clip scene"
+        data-composition-id="outro"
+        data-composition-src="compositions/outro.html"
+        data-start="18"
+        data-duration="3"
+        data-track-index="3"
+      ></div>
+
+      <audio
+        id="soundtrack-audio"
+        class="clip"
+        data-start="0"
+        data-duration="20.565"
+        data-media-start="0"
+        data-track-index="0"
+        data-volume="1"
+        src="assets/audio/soundtrack-01.mp3"
+      ></audio>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script>
+      const tl = gsap.timeline({ paused: true });
+
+      // tl.set on clip elements must run inside the timeline — they may not
+      // exist in the DOM until their data-start window.
+      tl.set("#intro-host", { opacity: 1 }, 0);
+      tl.set("#footage-video", { opacity: 0 }, 0);
+      tl.set("#outro-host", { opacity: 0 }, 0);
+
+      tl.to("#intro-host", { opacity: 0, duration: 0.4, ease: "power2.inOut" }, 2.8);
+      tl.to("#footage-video", { opacity: 1, duration: 0.4, ease: "power2.inOut" }, 2.8);
+
+      tl.to("#footage-video", { opacity: 0, duration: 0.4, ease: "power2.inOut" }, 17.8);
+      tl.to("#outro-host", { opacity: 1, duration: 0.4, ease: "power2.inOut" }, 17.8);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["walkthrough"] = tl;
+    </script>
+  </body>
+</html>

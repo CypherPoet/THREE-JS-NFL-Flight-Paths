@@ -8,10 +8,17 @@
     "build": "vite build",
     "preview": "vite preview",
     "deploy": "vite build && gh-pages -d dist",
+    "record:walkthrough": "node scripts/record-walkthrough.mjs",
     "test": "vitest",
     "test:run": "vitest run",
     "media:derive": "node scripts/derive-og-image.mjs",
-    "media:check": "vitest run tests/presentational-sync.test.mjs"
+    "media:check": "vitest run tests/presentational-sync.test.mjs",
+    "media:walkthrough": "npm run media:walkthrough:render && npm run media:walkthrough:verify && npm run media:walkthrough:frames",
+    "media:walkthrough:render": "cd hyperframes/walkthrough && npx hyperframes render --fps 60 --quality high --resolution 4k --output ../../media/walkthrough.mp4",
+    "media:walkthrough:verify": "vitest run tests/walkthrough-render.test.mjs",
+    "media:walkthrough:frames": "node scripts/sample-walkthrough-frames.mjs",
+    "media:walkthrough:capture": "npm run record:walkthrough",
+    "media:walkthrough:full": "npm run media:walkthrough:capture && npm run media:walkthrough"
   },
   "dependencies": {
     "three": "^0.184.0",
@@ -20,6 +27,7 @@
   "devDependencies": {
     "gh-pages": "^6.2.0",
     "happy-dom": "^20.9.0",
+    "playwright": "^1.49.0",
     "vite": "^8.0.12",
     "vitest": "^4.1.6"
   }
