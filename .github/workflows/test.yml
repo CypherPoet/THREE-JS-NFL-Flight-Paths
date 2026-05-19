@@ -25,6 +25,10 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+      # ffmpeg/ffprobe are used by tests/walkthrough-render.test.mjs to assert
+      # the rendered media/walkthrough.mp4 stays on-spec. setup-ffmpeg pins
+      # a known release whose -show_streams field names match the test expectations.
+      - uses: FedericoCarboni/setup-ffmpeg@v3
       - run: npm ci
       - run: npm run test:run
       - run: npm run build

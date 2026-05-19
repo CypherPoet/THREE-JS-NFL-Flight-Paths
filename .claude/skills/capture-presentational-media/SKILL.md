@@ -77,9 +77,37 @@ Direction in OrbitControls: dragging right rotates the camera *left* around the 
 - **Pre-paint theme scripts.** Some projects set `data-theme` from an inline script reading `localStorage`. If you need a specific theme, clear `localStorage` or set it explicitly before `goto`, then reload.
 - **First-load cost.** A cold scene with HDR/glb assets may need 5-8s to look right. Bump the post-`goto` sleep if early shots look unfinished.
 
-## Walkthrough video (optional, Playwright Node API)
+## This project's canonical walkthrough rebuild
 
-Skip if the project doesn't ship a video. When it does, use the Playwright Node API instead of `playwright-cli video-start` — the CLI's video is locked at 800×450 with a gray right-side pad. The Node API lets you set `recordVideo.size` and write smooth camera tweens.
+This project ships a CDP-screencast recorder (`scripts/record-walkthrough.mjs`) that outperforms the Playwright `recordVideo` API documented in the next section — ~75fps effective via headful + `--use-angle=metal` vs. Playwright's ~25fps cap. Prefer the recorder for any change to this project's walkthrough.
+
+Repeatable rebuild commands (see `package.json`):
+
+| Command | What it does | Where it runs |
+|---|---|---|
+| `npm run media:walkthrough` | render existing footage + verify + dump hero frames | Linux + macOS |
+| `npm run media:walkthrough:render` | just render (re-composites intro/footage/outro/soundtrack at 4K) | Linux + macOS |
+| `npm run media:walkthrough:verify` | run vitest against `media/walkthrough.mp4` | Linux + macOS (needs ffprobe + ffmpeg) |
+| `npm run media:walkthrough:frames` | dump hero frames to `os.tmpdir()` for human inspection | Linux + macOS (needs ffmpeg) |
+| `npm run media:walkthrough:capture` | re-record `footage.mp4` from the live app | **macOS only** (headful Chromium + Metal ANGLE) |
+| `npm run media:walkthrough:full` | capture then everything above | **macOS only** |
+
+The default `media:walkthrough` umbrella does NOT re-record footage — capture is slow and macOS-only, and most edits (composition timing, soundtrack swap, intro/outro tweaks) only need a re-render. Use `:full` only when the app UI itself changed.
+
+Verification (asserted by `tests/walkthrough-render.test.mjs`):
+- Total duration 21.0s ± 0.1s
+- File size in [10 MB, 60 MB]
+- Video stream is 3840×2160 @ 60fps
+- Audio stream is AAC stereo with duration ≥ 20.5s
+- Theme-flip transition crosses (light → dark) inside composition [9.40, 9.60] — the soundtrack's HIT lands at 9.5s
+
+Frame dumps land in `os.tmpdir()` (e.g. `/var/folders/.../T/walkthrough-9.50.png`); the script prints the paths.
+
+CI: `.github/workflows/test.yml` runs `npm run test:run` on `ubuntu-latest` with ffmpeg installed via `FedericoCarboni/setup-ffmpeg@v3`. The walkthrough verify is included automatically (vitest picks up `tests/**/*.test.mjs`). The render step itself doesn't run in CI — it would just regenerate the committed mp4. If you want CI to enforce render parity, commit the regenerated mp4 alongside your code change and the verify will gate it.
+
+## Walkthrough video (generic Playwright Node API approach)
+
+For projects that don't have a CDP-screencast recorder yet, use the Playwright Node API instead of `playwright-cli video-start` — the CLI's video is locked at 800×450 with a gray right-side pad. The Node API lets you set `recordVideo.size` and write smooth camera tweens.
 
 ### One-time setup
 

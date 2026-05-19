@@ -4,7 +4,7 @@ The final deliverable, `media/walkthrough.mp4`, is built in two stages:
 
 | Stage | Command | Produces | Reads |
 | ----- | ------- | -------- | ----- |
-| **Capture** | `npm run record:walkthrough` | `hyperframes/walkthrough/footage.mp4` (raw app footage) | the live Vite dev server + [storyboard](./STORYBOARD.md) |
+| **Capture** | `npm run media:walkthrough:capture` | `hyperframes/walkthrough/footage.mp4` (raw app footage) | the live Vite dev server + [storyboard](./STORYBOARD.md) |
 | **Render** | `npx hyperframes render …` | `media/walkthrough.mp4` (final 4K 60fps) | the HyperFrames composition + `footage.mp4` |
 
 Capture is project-specific — it drives the live app through a scripted beat sheet to record fresh footage of the actual UI. Render is the standard HyperFrames build step — it composites the intro card + footage + outro card into the final mp4 using the timeline in `index.html`.
@@ -13,29 +13,32 @@ Capture is project-specific — it drives the live app through a scripted beat s
 
 The honest answer for most edits is **just render**. Capture is slow (~30s for a 15s walkthrough, plus a headful Chromium window) and only needs to run when the footage itself is stale.
 
-| If you changed…                                       | Re-capture? | Re-render? |
-| ----------------------------------------------------- | ----------- | ---------- |
-| Intro or outro card (HTML, CSS, GSAP timing)          | no          | **yes**    |
-| Composition timing (`data-duration`, crossfades)      | no          | **yes**    |
-| Music wiring or soundtrack file                       | no          | **yes**    |
-| Render flags (`--fps`, `--quality`, `--resolution`)   | no          | **yes**    |
-| Beat sheet (`scripts/record-walkthrough.mjs`)         | **yes**     | **yes**    |
-| App UI in `src/` (colors, layout, theme tokens, …)    | **yes**     | **yes**    |
-| First time on a fresh checkout, no `footage.mp4` yet  | **yes**     | **yes**    |
+| If you changed…                                       | Re-capture? | Command |
+| ----------------------------------------------------- | ----------- | ------- |
+| Intro or outro card (HTML, CSS, GSAP timing)          | no          | `npm run media:walkthrough` |
+| Composition timing (`data-duration`, crossfades)      | no          | `npm run media:walkthrough` |
+| Music wiring or soundtrack file                       | no          | `npm run media:walkthrough` |
+| Render flags (`--fps`, `--quality`, `--resolution`)   | no          | `npm run media:walkthrough` |
+| Beat sheet (`scripts/record-walkthrough.mjs`)         | **yes**     | `npm run media:walkthrough:full` |
+| App UI in `src/` (colors, layout, theme tokens, …)    | **yes**     | `npm run media:walkthrough:full` |
+| First time on a fresh checkout, no `footage.mp4` yet  | **yes**     | `npm run media:walkthrough:full` |
 
-When in doubt: render alone is safe — if `footage.mp4` no longer matches the app, you'll see it in the rendered video and know to capture next.
+When in doubt: `npm run media:walkthrough` is safe — if `footage.mp4` no longer matches the app, you'll see it in the rendered video and know to re-capture with `:full`.
 
-## Render — `npx hyperframes render`
+## Render — `npm run media:walkthrough`
 
-Run from `hyperframes/walkthrough/`:
+The repeatable rebuild is `npm run media:walkthrough` (from the repo root). It renders, runs the verify suite, and dumps hero frames to `os.tmpdir()` for inspection. See `package.json` for the underlying chain — the canonical render command is:
 
 ```bash
-npx hyperframes render \
+# what media:walkthrough:render runs under the hood
+cd hyperframes/walkthrough && npx hyperframes render \
   --fps 60 \
   --quality high \
   --resolution 4k \
   --output ../../media/walkthrough.mp4
 ```
+
+Use `npm run media:walkthrough:render` to render-only (no verify, no frame dump), `npm run media:walkthrough:verify` to re-check the committed mp4, or `npm run media:walkthrough:full` to re-capture footage first (macOS only). The verify suite lives at [`tests/walkthrough-render.test.mjs`](../../tests/walkthrough-render.test.mjs) and is included in `npm run test:run` so CI catches drift on the committed mp4 every PR.
 
 Output specs:
 
@@ -64,7 +67,7 @@ What each flag does:
 
 1440p (2560×1440) is not available — it would require a fractional scale, which HyperFrames doesn't support. The next step from 1080p is 4K.
 
-## Capture — `npm run record:walkthrough`
+## Capture — `npm run media:walkthrough:capture`
 
 `scripts/record-walkthrough.mjs` drives the live Vite dev server through the [storyboard](./STORYBOARD.md) and captures frames directly off Chromium's compositor via the Chrome DevTools Protocol (`Page.startScreencast`). Playwright's `recordVideo` is not used — it throttles to ~25fps regardless of GPU acceleration.
 

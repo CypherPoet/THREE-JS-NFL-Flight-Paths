@@ -12,7 +12,13 @@
     "test": "vitest",
     "test:run": "vitest run",
     "media:derive": "node scripts/derive-og-image.mjs",
-    "media:check": "vitest run tests/presentational-sync.test.mjs"
+    "media:check": "vitest run tests/presentational-sync.test.mjs",
+    "media:walkthrough": "npm run media:walkthrough:render && npm run media:walkthrough:verify && npm run media:walkthrough:frames",
+    "media:walkthrough:render": "cd hyperframes/walkthrough && npx hyperframes render --fps 60 --quality high --resolution 4k --output ../../media/walkthrough.mp4",
+    "media:walkthrough:verify": "vitest run tests/walkthrough-render.test.mjs",
+    "media:walkthrough:frames": "node scripts/sample-walkthrough-frames.mjs",
+    "media:walkthrough:capture": "npm run record:walkthrough",
+    "media:walkthrough:full": "npm run media:walkthrough:capture && npm run media:walkthrough"
   },
   "dependencies": {
     "three": "^0.184.0",

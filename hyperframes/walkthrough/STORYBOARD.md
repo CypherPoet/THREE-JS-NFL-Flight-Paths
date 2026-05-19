@@ -4,7 +4,7 @@ The creative north star for `media/walkthrough.mp4` — what the viewer experien
 
 Shape follows the `website-to-hyperframes` skill's STORYBOARD convention: a Global Direction header + per-beat creative direction + production architecture footer.
 
-Recapture at any time: `npm run record:walkthrough` (writes to `hyperframes/walkthrough/footage.mp4`).
+Recapture at any time: `npm run media:walkthrough:capture` (writes to `hyperframes/walkthrough/footage.mp4`).
 
 ## Global Direction
 
@@ -147,5 +147,7 @@ To change a beat without rewriting the script:
 1. Open `scripts/record-walkthrough.mjs`.
 2. Find the beat sequence (~midway through `main()`, anchored by `waitUntil(footageSec)` calls).
 3. Each beat is a `waitUntil(t)` + the action(s) preceding it. Adjust the wait targets and the Playwright actions as needed; keep the total close to 15 500 ms — the composition's footage clip is `data-duration="15.4"`, so the script gives ~100ms of buffer.
-4. Re-run `npm run record:walkthrough`.
+4. Re-capture and re-render in one shot: `npm run media:walkthrough:full`. (`npm run media:walkthrough` alone skips the re-capture — use it when only the composition changed.)
 5. Update this doc to reflect the new timings.
+
+The `tests/walkthrough-render.test.mjs` suite (`npm run media:walkthrough:verify`) asserts that the theme-flip transition still lands inside composition [9.40, 9.60] and that audio/duration/resolution stay on spec. If beat 5 timing changes by more than ±0.10s the verify will fail — re-tune the thresholds there together with the recorder.
