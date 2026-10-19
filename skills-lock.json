@@ -11,7 +11,7 @@
       "source": "jezweb/claude-skills",
       "sourceType": "github",
       "skillPath": "plugins/design-assets/skills/favicon-gen/SKILL.md",
-      "computedHash": "6173ac6112e400e3701d677efd2b1b0fd1c83c79b83e82cfa96ab4c01a0afe50"
+      "computedHash": "c1c34ef7c8dcdde0527119f49953b5c55f32b5d5c1d3fefc9c74bdc3f88e0451"
     },
     "impeccable": {
       "source": "pbakaus/impeccable",
@@ -23,7 +23,7 @@
       "source": "microsoft/playwright-cli",
       "sourceType": "github",
       "skillPath": "skills/playwright-cli/SKILL.md",
-      "computedHash": "84495cfda62b6c012afc4cc34a0c35bfc7923ba35983b8c04ce4cace0f35a5d8"
+      "computedHash": "ffbd59a973d4e2c19c6ecc31254a14497069c362f1d1820b6a6cfbe62de34a73"
     },
     "project-badges": {
       "source": "CypherPoet/private-custom-agent-skills",
@@ -35,7 +35,7 @@
       "source": "antfu/skills",
       "sourceType": "github",
       "skillPath": "skills/vite/SKILL.md",
-      "computedHash": "867ff66238f3152e9c494339ad08dc432dd0df5bcf5cc7a00b61a72b580eb908"
+      "computedHash": "88ee465fd10f711efecc76e91e96accae2b229dda371614dcf219099c264a486"
     }
   }
 }
